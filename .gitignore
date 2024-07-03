@@ -144,6 +144,6 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-# ngrok
 
 ngrok.exe
+backup.json

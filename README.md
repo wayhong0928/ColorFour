@@ -1,29 +1,3 @@
-<<<<<<< HEAD
-# colorfour_fe
-
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
-=======
 # 你的專屬穿搭造型師 ColorFour！
 ### 功能
 1. 色彩分析（color_analyzer）
@@ -220,4 +194,3 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 > 
 1. 開啟Ngrok.exe
 2. `ngrok http --domain="url" 8000`
->>>>>>> upstream/main

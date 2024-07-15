@@ -13,4 +13,5 @@ urlpatterns = [
     # path('api/', include('shopping_advisor.urls')),
     # path('api/', include('outfit_scheduler.urls')),
     path('line/', include('line.urls')),
+    path('wardrobe/', include('wardrobe_manager.urls')),
 ]

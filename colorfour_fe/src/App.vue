@@ -1,85 +1,93 @@
 <template>
-  <div id="app">
-    <Header />
-    <main>
-      <router-view />
-    </main>
-    <Footer />
+  <button class="medium_button btn_p08_user_loginType" id="lineLoginBtn" @click="openLineLogin">
+    <img src="./assets/btn_login_base.png" alt="LINE Logo">
+  </button>
+  <div>
+    <!-- Toast 容器 -->
+    <b-toaster name="b-toaster-top-center"></b-toaster>
   </div>
 </template>
 
-<script>
-  import Header from "@/components/Header.vue";
-  import Footer from "@/components/Footer.vue";
+<script setup>
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { API_URL } from "@/config";
+import qs from 'qs';
+import { useToast } from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
 
-  export default {
-    name: "App",
-    components: {
-      Header,
-      Footer,
-    },
-  };
+// 為實際Channel ID 值
+const client_id = ref('2005742580');
+
+// 實際Line developer 設定的重新導向網址
+const redirect_uri = ref('https://upward-gorgeous-bedbug.ngrok-free.app/line/login');
+
+// 為實際Channel Secret 值
+const client_secret = ref('d6358d95aafd5cef3ca2f5bca5e4244a');
+
+// 使用 Vue Toastification
+const toast = useToast();
+
+// 使用者點擊登入按鈕觸發
+function openLineLogin() {
+  // 根據指定的 client_id、redirect_uri、scope 等參數組合出一個 LINE 登入的連結
+  let link = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${client_id.value}&redirect_uri=${redirect_uri.value}&state=login&scope=openid%20profile&bot_prompt=aggressive`;
+
+  // 將頁面重新導向到該連結
+  window.location.href = link;
+}
+
+// 顯示 toast 訊息的函數
+function showHomeToast() {
+  toast('登入成功', {
+    position: 'top-center',
+    timeout: 3000, // 3秒后自动消失
+    closeOnClick: true,
+    pauseOnFocusLoss: true,
+    pauseOnHover: true,
+    draggable: true,
+    draggablePercent: 0.6,
+    showCloseButtonOnHover: false,
+    hideProgressBar: false,
+    closeButton: 'button',
+    icon: true,
+    rtl: false
+  });
+}
+
+// 检查 URL 中的登录结果标记
+onMounted(() => {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const loginResult = urlParams.get('loginResult');
+
+  if (loginResult === 'success') {
+    showHomeToast();
+  } else if (loginResult === 'failure') {
+    toast.error('登入失敗，請重試', {
+      position: 'top-center',
+      timeout: 3000,
+      closeOnClick: true,
+      pauseOnFocusLoss: true,
+      pauseOnHover: true,
+      draggable: true,
+      draggablePercent: 0.6,
+      showCloseButtonOnHover: false,
+      hideProgressBar: false,
+      closeButton: 'button',
+      icon: true,
+      rtl: false
+    });
+  }
+});
 </script>
 
-<style>
-  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&display=swap");
-  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap");
-
-  :root {
-    --primary-bg-color: #ffffff;
-    --header-footer-bg-color: #e7d8c9;
-    --divider-color: #ccc;
-    --primary-text-color: #b2967d;
-    --button-bg-color: #e6b5ae;
-    --button-hover-bg-color: #d9a68c;
-  }
-
-  /* Reset and global styles */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Noto Sans TC", "Noto Sans", sans-serif;
-    font-weight: 500;
-  }
-
-  html,
-  body {
-    width: 100%;
-    min-height: 100%;
-  }
-
-  body {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--primary-bg-color);
-    padding-top: 70px; /* 確保不會被 header 蓋住 */
-    padding-bottom: 70px; /* 確保不會被 footer 蓋住 */
-  }
-
-  main {
-    width: 90%;
-    margin: 50px auto;
-    position: relative;
-    flex: 1;
-  }
-  
-  .btn-main {
-    background-color: var(--button-bg-color) !important;
-    border-color: var(--button-bg-color);
-    border-radius: 20px;
-    padding: 5px 10px;
-    text-decoration: none;
-    color: #fff;
-    display: inline-block;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s, border-color 0.3s;
-  }
-
-  .btn-main:hover {
-    background-color: var(--button-hover-bg-color); /* Change background color on hover */
-    border-color: var(--button-hover-bg-color);
-  }
+<style scoped>
+.medium_button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
 </style>

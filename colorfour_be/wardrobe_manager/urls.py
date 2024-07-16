@@ -8,8 +8,8 @@ from .views import WardrobeItemListCreate
 
 
 urlpatterns = [
-    path('add/', add_wardrobe_item, name="add_wardrobe_item"),  # add衣服
+	path('add/', add_wardrobe_item, name="add_wardrobe_item"),  # add衣服
 
-    # 測試API *
-    path('api/items/', WardrobeItemListCreate.as_view(), name='wardrobeitem-list-create'),  # 新增 API 路由
+	# 測試API *
+	path('api/items/', WardrobeItemListCreate.as_view(), name='wardrobeitem-list-create'),  # 新增 API 路由
 ]

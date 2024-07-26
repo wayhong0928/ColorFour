@@ -23,7 +23,7 @@
 
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;300;400;500;700;900&display=swap");
-  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap");
+  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800&display=swap");
 
   :root {
     --primary-bg-color: #ffffff;
@@ -34,7 +34,6 @@
     --button-hover-bg-color: #d9a68c;
   }
 
-  /* Reset and global styles */
   * {
     margin: 0;
     padding: 0;
@@ -53,8 +52,8 @@
     display: flex;
     flex-direction: column;
     background-color: var(--primary-bg-color);
-    padding-top: 70px; /* 確保不會被 header 蓋住 */
-    padding-bottom: 70px; /* 確保不會被 footer 蓋住 */
+    padding-top: 70px;
+    padding-bottom: 70px;
   }
 
   main {
@@ -63,7 +62,7 @@
     position: relative;
     flex: 1;
   }
-  
+
   .btn-main {
     background-color: var(--button-bg-color) !important;
     border-color: var(--button-bg-color);
@@ -79,7 +78,7 @@
   }
 
   .btn-main:hover {
-    background-color: var(--button-hover-bg-color); /* Change background color on hover */
+    background-color: var(--button-hover-bg-color);
     border-color: var(--button-hover-bg-color);
   }
 </style>

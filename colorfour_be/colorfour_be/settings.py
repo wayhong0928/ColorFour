@@ -37,6 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.line',
 
     'corsheaders',
     'rest_framework',
@@ -51,6 +57,25 @@ INSTALLED_APPS = [
     'outfit_scheduler',
     'line',
 ]
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+  'django.contrib.auth.backends.ModelBackend',
+  'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+SOCIALACCOUNT_PROVIDERS = {
+  'line': {
+    'APP': {
+      'client_id': '2005742580',
+      'secret': 'd6358d95aafd5cef3ca2f5bca5e4244a',
+    }
+  }
+}
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
@@ -67,6 +92,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'colorfour_be.urls'

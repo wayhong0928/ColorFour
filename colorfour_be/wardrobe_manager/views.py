@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from .models import WardrobeItem 
 from .forms import WardrobeItemForm
 
-<<<<<<< HEAD
 # 刪除資料的import
 from django.http import JsonResponse
 from django.views import View
@@ -11,12 +10,9 @@ from django.views import View
 import json
 
 # 測試API *
-=======
->>>>>>> dd2e4facd4714ea4e4e3610952d00c59f77493be
 from rest_framework import generics
 from .serializers import WardrobeItemSerializer
 
-<<<<<<< HEAD
 # 測試刪除用的 *之後必須刪除因為會有安全性的問題
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -39,21 +35,6 @@ def add_wardrobe_item(request):
         form = WardrobeItemForm()
     # 渲染模板並傳遞表單到模板上下文
     return render(request, 'wardrobe/add_wardrobe_item.html', {'form': form})
-=======
-def add_wardrobe_item(request):
-  if request.method == 'POST':
-    form = WardrobeItemForm(request.POST)
-    if form.is_valid():
-      # 如果表單有效，則保存數據到資料庫
-      form.save()
-      # 保存後重定向到新增頁面或其他頁面
-      return redirect('add_wardrobe_item')
-  else:
-    # 如果請求方法不是POST，則創建一個空表單
-    form = WardrobeItemForm()
-  # 渲染模板並傳遞表單到模板上下文
-  return render(request, 'wardrobe/add_wardrobe_item.html', {'form': form})
->>>>>>> dd2e4facd4714ea4e4e3610952d00c59f77493be
 
 
 # 刪除衣服

@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import Login from "@/views/Login.vue";
-import Error404 from "@/views/Error404.vue";
+import Error404 from '@/views/Error404.vue';
+import color_index from "@/views/color_index.vue";
+import color_detail from "@/views/color_detail.vue";
 import closet_index from "../views/closet_index.vue";
 import closet_detail from "../views/closet_detail.vue";
 import Callback from '@/views/Callback.vue';
@@ -23,9 +25,19 @@ const routes = [
     component: Login,
   },
   {
-    path: "/:catchAll(.*)",
-    name: "Error404",
-    component: Error404,
+    path: '/:catchAll(.*)',
+    name: 'Error404',
+    component: Error404
+  },
+  {
+    path: "/color_index",
+    name: "color_index",
+    component: color_index,
+  },
+  {
+    path: "/color_detail",
+    name: "color_detail",
+    component: color_detail,
   },
   {
     path: "/closet_index",

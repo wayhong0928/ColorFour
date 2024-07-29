@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.line',
+    'allauth.socialaccount.providers.google',
 
     'corsheaders',
     'rest_framework',
@@ -74,8 +75,24 @@ SOCIALACCOUNT_PROVIDERS = {
       'client_id': '2005742580',
       'secret': 'd6358d95aafd5cef3ca2f5bca5e4244a',
     }
+  },
+  'google': {
+    'SCOPE': [
+      'profile',
+      'email',
+    ],
+    'AUTH_PARAMS': {
+      'access_type': 'online',
+    },
+    'OAUTH_PKCE_ENABLED': True,
+    'APP': {
+      'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+      'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+      'key': ''
+    }
   }
 }
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",

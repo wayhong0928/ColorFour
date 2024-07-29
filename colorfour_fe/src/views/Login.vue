@@ -2,12 +2,12 @@
   <div class="login-container">
     <h1 class="login-title">登入</h1>
     <button class="btn-main" @click="openLineLogin">
-      <img src="../assets/img/btn_login_base.png" alt="LINE Logo" />
+      <img src="../assets/img/line_44.png" alt="LINE Logo" />
       使用 LINE 登入
     </button>
     <!-- 尚未實作 Google 的第三方登入 -->
     <button class="btn-main google-button" @click="openGoogleLogin">
-      <!-- <img src="../assets/google_logo.png" alt="Google Logo" /> -->
+      <img src="../assets/img/web_light_rd_na@1x.png" alt="Google Logo" /> 
       使用 Google 登入
     </button>
   </div>
@@ -23,9 +23,9 @@
     setup() {
       const client_id = ref("2005742580");
       const redirect_uri = ref("https://upward-gorgeous-bedbug.ngrok-free.app/line/login");
-      const google_client_id = ref("YOUR_GOOGLE_CLIENT_ID");
-      const google_redirect_uri = ref("https://upward-gorgeous-bedbug.ngrok-free.app/google/login");
-      const toastOptions = {
+      const google_client_id = ref('1018921342851-tgpvio9and2gilvb9pmg4id2ji3l4ic1.apps.googleusercontent.com');
+      const google_redirect_uri = ref('https://upward-gorgeous-bedbug.ngrok-free.app/accounts/google/login/callback/');
+      const toastOptions = { // line登入後的吐司目前出不來
         position: "top-center",
         timeout: 3000,
         closeOnClick: true,
@@ -50,7 +50,7 @@
 
       // 使用者點擊 Google 登入按鈕觸發
       const openGoogleLogin = () => {
-        const link = `https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=${google_client_id.value}&redirect_uri=${google_redirect_uri.value}&scope=openid%20email%20profile&state=login`;
+        const link = `https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=${google_client_id.value}&redirect_uri=${google_redirect_uri.value}&scope=openid%20email%20profile&state=login`; //畫面是選擇google用戶，請求google授權
         window.location.href = link;
       };
 
@@ -65,7 +65,7 @@
 
         if (loginResult === "success") {
           showHomeToast();
-        } else if (loginResult === "failure") {
+        } else if (loginResult === "failure") { 
           showErrorToast();
         }
       };
@@ -97,8 +97,8 @@
   }
 
   .btn-main {
-    background-color: var(--button-bg-color) !important;
-    border-color: var(--button-bg-color);
+    background-color: #06C755 !important;
+    border-color: #06C755;
     border-radius: 20px;
     padding: 10px 20px;
     text-decoration: none;

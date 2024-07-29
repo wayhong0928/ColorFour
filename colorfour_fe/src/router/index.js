@@ -4,6 +4,7 @@ import Login from "@/views/Login.vue";
 import Error404 from "@/views/Error404.vue";
 import closet_index from "../views/closet_index.vue";
 import closet_detail from "../views/closet_detail.vue";
+import Callback from '@/views/Callback.vue';
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     name: "closet_detail",
     component: () => import("../views/closet_detail.vue"),
   },
+  {
+    path: "/callback",
+    name: "callback",
+    component: Callback
+  }
 ];
 
 const router = createRouter({

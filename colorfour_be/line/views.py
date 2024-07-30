@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect
 import json
@@ -109,19 +109,3 @@ def handleUserMessage(event, mtext):
 def line_callback(request):
 	# 處理回調邏輯
 	return HttpResponse('Callback handled')
-
-def line_login(request):
-  code = request.GET.get('code')
-  state = request.GET.get('state')
-  # 處理登錄邏輯，例如交換授權碼和獲取用戶資料
-  if code:
-    try:
-      # 交換授權碼獲取訪問令牌的邏輯
-      # user_info = some_function_to_get_user_info(code)
-
-      # 登錄成功後重定向到本地前端頁面，附加 loginResult 參數
-      return HttpResponseRedirect(f'https://wayhong0928.github.io/ColorFour-FrontEnd/index.html?loginResult=success')
-    except Exception as e:
-      # 登錄失敗的邏輯
-      return HttpResponseRedirect(f'http://localhost:8080?loginResult=failure')
-    return HttpResponse('No code or state provided')

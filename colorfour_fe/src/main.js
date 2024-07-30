@@ -3,13 +3,19 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import axios from "axios";
-import bootstrap from "bootstrap/dist/js/bootstrap.bundle.js";
-import "bootstrap/dist/css/bootstrap.css";
 import Toast from "vue-toastification";
+
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.bundle.js";
 import "vue-toastification/dist/index.css";
 
-axios.defaults.baseURL = "http://127.0.0.1:8000";
+axios.defaults.baseURL = process.env.VUE_APP_NGROK_URL;
 
-const options = {};
+axios.defaults.xsrfCookieName = 'csrftoken'
+axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 
-createApp(App).use(store).use(router).use(bootstrap).use(Toast, options).mount("#app");
+const toastOptions = {};
+
+const app = createApp(App);
+
+app.use(store).use(router).use(Toast, toastOptions).mount("#app");

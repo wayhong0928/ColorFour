@@ -146,3 +146,5 @@ pnpm-debug.log*
 
 ngrok.exe
 backup*.json
+credentials.json
+debug.log

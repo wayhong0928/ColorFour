@@ -21,14 +21,17 @@ ALLOWED_HOSTS = ['*']
 # Line Login 
 LINE_LOGIN_CHANNEL_ID = os.getenv('LINE_LOGIN_CHANNEL_ID')
 LINE_LOGIN_CHANNEL_SECRET = os.getenv('LINE_LOGIN_CHANNEL_SECRET')
-LINE_LOGIN_CALLBACK_URL = os.getenv('LINE_LOGIN_CALLBACK_URL')
 
 # Line Messaging API 
 LINE_MESSAGING_CHANNEL_ACCESS_TOKEN = os.getenv('LINE_MESSAGING_CHANNEL_ACCESS_TOKEN')
 LINE_MESSAGING_CHANNEL_SECRET = os.getenv('LINE_MESSAGING_CHANNEL_SECRET')
 
+# Google Login
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_LOGIN_CALLBACK_URL = os.getenv('GOOGLE_LOGIN_CALLBACK_URL')
 
-# Application definition
+FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -44,6 +47,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.line',
     'allauth.socialaccount.providers.google',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 
     'corsheaders',
     'rest_framework',
@@ -57,26 +62,58 @@ INSTALLED_APPS = [
     'social_platform',
     'outfit_scheduler',
     'line',
+    'authentication',
 ]
 
 SITE_ID = 1
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
 
 AUTHENTICATION_BACKENDS = (
   'django.contrib.auth.backends.ModelBackend',
   'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework.authentication.TokenAuthentication',
+    'rest_framework.authentication.SessionAuthentication',
+    'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
+  ],
+    'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.IsAuthenticated',
+  ],
+}
+
+DJOSER = {
+  'LOGIN_FIELD': 'email',
+  'SERIALIZERS': {},
+}
+
 
 SOCIALACCOUNT_PROVIDERS = {
   'line': {
     'APP': {
-      'client_id': '2005742580',
-      'secret': 'd6358d95aafd5cef3ca2f5bca5e4244a',
+      'client_id':LINE_LOGIN_CHANNEL_ID,
+      'secret': LINE_LOGIN_CHANNEL_SECRET
+    },
+    "SCOPE": {
+      'profile',
+      'openid',
+      'email',
     }
   },
   'google': {
+    'APP': {
+      'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+      'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+      'key': ''
+    },
     'SCOPE': [
       'profile',
       'email',
@@ -84,21 +121,11 @@ SOCIALACCOUNT_PROVIDERS = {
     'AUTH_PARAMS': {
       'access_type': 'online',
     },
-    'OAUTH_PKCE_ENABLED': True,
-    'APP': {
-      'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-      'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
-      'key': ''
-    }
+    'METHOD': 'oauth2',
+    'VERIFIED_EMAIL': True,
+    'CLIENT_CLASS': 'allauth.socialaccount.providers.oauth2.client.OAuth2Client',
   }
 }
-
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-    "http://localhost:80",
-    "https://better-informally-bobcat.ngrok-free.app"
-]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -193,3 +220,36 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+  'version': 1,
+  'disable_existing_loggers': False,
+  'formatters': {
+    'verbose': {
+      'format': '{levelname} {asctime} {module} {message}',
+      'style': '{',
+    },
+    'simple': {
+      'format': '{levelname} {message}',
+      'style': '{',
+    },
+  },
+  'handlers': {
+    'console': {
+      'level': 'DEBUG',
+      'class': 'logging.StreamHandler',
+      'formatter': 'verbose',
+    },
+  },
+  'loggers': {
+    'django': {
+      'handlers': ['console'],
+      'level': 'DEBUG',
+      'propagate': True,
+    },
+    '': {
+      'handlers': ['console'],
+      'level': 'DEBUG',
+    },
+  },
+}

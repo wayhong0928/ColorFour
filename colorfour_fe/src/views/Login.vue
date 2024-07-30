@@ -1,81 +1,62 @@
 <template>
-  <div class="login-container">
-    <h1 class="login-title">登入</h1>
-    <button class="btn-main" @click="openLineLogin">
+  <div>
+    <button v-if="!isAuthenticated" class="btn-main google-button" @click="loginWithGoogle">
+      <img src="../assets/img/web_light_rd_na@1x.png" alt="Google Logo" />
+      使用 Google 登入
+    </button>
+    <button v-if="!isAuthenticated" class="btn-main line-button" @click="loginWithLine">
       <img src="../assets/img/line_44.png" alt="LINE Logo" />
       使用 LINE 登入
     </button>
-    <!-- 尚未實作 Google 的第三方登入 -->
-    <button class="btn-main google-button" @click="openGoogleLogin">
-      <img src="../assets/img/web_light_rd_na@1x.png" alt="Google Logo" /> 
-      使用 Google 登入
-    </button>
+    <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
   </div>
 </template>
 
 <script>
-  import { ref, onMounted } from "vue";
-  import { useToast } from "vue-toastification";
-  import "vue-toastification/dist/index.css";
+  import axios from "axios";
 
   export default {
-    name: "Login",
-    setup() {
-      const client_id = ref("2005742580");
-      const redirect_uri = ref("https://upward-gorgeous-bedbug.ngrok-free.app/line/login");
-      const google_client_id = ref('1018921342851-tgpvio9and2gilvb9pmg4id2ji3l4ic1.apps.googleusercontent.com');
-      const google_redirect_uri = ref('https://upward-gorgeous-bedbug.ngrok-free.app/accounts/google/login/callback/');
-      const toastOptions = { // line登入後的吐司目前出不來
-        position: "top-center",
-        timeout: 3000,
-        closeOnClick: true,
-        pauseOnFocusLoss: true,
-        pauseOnHover: true,
-        draggable: true,
-        draggablePercent: 0.6,
-        showCloseButtonOnHover: false,
-        hideProgressBar: false,
-        closeButton: "button",
-        icon: true,
-        rtl: false,
-      };
-
-      const toast = useToast();
-
-      // 使用者點擊 LINE 登入按鈕觸發
-      const openLineLogin = () => {
-        const link = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${client_id.value}&redirect_uri=${redirect_uri.value}&state=login&scope=openid%20profile&bot_prompt=aggressive`;
-        window.location.href = link;
-      };
-
-      // 使用者點擊 Google 登入按鈕觸發
-      const openGoogleLogin = () => {
-        const link = `https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=${google_client_id.value}&redirect_uri=${google_redirect_uri.value}&scope=openid%20email%20profile&state=login`; //畫面是選擇google用戶，請求google授權
-        window.location.href = link;
-      };
-
-      const showHomeToast = () => toast("登入成功", toastOptions);
-
-      const showErrorToast = () => toast.error("登入失敗，請重試", toastOptions);
-
-      // 檢查 URL 中的登入結果標記
-      const checkLoginResult = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const loginResult = urlParams.get("loginResult");
-
-        if (loginResult === "success") {
-          showHomeToast();
-        } else if (loginResult === "failure") { 
-          showErrorToast();
-        }
-      };
-
-      onMounted(checkLoginResult);
-
+    data() {
       return {
-        openLineLogin,
-        openGoogleLogin,
+        errorMessage: "",
+        state: Math.random().toString(36).substring(7),
       };
+    },
+    methods: {
+      async handleLoginResponse(provider, code) {
+        try {
+          const response = await axios.post(`/auth/${provider}/callback/`, { code, state: this.state });
+          if (response.data.success) {
+            localStorage.setItem("authToken", response.data.access_token);
+            this.$store.commit("setAuth", true);
+            this.$store.commit("setUser", response.data.user);
+            this.$router.push("/");
+            alert("登入成功！");
+          } else {
+            this.errorMessage = "登入失敗，請重試。";
+          }
+        } catch (error) {
+          this.errorMessage = "登入失敗，請重試。";
+        }
+      },
+      loginWithGoogle() {
+        const clientId = process.env.VUE_APP_GOOGLE_CLIENT_ID;
+        const redirectUri = encodeURIComponent(process.env.VUE_APP_GOOGLE_LOGIN_CALLBACK);
+        const scope = encodeURIComponent("email profile");
+        const responseType = "code";
+        const state = Math.random().toString(36).substring(7); // Generate random state
+        sessionStorage.setItem("oauth_state", state); // Save state in session storage
+        window.location.href = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&state=${state}`;
+      },
+      loginWithLine() {
+        const clientId = process.env.VUE_APP_LINE_LOGIN_CHANNEL_ID;
+        const redirectUri = encodeURIComponent(process.env.VUE_APP_LINE_LOGIN_CALLBACK);
+        const scope = encodeURIComponent("openid profile email");
+        const responseType = "code";
+        const state = Math.random().toString(36).substring(7); // Generate random state
+        sessionStorage.setItem("oauth_state", state); // Save state in session storage
+        window.location.href = `https://access.line.me/oauth2/v2.1/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+      },
     },
   };
 </script>
@@ -86,7 +67,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    max-height: 100vh;
     background-color: var(--primary-bg-color);
   }
 
@@ -97,8 +78,8 @@
   }
 
   .btn-main {
-    background-color: #06C755 !important;
-    border-color: #06C755;
+    background-color: #06c755 !important;
+    border-color: #06c755;
     border-radius: 20px;
     padding: 10px 20px;
     text-decoration: none;

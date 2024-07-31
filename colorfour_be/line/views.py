@@ -12,7 +12,7 @@ from linebot.models import MessageEvent, TextSendMessage, TextMessage, ImageSend
 from linebot.models import DatetimePickerTemplateAction, QuickReply, QuickReplyButton, MessageAction, URIAction,PostbackAction
 from linebot.models import TemplateSendMessage, ButtonsTemplate, PostbackEvent, ImageMessage, ConfirmTemplate, FlexSendMessage
 from linebot.models import PostbackTemplateAction, BubbleContainer, BoxComponent, TextComponent, ButtonComponent, ImageComponent
-from line import insert_schedule, purchase, social, search_schedule
+from line import insert_schedule, purchase, social, search_schedule, weatherApi
 
 from urllib.parse import parse_qsl
 

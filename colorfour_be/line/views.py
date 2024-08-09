@@ -36,6 +36,7 @@ def callback(request):
 			if isinstance(event, MessageEvent):
 				if isinstance(event.message, TextMessage):
 					mtext = event.message.text
+					weatherApi.handle_user_message(event, mtext) #縣市or景點的天氣判斷
 					if mtext == '穿搭日程':
 						conversation_state['step'] = 'start_time'
 						search_schedule.search_Date(event)                    

@@ -10,6 +10,7 @@ class WardrobeItem(models.Model):
   purchase_date = models.DateField()
   photo_url = models.CharField(max_length=255)
   created_at = models.DateTimeField(auto_now_add=True)
+  garbage_can = models.BooleanField(default=False) #垃圾桶 預設是false true就是丟到垃圾桶
 
   def __str__(self):
     return self.item_name

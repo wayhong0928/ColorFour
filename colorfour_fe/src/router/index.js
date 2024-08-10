@@ -1,12 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import Login from "@/views/Login.vue";
-import Error404 from '@/views/Error404.vue';
+import Error404 from "@/views/Error404.vue";
 import color_index from "@/views/color_index.vue";
 import color_detail from "@/views/color_detail.vue";
-import closet_index from "../views/closet_index.vue";
-import closet_detail from "../views/closet_detail.vue";
-import Callback from '@/views/Callback.vue';
+import closet_index from "@/views/closet_index.vue";
+import closet_detail from "@/views/closet_detail.vue";
+import closet_new from "@/views/closet_new.vue";
+import closet_trash from "@/views/closet_trash.vue";
+import Callback from "@/views/Callback.vue";
 
 const routes = [
   {
@@ -25,9 +27,9 @@ const routes = [
     component: Login,
   },
   {
-    path: '/:catchAll(.*)',
-    name: 'Error404',
-    component: Error404
+    path: "/:catchAll(.*)",
+    name: "Error404",
+    component: Error404,
   },
   {
     path: "/color_index",
@@ -42,18 +44,28 @@ const routes = [
   {
     path: "/closet_index",
     name: "closet_index",
-    component: () => import("../views/closet_index.vue"),
+    component: closet_index,
   },
   {
-    path: "/closet_detail/:id",
+    path: "/closet_index/closet_detail/:id",
     name: "closet_detail",
-    component: () => import("../views/closet_detail.vue"),
+    component: closet_detail,
+  },
+  {
+    path: "/closet_index/closet_new",
+    name: "closet_new",
+    component: closet_new,
+  },
+  {
+    path: "/closet_index/closet_trash",
+    name: "closet_trash",
+    component: closet_trash,
   },
   {
     path: "/callback",
     name: "callback",
-    component: Callback
-  }
+    component: Callback,
+  },
 ];
 
 const router = createRouter({

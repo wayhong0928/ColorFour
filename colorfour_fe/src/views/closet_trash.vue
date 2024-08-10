@@ -1,6 +1,5 @@
 <template>
   <div>
-    <header id="header"></header>
     <main class="container">
       <div class="row">
         <aside class="col-lg-3 mb-4">
@@ -64,8 +63,6 @@
         </div>
       </div>
     </main>
-    <div class="zone"></div>
-    <footer id="footer"></footer>
   </div>
 </template>
 

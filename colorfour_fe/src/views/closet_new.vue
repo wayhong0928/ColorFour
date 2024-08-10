@@ -1,6 +1,6 @@
 <template>
   <div>
-   <header id="header"></header>
+    <header id="header"></header>
     <div class="container mt-5">
       <h1>新增單品</h1>
       <form @submit.prevent="handleSubmit">
@@ -39,80 +39,79 @@
       </form>
     </div>
 
-     <div class="zone"></div>
-       <footer id="footer"></footer>
+    <div class="zone"></div>
+    <footer id="footer"></footer>
   </div>
 </template>
 
 <script>
-
-export default {
-  name: "closet_new",
-  data() {
-    return {
-      item: {
-        name: '',
-        brand: '',
-        price: '',
-        category: 'top',
-        tags: '',
-        image: null
-      }
-    };
-  },
-  methods: {
-    handleSubmit() {
-      const item = {
-        ...this.item,
-        tags: this.item.tags.split(',').map(tag => tag.trim()),
-        addedDate: new Date().toLocaleDateString()
+  export default {
+    name: "closet_new",
+    data() {
+      return {
+        item: {
+          name: "",
+          brand: "",
+          price: "",
+          category: "top",
+          tags: "",
+          image: null,
+        },
       };
-      
-      console.log(item);
-      alert('商品已新增！');
-      this.$router.push({ path: '/closet_index' }); // 使用 Vue Router 進行頁面跳轉
     },
-    handleImageUpload(event) {
-      this.item.image = event.target.files[0];
-    },
-    openCamera() {
-      const cameraInput = document.createElement('input');
-      cameraInput.type = 'file';
-      cameraInput.accept = 'image/*';
-      cameraInput.capture = 'camera';
-      cameraInput.click();
+    methods: {
+      handleSubmit() {
+        const item = {
+          ...this.item,
+          tags: this.item.tags.split(",").map((tag) => tag.trim()),
+          addedDate: new Date().toLocaleDateString(),
+        };
 
-      cameraInput.onchange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-          this.item.image = file;
-          alert('照片已拍攝並選擇');
-        }
-      };
-    }
-  }
-};
+        console.log(item);
+        alert("商品已新增！");
+        this.$router.push({ path: "/closet_index" }); // 使用 Vue Router 進行頁面跳轉
+      },
+      handleImageUpload(event) {
+        this.item.image = event.target.files[0];
+      },
+      openCamera() {
+        const cameraInput = document.createElement("input");
+        cameraInput.type = "file";
+        cameraInput.accept = "image/*";
+        cameraInput.capture = "camera";
+        cameraInput.click();
+
+        cameraInput.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            this.item.image = file;
+            alert("照片已拍攝並選擇");
+          }
+        };
+      },
+    },
+  };
 </script>
 
 <style scoped>
-/* 防止 header 和 footer 遮擋 body 內容 */
-body {
-  padding-top: 70px; /* 根據 header 的高度調整 */
-  margin-bottom: 100px; /* 為 footer 留出空間 */
-}
+  /* 防止 header 和 footer 遮擋 body 內容 */
+  body {
+    padding-top: 70px; /* 根據 header 的高度調整 */
+    margin-bottom: 100px; /* 為 footer 留出空間 */
+  }
 
-/* 增加標題與表單之間的間距 */
-h1 {
-  margin-bottom: 30px;
-}
+  /* 增加標題與表單之間的間距 */
+  h1 {
+    margin-bottom: 30px;
+  }
 
-/* 確保 footer 固定在頁面底部 */
-footer-component {
-  position: fixed;
-  width: 100%;
-  bottom: 0;
-  background-color: #f8f9fa;
-  padding: 10px 0;
-  text-align: center;
-}
+  /* 確保 footer 固定在頁面底部 */
+  footer-component {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    background-color: #f8f9fa;
+    padding: 10px 0;
+    text-align: center;
+  }
 </style>

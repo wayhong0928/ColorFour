@@ -6,8 +6,7 @@ import Callback from '@/views/Callback.vue';
 
 // Color 
 import color_index from "@/views/color_index.vue";
-import color_detail from "@/views/color_detail.vue";
-import color_detail from "@/views/color_detail_1.vue";
+import color_detail_1 from "@/views/color_detail_1.vue";
 import color_detail_2 from "@/views/color_detail_2.vue";
 import color_detail_3 from "@/views/color_detail_3.vue";
 import color_detail_4 from "@/views/color_detail_4.vue";
@@ -47,8 +46,8 @@ const routes = [
   },
   {
     path: "/color_detail_1",
-    name: "color_detail",
-    component: color_detail,
+    name: "color_detail_1",
+    component: color_detail_1,
   },
   {
     path: "/color_detail_2",
@@ -76,17 +75,18 @@ const routes = [
     component: closet_index,
   },
   {
-    path: "/closet_index/closet_detail/:id",
+    path: "/closet_detail/:id",
     name: "closet_detail",
     component: closet_detail,
+    props: true,
   },
   {
-    path: "/closet_index/closet_new",
+    path: "/closet_new",
     name: "closet_new",
     component: closet_new,
   },
   {
-    path: "/closet_index/closet_trash",
+    path: "/closet_trash",
     name: "closet_trash",
     component: closet_trash,
   },

@@ -3,7 +3,11 @@ import HomeView from "../views/HomeView.vue";
 import Login from "@/views/Login.vue";
 import Error404 from '@/views/Error404.vue';
 import color_index from "@/views/color_index.vue";
-import color_detail from "@/views/color_detail.vue";
+import color_detail from "@/views/color_detail_1.vue";
+import color_detail_2 from "@/views/color_detail_2.vue";
+import color_detail_3 from "@/views/color_detail_3.vue";
+import color_detail_4 from "@/views/color_detail_4.vue";
+import color_test from "@/views/color_test.vue";
 import closet_index from "../views/closet_index.vue";
 import closet_detail from "../views/closet_detail.vue";
 import Callback from '@/views/Callback.vue';
@@ -35,9 +39,29 @@ const routes = [
     component: color_index,
   },
   {
-    path: "/color_detail",
+    path: "/color_detail_1",
     name: "color_detail",
     component: color_detail,
+  },
+  {
+    path: "/color_detail_2",
+    name: "color_detail_2",
+    component: color_detail_2,
+  },
+  {
+    path: "/color_detail_3",
+    name: "color_detail_3",
+    component: color_detail_3,
+  },
+  {
+    path: "/color_detail_4",
+    name: "color_detail_4",
+    component: color_detail_4,
+  },
+  {
+    path: "/color_test",
+    name: "color_test",
+    component: color_test,
   },
   {
     path: "/closet_index",

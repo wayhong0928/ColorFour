@@ -12,7 +12,7 @@ from linebot.models import MessageEvent, TextSendMessage, TextMessage, ImageSend
 from linebot.models import DatetimePickerTemplateAction, QuickReply, QuickReplyButton, MessageAction, URIAction,PostbackAction
 from linebot.models import TemplateSendMessage, ButtonsTemplate, PostbackEvent, ImageMessage, ConfirmTemplate, FlexSendMessage
 from linebot.models import PostbackTemplateAction, BubbleContainer, BoxComponent, TextComponent, ButtonComponent, ImageComponent
-from line import insert_schedule, purchase, social, search_schedule
+from line import insert_schedule, purchase, social, search_schedule, weatherApi
 
 from urllib.parse import parse_qsl
 
@@ -36,6 +36,7 @@ def callback(request):
 			if isinstance(event, MessageEvent):
 				if isinstance(event.message, TextMessage):
 					mtext = event.message.text
+					weatherApi.handle_user_message(event, mtext) #縣市or景點的天氣判斷
 					if mtext == '穿搭日程':
 						conversation_state['step'] = 'start_time'
 						search_schedule.search_Date(event)                    

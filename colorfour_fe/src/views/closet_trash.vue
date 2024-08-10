@@ -1,35 +1,82 @@
 <template>
   <div>
-    <div id="header"></div>
-    <main>
-      <div class="item-info-wrap">
-        <button class="btn btn-outline-secondary edit-button" @click="editItem">編輯單品</button>
-        <button id="deleteItemButton" class="btn btn-outline-secondary" @click="deleteItem">刪除單品</button>
+    <header id="header"></header>
+    <main class="container">
+      <div class="row">
+        <aside class="col-lg-3 mb-4">
+          <h2>篩選</h2>
+          <div class="mb-3">
+            <label for="category" class="form-label">分類:</label>
+            <select v-model="selectedCategory" id="category" class="form-select">
+              <option value="all">全部</option>
+              <option value="top">上衣</option>
+              <option value="bottom">下身</option>
+              <option value="coat">外套</option>
+              <option value="shoes">鞋子</option>
+              <option value="accessories">配件</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="brand" class="form-label">品牌:</label>
+            <select v-model="selectedBrand" id="brand" class="form-select">
+              <option value="all">全部</option>
+              <option value="品牌A">品牌A</option>
+              <option value="品牌B">品牌B</option>
+              <option value="品牌C">品牌C</option>
+            </select>
+          </div>
+        </aside>
+
+        <div class="col-lg-9">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <label for="sort-by" class="form-label">排序方式:</label>
+              <select v-model="sortBy" id="sort-by" class="form-select">
+                <option value="newest">新增時間 (先到後)</option>
+                <option value="oldest">新增時間 (後到先)</option>
+                <option value="brand">品牌名稱</option>
+                <option value="price-low-high">價格 (低到高)</option>
+                <option value="price-high-low">價格 (高到低)</option>
+              </select>
+            </div>
+            <div>
+              <a href="closet_new.html" class="btn btn-outline-secondary">新增單品</a>
+              <a href="closet_trash.html" class="btn btn-outline-secondary">回收區</a>
+            </div>
+          </div>
+          <div class="row" id="wardrobe-list">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" v-for="item in filteredItems" :key="item.id">
+              <div class="card mb-3">
+                <img :src="item.image" class="card-img-top" :alt="item.name" />
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <a :href="item.link">{{ item.name }}</a>
+                  </h5>
+                </div>
+              </div>
+            </div>
+          </div>
+          <section aria-label="Page navigation" style="margin-bottom: 100px">
+            <ul class="pagination justify-content-center">
+              <!-- 分頁項在此 -->
+            </ul>
+          </section>
+        </div>
       </div>
-      <section class="container">
-        <div class="item-img">
-          <img :src="item.image" alt="服飾圖片" />
-        </div>
-        <div class="item-info">
-          <h1>{{ item.name }}</h1>
-          <p>品牌: {{ item.brand }}</p>
-          <p>價格: ${{ item.price }}</p>
-          <p class="hashtag">種類：#{{ item.category }}</p>
-          <p class="hashtag">標籤：{{ item.tags.map(tag => `#${tag}`).join(" ") }}</p>
-          <p class="added-date">加入日期: {{ item.addedDate }}</p>
-        </div>
-      </section>
     </main>
     <div class="zone"></div>
-    <div id="footer"></div>
+    <footer id="footer"></footer>
   </div>
 </template>
 
 <script>
 export default {
-  name: "closet_detail",
+  name: "closet_trash",
   data() {
     return {
+      selectedCategory: "all",
+      selectedBrand: "all",
+      sortBy: "newest",
       items: [
         {
           id: 1,
@@ -49,7 +96,7 @@ export default {
           brand: "GU",
           price: 100,
           addedDate: "2024/06/02",
-          image: "../assets/img/closet_02.png",
+          image: require("@/assets/img/closet_02.png"),
           tags: ["春天", "夏天"],
           link: "closet_detail.html?id=2",
         },
@@ -60,7 +107,7 @@ export default {
           brand: "GU",
           price: 70,
           addedDate: "2024/06/03",
-          image: "../assets/img/closet_03.png",
+          image: require("@/assets/img/closet_03.png"),
           tags: ["春天", "夏天"],
           link: "closet_detail.html?id=3",
         },
@@ -71,7 +118,7 @@ export default {
           brand: "UNIQLO",
           price: 220,
           addedDate: "2024/06/04",
-          image: "../assets/img/closet_04.png",
+          image: require("@/assets/img/closet_04.png"),
           tags: ["秋天", "冬天"],
           link: "closet_detail.html?id=4",
         },
@@ -82,7 +129,7 @@ export default {
           brand: "無印",
           price: 80,
           addedDate: "2024/06/05",
-          image: "../assets/img/closet_05.png",
+          image: require("@/assets/img/closet_05.png"),
           tags: ["春天", "夏天"],
           link: "closet_detail.html?id=5",
         },
@@ -93,7 +140,7 @@ export default {
           brand: "GU",
           price: 120,
           addedDate: "2024/06/06",
-          image: "../assets/img/closet_06.png",
+          image: require("@/assets/img/closet_06.png"),
           tags: ["春天", "秋天"],
           link: "closet_detail.html?id=6",
         },
@@ -254,176 +301,99 @@ export default {
       ],
     };
   },
+  computed: {
+    filteredItems() {
+      let filteredItems = this.items.filter((item) => {
+        const categoryMatch = this.selectedCategory === "all" || item.category === this.selectedCategory;
+        const brandMatch = this.selectedBrand === "all" || item.brand === this.selectedBrand;
+        return categoryMatch && brandMatch;
+      });
 
-  created() {
-    const itemName = this.$route.params.itemName;
-    this.item = this.items.find((item) => item.name === itemName) || {};
-  },
-
-  methods: {
-    editItem() {
-      const newName = prompt("修改商品名稱", this.item.name);
-      const newBrand = prompt("修改品牌", this.item.brand);
-      const newPrice = prompt("修改價格", this.item.price);
-
-      if (newName && newBrand && newPrice) {
-        this.item.name = newName;
-        this.item.brand = newBrand;
-        this.item.price = newPrice;
-        alert("商品資訊已更新");
+      switch (this.sortBy) {
+        case "newest":
+          filteredItems.sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate));
+          break;
+        case "oldest":
+          filteredItems.sort((a, b) => new Date(a.addedDate) - new Date(b.addedDate));
+          break;
+        case "brand":
+          filteredItems.sort((a, b) => a.brand.localeCompare(b.brand));
+          break;
+        case "price-low-high":
+          filteredItems.sort((a, b) => a.price - b.price);
+          break;
+        case "price-high-low":
+          filteredItems.sort((a, b) => b.price - a.price);
+          break;
       }
-    },
-    deleteItem() {
-      const userConfirmed = confirm("確定要刪除此單品嗎？");
 
-      if (userConfirmed) {
-        this.moveToTrash(this.item);
-        this.$router.push({ name: 'ClosetIndex' }); // Assuming you're using Vue Router
-      }
+      return filteredItems;
     },
-    moveToTrash(item) {
-      console.log(`Item "${item.name}" has been moved to closet_trash.html.`);
-    }
   },
-  mounted() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const itemId = urlParams.get('id');
-
-    const items = [
-      // Your items array here
-    ];
-
-    const item = items.find(i => i.id == itemId);
-
-    if (item) {
-      this.item = { ...item };
-    }
-  }
 };
 </script>
 
 <style scoped>
-.bread {
-  display: flex;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+#wardrobe-list .card {
+  margin-bottom: 1.5em;
 }
 
-.bread li {
-  padding: 0 20px;
-}
-
-.bread li + li {
-  padding-left: 0;
-}
-
-.bread li + li:before {
-  content: ">";
-  color: #333;
-  margin-right: 20px;
-}
-
-.bread a {
-  text-decoration: none;
-  color: #333;
-}
-
-main button {
-  width: 20%;
-  display: flex;
-  align-items: end;
-  justify-content: end;
-}
-
-.container {
-  width: 90%;
-  min-height: 400px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  border: #333333 1px solid;
-  box-shadow: #999999 3px 3px;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 20px;
-  position: relative;
-}
-
-.item-info-wrap {
-  width: 90%;
-  display: flex;
-  align-items: end;
-  justify-content: end;
-  margin-bottom: 20px;
-}
-
-.item-img {
-  width: 45%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.item-img img {
-  width: 100%;
-  height: 100%;
-  border-radius: 20px;
+.card img {
+  max-height: 200px;
   object-fit: cover;
 }
 
-.item-info {
-  width: 50%;
-  margin-left: 20px;
-  display: flex;
-  flex-direction: column;
-  text-align: start;
-  align-items: flex-start;
+.card-title {
+  font-size: 1.25em;
+  margin-bottom: 0.5em;
+}
+.card-title a {
+  text-decoration: none;
+  color: var(--primary-text-color);
 }
 
-.item-info h1,
-.item-info p {
-  margin: 5px 0;
+.card-body {
+  text-align: center;
 }
 
-.item-info h1 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.item-info p {
-  font-size: 1rem;
-  margin-bottom: 10px;
-}
-
-.item-info .price {
-  font-size: 1.5rem;
-  color: #333;
-}
-
-.item-info .added-date {
-  font-size: 1rem;
-  color: #777;
-}
-
-@media screen and (max-width: 768px) {
-  .item-img {
-    width: 90%;
-    margin-bottom: 20px;
+@media (max-width: 576px) {
+  #wardrobe-list .col-12 {
+    flex: 0 0 auto;
+    width: 33.333333%;
   }
+}
 
-  .item-info {
-    width: 90%;
-    margin-left: 0;
+@media (min-width: 576px) {
+  #wardrobe-list .col-sm-6 {
+    flex: 0 0 auto;
+    width: 33.333333%;
   }
-  .item-info h1 {
-    align-items: center;
-  }
+}
 
-  main button {
-    width: 30%;
+@media (min-width: 768px) {
+  #wardrobe-list .col-md-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
   }
+}
+
+@media (min-width: 992px) {
+  #wardrobe-list .col-lg-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+}
+
+/* 全局字體顏色，例如深灰色 */
+.container {
+  color: #86797d;
+}
+
+.form-select {
+  color: #8d8185;
+}
+
+.btn {
+  color: #8d8185;
 }
 </style>

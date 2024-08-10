@@ -71,7 +71,7 @@
 
 <script>
 export default {
-  name: "closet_index",
+  name: "closet_trash",
   data() {
     return {
       selectedCategory: "all",
@@ -334,65 +334,66 @@ export default {
 </script>
 
 <style scoped>
-  #wardrobe-list .card {
-    margin-bottom: 1.5em;
-  }
+#wardrobe-list .card {
+  margin-bottom: 1.5em;
+}
 
-  .card img {
-    max-height: 200px;
-    object-fit: cover;
-  }
+.card img {
+  max-height: 200px;
+  object-fit: cover;
+}
 
-  .card-title {
-    font-size: 1.25em;
-    margin-bottom: 0.5em;
-  }
-  .card-title a {
-    text-decoration: none;
-    color: var(--primary-text-color);
-  }
+.card-title {
+  font-size: 1.25em;
+  margin-bottom: 0.5em;
+}
+.card-title a {
+  text-decoration: none;
+  color: var(--primary-text-color);
+}
 
-  .card-body {
-    text-align: center;
-  }
+.card-body {
+  text-align: center;
+}
 
-  @media (max-width: 576px) {
-    #wardrobe-list .col-12 {
-      flex: 0 0 auto;
-      width: 33.333333%;
-    }
+@media (max-width: 576px) {
+  #wardrobe-list .col-12 {
+    flex: 0 0 auto;
+    width: 33.333333%;
   }
+}
 
-  @media (min-width: 576px) {
-    #wardrobe-list .col-sm-6 {
-      flex: 0 0 auto;
-      width: 33.333333%;
-    }
+@media (min-width: 576px) {
+  #wardrobe-list .col-sm-6 {
+    flex: 0 0 auto;
+    width: 33.333333%;
   }
+}
 
-  @media (min-width: 768px) {
-    #wardrobe-list .col-md-4 {
-      flex: 0 0 auto;
-      width: 33.333333%;
-    }
+@media (min-width: 768px) {
+  #wardrobe-list .col-md-4 {
+    flex: 0 0 auto;
+    width: 33.333333%;
   }
+}
 
-  @media (min-width: 992px) {
-    #wardrobe-list .col-lg-3 {
-      flex: 0 0 auto;
-      width: 25%;
-    }
+@media (min-width: 992px) {
+  #wardrobe-list .col-lg-3 {
+    flex: 0 0 auto;
+    width: 25%;
   }
+}
 
-  .container {
-    color: #86797d;
-  }
+/* 全局字體顏色，例如深灰色 */
+.container {
+  color: #86797d;
+}
 
-  .form-select {
-    color: #8d8185;
-  }
+.form-select {
+  color: #8d8185;
+}
 
-  .btn {
-    color: #8d8185;
-  }
+.btn {
+  color: #8d8185;
+}
 </style>

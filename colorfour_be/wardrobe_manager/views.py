@@ -35,6 +35,18 @@ class DeleteWardrobeItemView(View):
 		except WardrobeItem.DoesNotExist:
 			return JsonResponse({'error': 'Item not found!'}, status=404)
 
+#丟到垃圾桶
+@method_decorator(csrf_exempt, name='dispatch')
+class MoveToGarbageView(View):
+  def post(self, request, item_id):
+    try:
+      item = WardrobeItem.objects.get(id=item_id)
+      item.garbage_can = True  #Call就會把garbage_can改成True就是丟到垃圾桶了
+      item.save()
+      return JsonResponse({'message': 'Item moved to garbage can successfully!'}, status=200)
+    except WardrobeItem.DoesNotExist:
+      return JsonResponse({'error': 'Item not found!'}, status=404)
+
 
 # 修改衣服
 @method_decorator(csrf_exempt, name='dispatch')

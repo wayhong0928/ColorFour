@@ -8,7 +8,7 @@
         <p>☆ 春季型人具備自然的春天所帶來的美好特質，例如：生機、活潑、明媚。</p>
         <p>
           ☆
-          他們皮膚明亮，眼神閃耀、光潔，是生活ㄘㄘ中最具快樂和靚麗的一族，正如大自然春天帶給我們的欣悅一般，春季型人是朝氣而充滿活力的。
+          他們皮膚明亮，眼神閃耀、光潔，是生活中最具快樂和靚麗的一族，正如大自然春天帶給我們的欣悅一般，春季型人是朝氣而充滿活力的。
         </p>
         <p>☆ 適合高明亮、高飽和、生動且清新的色系，像是俏皮的春季花卉色調。</p>
         <p>☆ 黃色是首選，帶有淡黃色調的象牙白、橘紅色、略帶黃色的淺藍色等，都是不錯的選擇。</p>
@@ -119,4 +119,32 @@ export default {
   height: 50px;
   border-radius: 10px;
 }
+/* 调整图片的容器和图片样式 */
+.col-md-6.order-md-1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.col-md-6.order-md-1 img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* 小屏幕下调整图片样式 */
+@media (max-width: 768px) {
+  .col-md-6.order-md-1 {
+    text-align: center;
+  }
+
+  .col-md-6.order-md-1 img {
+    max-width: 80%;
+    margin-top: 10px;
+  }
+}
+
 </style>

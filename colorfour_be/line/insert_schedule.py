@@ -164,14 +164,6 @@ def requestDescription(event):
   except:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text = '發生錯誤!'))'''
 
-
-'''def End_schedule(event):
-  message = TextSendMessage(text = '日程名稱：SE期末報告\n開始時間：2024-06-21 10:00\n結束時間：2024-06-21 12:00\n地點：中原大學\n活動：SE期末報告\n穿搭名稱：期末報告服裝')
-  line_bot_api.reply_message(event.reply_token, message)
-
-def show(event):
-  message = TextSendMessage(text = '日程名稱：期末成發\n開始時間：2024-06-21 10:00\n結束時間：2024-06-21 10:00\n地點：中原大學\n活動：期末成發\n穿搭名稱：表演服')
-  line_bot_api.reply_message(event.reply_token, message)'''
      
 '''def handleUserInput(event, conversation_state):
   step = conversation_state['step']
@@ -260,8 +252,7 @@ def handleUserInput(event, conversation_state):
             conversation_state['step'] = 'complete'
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text='建立成功！'))
 
-# 示例的 conversation_state 初始值
+#conversation_state 初始值
 conversation_state = {'step': 'start_time', 'data': {}}
 
-# 示例的事件对象
 event = MessageEvent(reply_token='dummy_token', message=TextMessage(text='dummy_text'))

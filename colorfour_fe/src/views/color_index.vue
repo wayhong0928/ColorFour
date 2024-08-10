@@ -22,8 +22,15 @@
                 </select>
               </div>
               <div>
-                <button class="btn btn-outline-secondary" @click="addItem">新增</button>
-                <button class="btn btn-outline-secondary" @click="removeItem">刪除</button>
+                <router-link to="/color_test">
+                  <button class="btn btn-outline-secondary">新增</button>
+                </router-link>
+                <button
+                  class="btn btn-outline-secondary"
+                  @click="removeSelectedItems"
+                >
+                  刪除
+                </button>
               </div>
             </div>
             <div class="scroll-container mt-4">
@@ -32,13 +39,23 @@
                 v-for="(item, index) in sortedItems"
                 :key="index"
               >
-                <span class="date">{{ item.date }}</span>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="date">{{ item.date }}</span>
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    v-model="selectedItems"
+                    :value="index"
+                  />
+                </div>
                 {{ item.type }}型人<br />
                 ☆ 若搭配了適合的顏色<br />
                 ✓ {{ item.benefit1 }}<br />
                 ✓ {{ item.benefit2 }}<br />
                 ✓ {{ item.benefit3 }}<br />
-                <router-link to="/color_detail" class=""><img src="@/assets/img/next_icon.png" class="icon" /></router-link>
+                <router-link :to="item.link">
+                  <img src="@/assets/img/next_icon.png" class="icon" />
+                </router-link>
               </div>
             </div>
           </div>
@@ -56,10 +73,13 @@
 </template>
 
 <script>
+import { useToast } from "vue-toastification";
+
 export default {
   data() {
     return {
       sortBy: "newest",
+      selectedItems: [],
       items: [
         {
           date: "2023/11/24",
@@ -67,6 +87,7 @@ export default {
           benefit1: "臉部變得明亮",
           benefit2: "可呈現出血色感",
           benefit3: "看起來彈力有光澤、生氣蓬勃",
+          link: "/color_detail_1"
         },
         {
           date: "2023/12/25",
@@ -74,6 +95,7 @@ export default {
           benefit1: "顯白、肌膚看起來變明亮",
           benefit2: "呈現出透明感",
           benefit3: "肌膚看起來光滑",
+          link: "/color_detail_2"
         },
         {
           date: "2024/01/06",
@@ -81,6 +103,7 @@ export default {
           benefit1: "讓血色感變好",
           benefit2: "肌膚看起來像陶器般平滑",
           benefit3: "輪廓看起來更俐落",
+          link: "/color_detail_3"
         },
         {
           date: "2024/05/17",
@@ -88,6 +111,7 @@ export default {
           benefit1: "看起來洗練俐落",
           benefit2: "緊緻輪廓",
           benefit3: "肌膚看起來有光澤",
+          link: "/color_detail_4"
         },
       ],
     };
@@ -102,13 +126,19 @@ export default {
     },
   },
   methods: {
-    addItem() {
-      // Add item logic here
-      console.log("Add item");
-    },
-    removeItem() {
-      // Remove item logic here
-      console.log("Remove item");
+    removeSelectedItems() {
+      const confirmDelete = confirm("確定要刪除紀錄嗎？");
+
+      if (confirmDelete) {
+        this.selectedItems.forEach((index) => {
+          this.items.splice(index, 1);
+        });
+
+        this.selectedItems = [];
+
+        const toast = useToast();
+        toast.success("紀錄已成功删除");
+      }
     },
   },
 };
@@ -355,6 +385,7 @@ body {
   padding: 2px 8px;
   border-radius: 5px;
   margin-right: 10px;
+  flex: 1;
 }
 
 .result-item .icon {

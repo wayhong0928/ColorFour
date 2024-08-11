@@ -1,82 +1,57 @@
-from django.shortcuts import render, redirect 
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.views import View
-from rest_framework import generics
-from .models import WardrobeItem 
-from .forms import WardrobeItemForm
+from rest_framework import generics, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import WardrobeItem
 from .serializers import WardrobeItemSerializer
-import json
+from rest_framework.permissions import AllowAny
 
-
-# 新增衣服
-def add_wardrobe_item(request):
-	if request.method == 'POST':
-		form = WardrobeItemForm(request.POST)
-		if form.is_valid():
-			form.save()
-			return redirect('add_wardrobe_item')
-	else:
-		# 如果請求方法不是POST，則創建一個空表單
-		form = WardrobeItemForm()
-	# 渲染模板並傳遞表單到模板上下文
-	return render(request, 'wardrobe/add_wardrobe_item.html', {'form': form})
-
-
-# 刪除衣服
-@method_decorator(csrf_exempt, name='dispatch')
-class DeleteWardrobeItemView(View):
-	def delete(self, request, item_id):
-		try:
-			item = WardrobeItem.objects.get(id=item_id)
-			item.delete()  # 如果資料存在，則刪除該資料
-			return JsonResponse({'message': 'Item deleted successfully!'}, status=200)
-		except WardrobeItem.DoesNotExist:
-			return JsonResponse({'error': 'Item not found!'}, status=404)
-
-#丟到垃圾桶
-@method_decorator(csrf_exempt, name='dispatch')
-class MoveToGarbageView(View):
-  def post(self, request, item_id):
-    try:
-      item = WardrobeItem.objects.get(id=item_id)
-      item.garbage_can = True  #Call就會把garbage_can改成True就是丟到垃圾桶了
-      item.save()
-      return JsonResponse({'message': 'Item moved to garbage can successfully!'}, status=200)
-    except WardrobeItem.DoesNotExist:
-      return JsonResponse({'error': 'Item not found!'}, status=404)
-
-
-# 修改衣服
-@method_decorator(csrf_exempt, name='dispatch')
-class UpdateWardrobeItemView(View):
-	def put(self, request, item_id):
-		try:
-			item = WardrobeItem.objects.get(id=item_id)
-		except WardrobeItem.DoesNotExist:
-			return JsonResponse({'error': 'Item not found!'}, status=404)
-
-		try:
-			data = json.loads(request.body.decode('utf-8'))
-		except json.JSONDecodeError as e:
-			print(f"JSON decode error: {e}")
-			return JsonResponse({'error': 'Invalid JSON data!'}, status=400)
-
-		item.item_name = data.get('item_name', item.item_name)
-		item.item_type = data.get('item_type', item.item_type)
-		item.brand = data.get('brand', item.brand)
-		item.color = data.get('color', item.color)
-		item.price = data.get('price', item.price)
-		item.purchase_date = data.get('purchase_date', item.purchase_date)
-		item.photo_url = data.get('photo_url', item.photo_url)
-
-		item.save()
-
-		return JsonResponse({'message': 'Item updated successfully!'}, status=200)
-
-
-# 測試API *
+# 總覽 LIST
 class WardrobeItemListCreate(generics.ListCreateAPIView):
-	queryset = WardrobeItem.objects.all()
-	serializer_class = WardrobeItemSerializer
+    queryset = WardrobeItem.objects.filter(garbage_can=False).order_by("-created_at")
+    serializer_class = WardrobeItemSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+        
+# 垃圾桶裡的單品 LIST
+class WardrobeItemListInGarbage(generics.ListCreateAPIView):
+    queryset = WardrobeItem.objects.filter(garbage_can=True).order_by("-created_at")
+    serializer_class = WardrobeItemSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+# 詳細、更新與刪除功能
+class WardrobeItemDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = WardrobeItem.objects.all()
+    serializer_class = WardrobeItemSerializer
+    permission_classes = [AllowAny]
+
+    def delete(self, request, *args, **kwargs):
+        item = self.get_object()
+        if item.garbage_can:
+            return super().delete(request, *args, **kwargs)
+        else:
+            item.garbage_can = True
+            item.save()
+            return Response({"message": "Item moved to garbage can"}, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+# 真正刪除垃圾桶中的單品
+class DeleteFromGarbage(APIView):
+    permission_classes = [AllowAny]
+
+    def delete(self, request, item_id):
+        try:
+            item = WardrobeItem.objects.get(id=item_id, garbage_can=True)
+            item.delete()
+            return Response({"message": "Item deleted permanently"}, status=status.HTTP_204_NO_CONTENT)
+        except WardrobeItem.DoesNotExist:
+            return Response({"error": "Item not found or not in garbage can"}, status=status.HTTP_404_NOT_FOUND)

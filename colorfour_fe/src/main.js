@@ -9,7 +9,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 import "vue-toastification/dist/index.css";
 
-axios.defaults.baseURL = process.env.VUE_APP_NGROK_URL;
+axios.defaults.baseURL = process.env.VUE_APP_BACKEND_URL;
 
 axios.defaults.xsrfCookieName = 'csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'

@@ -18,19 +18,11 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
-# Line Login
-LINE_LOGIN_CHANNEL_ID = os.getenv("LINE_LOGIN_CHANNEL_ID")
-LINE_LOGIN_CHANNEL_SECRET = os.getenv("LINE_LOGIN_CHANNEL_SECRET")
-
-# Line Messaging API
-LINE_MESSAGING_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_MESSAGING_CHANNEL_ACCESS_TOKEN")
-LINE_MESSAGING_CHANNEL_SECRET = os.getenv("LINE_MESSAGING_CHANNEL_SECRET")
-
-# Google Login
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-GOOGLE_LOGIN_CALLBACK_URL = os.getenv("GOOGLE_LOGIN_CALLBACK_URL")
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+	os.getenv("FRONTEND_URL"),
+	os.getenv("NGROK_URL"),
+]
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
@@ -42,17 +34,17 @@ INSTALLED_APPS = [
 	"django.contrib.messages",
 	"django.contrib.staticfiles",
 	"django.contrib.sites",
+	"rest_framework",
+	"rest_framework.authtoken",
+	"dj_rest_auth",
+	"dj_rest_auth.registration",
 	"allauth",
 	"allauth.account",
 	"allauth.socialaccount",
-	"allauth.socialaccount.providers.line",
 	"allauth.socialaccount.providers.google",
-	"dj_rest_auth",
-	"dj_rest_auth.registration",
+	"allauth.socialaccount.providers.line",
 	"corsheaders",
-	"rest_framework",
-	"rest_framework.authtoken",
-	"djoser",
+
 	"color_analyzer",
 	"wardrobe_manager",
 	"outfit_recommender",
@@ -60,51 +52,37 @@ INSTALLED_APPS = [
 	"social_platform",
 	"outfit_scheduler",
 	"line",
-	"authentication",
 ]
 
 SITE_ID = 1
 
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
-
-ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_EMAIL_REQUIRED = True
-
 AUTHENTICATION_BACKENDS = (
-	"django.contrib.auth.backends.ModelBackend",
 	"allauth.account.auth_backends.AuthenticationBackend",
+	"django.contrib.auth.backends.ModelBackend",
 )
 
-REST_FRAMEWORK = {
-	"DEFAULT_AUTHENTICATION_CLASSES": [
-		"rest_framework.authentication.TokenAuthentication",
-		"rest_framework.authentication.SessionAuthentication",
-		"dj_rest_auth.jwt_auth.JWTCookieAuthentication",
-	],
-	"DEFAULT_PERMISSION_CLASSES": [
-		"rest_framework.permissions.IsAuthenticated",
-	],
-}
-
-DJOSER = {
-	"LOGIN_FIELD": "email",
-	"SERIALIZERS": {},
-}
-
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_PASSWORD_REQUIRED = False
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_SIGNUP_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_PROVIDERS = {
 	"line": {
 		"APP": {
-			"client_id": LINE_LOGIN_CHANNEL_ID,
-			"secret": LINE_LOGIN_CHANNEL_SECRET,
+			"client_id": os.getenv("LINE_LOGIN_CHANNEL_ID"),
+			"secret": os.getenv("LINE_LOGIN_CHANNEL_SECRET"),
 		},
-		"SCOPE": {
-			"profile",
-			"openid",
-			"email",
-		},
+		"SCOPE": [ "profile", "openid", "email"],
+		'OAUTH_GET_PARAMS': {
+			'redirect_uri': 'https://upward-gorgeous-bedbug.ngrok-free.app/accounts/line/login/callback/',
+		}
 	},
 	"google": {
 		"APP": {
@@ -119,11 +97,37 @@ SOCIALACCOUNT_PROVIDERS = {
 		"AUTH_PARAMS": {
 			"access_type": "online",
 		},
-		"METHOD": "oauth2",
-		"VERIFIED_EMAIL": True,
-		"CLIENT_CLASS": "allauth.socialaccount.providers.oauth2.client.OAuth2Client",
 	},
 }
+
+SOCIALACCOUNT_ADAPTER = "allauth.socialaccount.adapter.DefaultSocialAccountAdapter"
+ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
+
+REST_FRAMEWORK = {
+	"DEFAULT_AUTHENTICATION_CLASSES": [
+		"dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+	],
+	"DEFAULT_PERMISSION_CLASSES": [
+		"rest_framework.permissions.IsAuthenticated",
+	],
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+	"ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+	"REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+	"ROTATE_REFRESH_TOKENS": True,
+	"BLACKLIST_AFTER_ROTATION": True,
+	"AUTH_HEADER_TYPES": ("Bearer",),
+	"AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+	"AUTH_COOKIE": "access_token",
+	"AUTH_COOKIE_SECURE": True,
+	"AUTH_COOKIE_HTTP_ONLY": True,
+	"AUTH_COOKIE_PATH": "/",
+	"AUTH_COOKIE_SAMESITE": "Lax",
+}
+
 
 MIDDLEWARE = [
 	"django.middleware.security.SecurityMiddleware",
@@ -142,7 +146,7 @@ ROOT_URLCONF = "colorfour_be.urls"
 TEMPLATES = [
 	{
 		"BACKEND": "django.template.backends.django.DjangoTemplates",
-		# os.path.join(BASE_DIR, 'templates')
+		# os.path.join(BASE_DIR, 'templates'),
 		"DIRS": [],
 		"APP_DIRS": True,
 		"OPTIONS": {
@@ -197,19 +201,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = "zh-Hant"
-
 TIME_ZONE = "Asia/Taipei"
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
 
 # MEDIA_URL = 'media/'
 # MEDIA_ROOT = BASE_DIR / 'media/'
@@ -240,10 +240,10 @@ LOGGING = {
 		},
 	},
 	"loggers": {
-		# 'django': {
-		#   'handlers': ['console'],
-		#   'level': 'DEBUG',
-		#   'propagate': True,
+		# "django": {
+		#     "handlers": ["console"],
+		#     "level": "DEBUG",
+		#     "propagate": True,
 		# },
 		"": {
 			"handlers": ["console"],

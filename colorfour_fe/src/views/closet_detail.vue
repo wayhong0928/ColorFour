@@ -23,6 +23,8 @@
 </template>
 
 <script>
+  import axios from "axios";
+
   export default {
     name: "closet_detail",
     props: ["id"],
@@ -46,227 +48,38 @@
 
     methods: {
       fetchItem(id) {
-        const items = [
-          {
-            id: 1,
-            name: "白T萬歲",
-            category: "t-shirt",
-            brand: "UNIQLO",
-            price: 150,
-            addedDate: "2024/06/01",
-            image: require("@/assets/img/Uniqlo_white_Tshirt.png"),
-            tags: ["春天", "夏天", "休閒", "百搭"],
-          },
-          {
-            id: 2,
-            name: "連身裙",
-            category: "dress",
-            brand: "GU",
-            price: 100,
-            addedDate: "2024/06/02",
-            image: require("@/assets/img/closet_02.png"),
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 3,
-            name: "牛仔褲",
-            category: "bottom",
-            brand: "GU",
-            price: 70,
-            addedDate: "2024/06/03",
-            image: require("@/assets/img/closet_03.png"),
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 4,
-            name: "短褲",
-            category: "bottom",
-            brand: "UNIQLO",
-            price: 220,
-            addedDate: "2024/06/04",
-            image: require("@/assets/img/closet_04.png"),
-            tags: ["秋天", "冬天"],
-          },
-          {
-            id: 5,
-            name: "小白鞋",
-            category: "shoes",
-            brand: "無印",
-            price: 80,
-            addedDate: "2024/06/05",
-            image: require("@/assets/img/closet_05.png"),
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 6,
-            name: "西裝外套",
-            category: "coat",
-            brand: "GU",
-            price: 120,
-            addedDate: "2024/06/06",
-            image: require("@/assets/img/closet_06.png"),
-            tags: ["春天", "秋天"],
-          },
-          {
-            id: 7,
-            name: "墨鏡",
-            category: "accessories",
-            brand: "品牌C",
-            price: 50,
-            addedDate: "2024/06/07",
-            image: "https://picsum.photos/300/200?random=6",
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 8,
-            name: "手錶",
-            category: "accessories",
-            brand: "品牌A",
-            price: 200,
-            addedDate: "2024/06/08",
-            image: "https://picsum.photos/300/200?random=7",
-            tags: ["全年"],
-          },
-          {
-            id: 9,
-            name: "風衣",
-            category: "coat",
-            brand: "品牌B",
-            price: 180,
-            addedDate: "2024/06/09",
-            image: "https://picsum.photos/300/200?random=8",
-            tags: ["秋天", "冬天"],
-          },
-          {
-            id: 10,
-            name: "連帽衫",
-            category: "top",
-            brand: "品牌C",
-            price: 130,
-            addedDate: "2024/06/10",
-            image: "https://picsum.photos/300/200?random=9",
-            tags: ["秋天", "冬天"],
-          },
-          {
-            id: 11,
-            name: "T恤",
-            category: "top",
-            brand: "品牌E",
-            price: 50,
-            addedDate: "2024/06/11",
-            image: "https://picsum.photos/300/200?random=12",
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 12,
-            name: "針織衫",
-            category: "top",
-            brand: "GU",
-            price: 90,
-            addedDate: "2024/06/12",
-            image: "https://picsum.photos/300/200?random=1",
-            tags: ["秋天"],
-          },
-          {
-            id: 13,
-            name: "皮帶",
-            category: "accessories",
-            brand: "品牌F",
-            price: 40,
-            addedDate: "2024/06/13",
-            image: "https://picsum.photos/300/200?random=13",
-            tags: ["全年"],
-          },
-          {
-            id: 14,
-            name: "運動褲",
-            category: "bottom",
-            brand: "品牌G",
-            price: 60,
-            addedDate: "2024/06/14",
-            image: "https://picsum.photos/300/200?random=14",
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 15,
-            name: "棒球帽",
-            category: "accessories",
-            brand: "品牌H",
-            price: 30,
-            addedDate: "2024/06/15",
-            image: "https://picsum.photos/300/200?random=15",
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 16,
-            name: "羽絨服",
-            category: "coat",
-            brand: "品牌I",
-            price: 250,
-            addedDate: "2024/06/16",
-            image: "https://picsum.photos/300/200?random=16",
-            tags: ["冬天"],
-          },
-          {
-            id: 17,
-            name: "連身裙",
-            category: "dress",
-            brand: "品牌J",
-            price: 110,
-            addedDate: "2024/06/17",
-            image: "https://picsum.photos/300/200?random=17",
-            tags: ["春天", "夏天"],
-          },
-          {
-            id: 18,
-            name: "短靴",
-            category: "shoes",
-            brand: "品牌K",
-            price: 140,
-            addedDate: "2024/06/18",
-            image: "https://picsum.photos/300/200?random=18",
-            tags: ["秋天", "冬天"],
-          },
-          {
-            id: 19,
-            name: "牛仔外套",
-            category: "coat",
-            brand: "品牌L",
-            price: 160,
-            addedDate: "2024/06/19",
-            image: "https://picsum.photos/300/200?random=19",
-            tags: ["秋天", "冬天"],
-          },
-          {
-            id: 20,
-            name: "手提包",
-            category: "accessories",
-            brand: "品牌M",
-            price: 90,
-            addedDate: "2024/06/20",
-            image: "https://picsum.photos/300/200?random=20",
-            tags: ["全年"],
-          },
-        ];
-
-        const item = items.find((i) => i.id == id);
-        if (item) {
-          this.item = { ...item };
-        } else {
-          alert("找不到該商品，將返回列表頁面");
-          this.$router.push({ name: "closet_index" }); // 導回列表頁面
-        }
+        axios
+          .get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${id}/`)
+          .then((response) => {
+            if (response.data) {
+              this.item = {
+                name: response.data.item_name,
+                category: response.data.item_type,
+                brand: response.data.brand,
+                price: response.data.price,
+                addedDate: new Date(response.data.created_at).toLocaleDateString(),
+                image: response.data.photo_url,
+                tags: JSON.parse(response.data.tags || "[]"),
+              };
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching item:", error);
+            alert("找不到該商品，將返回列表頁面");
+            this.$router.push({ name: "closet_index" });
+          });
       },
+
+      //TODO 請修正 editItem，應該要是一份表單。
 
       editItem() {
         const newName = prompt("修改商品名稱", this.item.name);
         const newBrand = prompt("修改品牌", this.item.brand);
         const newPrice = prompt("修改價格", this.item.price);
-
         if (newName && newBrand && newPrice) {
           this.item.name = newName;
           this.item.brand = newBrand;
-          this.item.price = parseFloat(newPrice);
+          this.item.price = newPrice;
           alert("商品資訊已更新");
         }
       },
@@ -275,8 +88,33 @@
         const userConfirmed = confirm("確定要刪除此單品嗎？");
 
         if (userConfirmed) {
-          // 這裡應該調用API來刪除資料
-          this.$router.push({ name: "closet_index" });
+          axios
+            .delete(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`)
+            .then(() => {
+              alert("商品已移至垃圾桶");
+              this.$router.push({ name: "closet_index" });
+            })
+            .catch((error) => {
+              console.error("Error deleting item:", error);
+              alert("刪除商品時發生錯誤");
+            });
+        }
+      },
+
+      permanentlyDeleteItem() {
+        const userConfirmed = confirm("此操作將永久刪除商品，確定要繼續嗎？");
+
+        if (userConfirmed) {
+          axios
+            .delete(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/delete/`)
+            .then(() => {
+              alert("商品已永久刪除");
+              this.$router.push({ name: "closet_index" });
+            })
+            .catch((error) => {
+              console.error("Error permanently deleting item:", error);
+              alert("永久刪除商品時發生錯誤");
+            });
         }
       },
     },

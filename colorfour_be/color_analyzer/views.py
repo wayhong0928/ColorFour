@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 import json
 
 # 新增色彩分析資料
-@csrf_exempt # 禁用CSRF保護
+@csrf_exempt 
 def add_color_analysis(request):
     if request.method == 'POST':
         try:

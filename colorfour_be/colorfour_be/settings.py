@@ -19,42 +19,47 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
-
-FRONTEND_URL = os.getenv("FRONTEND_URL")
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8080",
+#     "https://upward-gorgeous-bedbug.ngrok-free.app",
+# ]
+CORS_ALLOWED_ORIGINS = [
+	os.getenv("FRONTEND_URL"),
+	os.getenv("NGROK_URL"),
+]
 
 INSTALLED_APPS = [
-	"django.contrib.admin",
-	"django.contrib.auth",
-	"django.contrib.contenttypes",
-	"django.contrib.sessions",
-	"django.contrib.messages",
-	"django.contrib.staticfiles",
-	"django.contrib.sites",
-	"rest_framework",
-	"rest_framework.authtoken",
-	"dj_rest_auth",
-	"dj_rest_auth.registration",
-	"allauth",
-	"allauth.account",
-	"allauth.socialaccount",
-	"allauth.socialaccount.providers.google",
-	"allauth.socialaccount.providers.line",
-	"corsheaders",
-
-	"color_analyzer",
-	"wardrobe_manager",
-	"outfit_recommender",
-	"shopping_advisor",
-	"social_platform",
-	"outfit_scheduler",
-	"line",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.line",
+    "corsheaders",
+    "color_analyzer",
+    "wardrobe_manager",
+    "outfit_recommender",
+    "shopping_advisor",
+    "social_platform",
+    "outfit_scheduler",
+    "line",
 ]
 
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
-	"allauth.account.auth_backends.AuthenticationBackend",
-	"django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+    "django.contrib.auth.backends.ModelBackend",
 )
 
 ACCOUNT_EMAIL_REQUIRED = True
@@ -70,90 +75,92 @@ ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_PROVIDERS = {
-	"line": {
-		"APP": {
-			"client_id": os.getenv("LINE_LOGIN_CHANNEL_ID"),
-			"secret": os.getenv("LINE_LOGIN_CHANNEL_SECRET"),
-		},
-		"SCOPE": [ "profile", "openid", "email"],
-		'OAUTH_GET_PARAMS': {
-			'redirect_uri': 'https://upward-gorgeous-bedbug.ngrok-free.app/accounts/line/login/callback/',
-		}
-	},
-	"google": {
-		"APP": {
-			"client_id": os.getenv("GOOGLE_CLIENT_ID"),
-			"secret": os.getenv("GOOGLE_CLIENT_SECRET"),
-			"key": "",
-		},
-		"SCOPE": [
-			"profile",
-			"email",
-		],
-		"AUTH_PARAMS": {
-			"access_type": "online",
-		},
-	},
+    "line": {
+        "APP": {
+            "client_id": os.getenv("LINE_LOGIN_CHANNEL_ID"),
+            "secret": os.getenv("LINE_LOGIN_CHANNEL_SECRET"),
+        },
+        "SCOPE": ["profile", "openid", "email"],
+        "OAUTH_GET_PARAMS": {
+            "redirect_uri": "https://upward-gorgeous-bedbug.ngrok-free.app/accounts/line/login/callback/",
+        },
+    },
+    "google": {
+        "APP": {
+            "client_id": os.getenv("GOOGLE_CLIENT_ID"),
+            "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
+            "key": "",
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    },
 }
 
 SOCIALACCOUNT_ADAPTER = "allauth.socialaccount.adapter.DefaultSocialAccountAdapter"
 ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
 
 REST_FRAMEWORK = {
-	"DEFAULT_AUTHENTICATION_CLASSES": [
-		"dj_rest_auth.jwt_auth.JWTCookieAuthentication",
-	],
-	"DEFAULT_PERMISSION_CLASSES": [
-		"rest_framework.permissions.IsAuthenticated",
-	],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+        'rest_framework.permissions.IsAdminUser',
+    ],
 }
 
 from datetime import timedelta
 
 SIMPLE_JWT = {
-	"ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-	"REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-	"ROTATE_REFRESH_TOKENS": True,
-	"BLACKLIST_AFTER_ROTATION": True,
-	"AUTH_HEADER_TYPES": ("Bearer",),
-	"AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-	"AUTH_COOKIE": "access_token",
-	"AUTH_COOKIE_SECURE": True,
-	"AUTH_COOKIE_HTTP_ONLY": True,
-	"AUTH_COOKIE_PATH": "/",
-	"AUTH_COOKIE_SAMESITE": "Lax",
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "AUTH_COOKIE": "access_token",
+    "AUTH_COOKIE_SECURE": True,
+    "AUTH_COOKIE_HTTP_ONLY": True,
+    "AUTH_COOKIE_PATH": "/",
+    "AUTH_COOKIE_SAMESITE": "Lax",
 }
 
 
 MIDDLEWARE = [
-	"django.middleware.security.SecurityMiddleware",
-	"django.contrib.sessions.middleware.SessionMiddleware",
-	"corsheaders.middleware.CorsMiddleware",
-	"django.middleware.common.CommonMiddleware",
-	"django.middleware.csrf.CsrfViewMiddleware",
-	"django.contrib.auth.middleware.AuthenticationMiddleware",
-	"django.contrib.messages.middleware.MessageMiddleware",
-	"django.middleware.clickjacking.XFrameOptionsMiddleware",
-	"allauth.account.middleware.AccountMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "colorfour_be.urls"
 
 TEMPLATES = [
-	{
-		"BACKEND": "django.template.backends.django.DjangoTemplates",
-		# os.path.join(BASE_DIR, 'templates'),
-		"DIRS": [],
-		"APP_DIRS": True,
-		"OPTIONS": {
-			"context_processors": [
-				"django.template.context_processors.debug",
-				"django.template.context_processors.request",
-				"django.contrib.auth.context_processors.auth",
-				"django.contrib.messages.context_processors.messages",
-			],
-		},
-	},
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        # os.path.join(BASE_DIR, 'templates'),
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
 ]
 
 WSGI_APPLICATION = "colorfour_be.wsgi.application"
@@ -163,14 +170,14 @@ WSGI_APPLICATION = "colorfour_be.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-	"default": {
-		"ENGINE": "django.db.backends.mysql",
-		"NAME": os.getenv("DATABASE_NAME"),
-		"USER": os.getenv("DATABASE_USER"),
-		"PASSWORD": os.getenv("DATABASE_PASSWORD"),
-		"HOST": os.getenv("DATABASE_HOST"),
-		"PORT": os.getenv("DATABASE_PORT"),
-	}
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DATABASE_NAME"),
+        "USER": os.getenv("DATABASE_USER"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+        "HOST": os.getenv("DATABASE_HOST"),
+        "PORT": os.getenv("DATABASE_PORT"),
+    }
 }
 
 
@@ -178,18 +185,18 @@ DATABASES = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-	{
-		"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-	},
-	{
-		"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-	},
-	{
-		"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-	},
-	{
-		"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-	},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
@@ -205,7 +212,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 # MEDIA_URL = 'media/'
 # MEDIA_ROOT = BASE_DIR / 'media/'
@@ -216,34 +225,34 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGGING = {
-	"version": 1,
-	"disable_existing_loggers": False,
-	"formatters": {
-		"verbose": {
-			"format": "{levelname} {asctime} {module} {message}",
-			"style": "{",
-		},
-		"simple": {
-			"format": "{levelname} {message}",
-			"style": "{",
-		},
-	},
-	"handlers": {
-		"console": {
-			"level": "DEBUG",
-			"class": "logging.StreamHandler",
-			"formatter": "verbose",
-		},
-	},
-	"loggers": {
-		# "django": {
-		#     "handlers": ["console"],
-		#     "level": "DEBUG",
-		#     "propagate": True,
-		# },
-		"": {
-			"handlers": ["console"],
-			"level": "DEBUG",
-		},
-	},
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        # "django": {
+        #     "handlers": ["console"],
+        #     "level": "DEBUG",
+        #     "propagate": True,
+        # },
+        "": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+    },
 }

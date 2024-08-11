@@ -92,7 +92,7 @@ const routes = [
   },
   {
     path: "/callback",
-    name: "callback",
+    name: "Callback",
     component: Callback,
   },
 ];

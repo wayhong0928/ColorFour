@@ -19,10 +19,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWED_ORIGINS = [
-	os.getenv("FRONTEND_URL"),
-	os.getenv("NGROK_URL"),
-]
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 

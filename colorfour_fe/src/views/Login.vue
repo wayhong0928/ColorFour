@@ -13,6 +13,35 @@
 </template>
 
 <script>
+export default {
+  data() {
+    return {
+      isAuthenticated: false, 
+      errorMessage: null,
+      googleLoginUrl: `${process.env.VUE_APP_NGROK_URL}/accounts/google/login`,
+      lineLoginUrl: `${process.env.VUE_APP_NGROK_URL}/accounts/line/login`,
+    };
+  },
+  methods: {
+    loginWithGoogle() {
+      window.location.href = this.googleLoginUrl;
+    },
+    loginWithLine() {
+      window.location.href = this.lineLoginUrl;
+    },
+    checkAuthentication() {
+      const token = localStorage.getItem('token');
+      this.isAuthenticated = !!token;  // 若 token 存在，表示已登入
+    },
+  },
+  mounted() {
+    this.checkAuthentication(); 
+  },
+};
+</script>
+
+
+<!-- <script>
   import axios from "axios";
 
   export default {
@@ -59,7 +88,7 @@
       },
     },
   };
-</script>
+</script> -->
 
 <style scoped>
   .login-container {

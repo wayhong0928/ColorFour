@@ -1,34 +1,38 @@
 <template>
-  <div class="callback">
-    <h1>Callback</h1>
-    <p>Processing your login...</p>
-  </div>
+  <div>Logging you in...</div>
 </template>
 
 <script>
-import axios from 'axios';
+  export default {
+    async created() {
+      console.log("Current URL:", window.location.href);
 
-export default {
-  name: "Callback",
-  async created() {
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (code) {
-      try {
-        const response = await axios.get(`${process.env.VUE_APP_API_URL}/accounts/google/login/callback?code=${code}`);
-        const token = response.data.token;
-        localStorage.setItem('token', token);
-        this.$router.push('/'); // 跳轉回主頁面
-      } catch (error) {
-        console.error('Error fetching Google user info', error);
-        this.$router.push('/login'); // 跳轉回登入頁面
+      const code = new URL(window.location.href).searchParams.get("code");
+
+      if (code) {
+        console.log("Authorization code found:", code);
+        try {
+          const provider = window.location.href.includes("google") ? "google" : "line";
+          console.log("Using provider:", provider);
+
+          const response = await this.$axios.post(`${process.env.VUE_APP_NGROK_URL}/accounts/${provider}/login/callback/`, {
+            code: code,
+            redirect_uri: process.env.VUE_APP_NGROK_URL + `/accounts/${provider}/login/callback/`,
+          });
+
+          console.log("Response received:", response.data);
+
+          localStorage.setItem("token", response.data.access_token);
+          console.log("Access token stored:", response.data.access_token);
+
+          this.$router.push({ name: "home" });
+        } catch (error) {
+          console.error("Login failed:", error);
+          console.error("Error details:", error.response ? error.response.data : "No response from server");
+        }
+      } else {
+        console.error("Authorization code not found");
       }
-    }
-  }
-};
+    },
+  };
 </script>
-
-<style scoped>
-.callback {
-  padding: 20px;
-}
-</style>

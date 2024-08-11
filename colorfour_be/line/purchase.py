@@ -8,8 +8,8 @@ from linebot.models import QuickReply, QuickReplyButton, MessageAction, URIActio
 
 
 load_dotenv()
-line_bot_api = LineBotApi(settings.LINE_MESSAGING_CHANNEL_ACCESS_TOKEN)
-parser = WebhookParser(settings.LINE_MESSAGING_CHANNEL_SECRET)
+line_bot_api = LineBotApi(os.getenv("LINE_MESSAGING_CHANNEL_ACCESS_TOKEN"))
+parser = WebhookParser(os.getenv("LINE_MESSAGING_CHANNEL_SECRET"))
 
 def sendBuy(event): #採購建議
     try:

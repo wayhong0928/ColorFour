@@ -5,8 +5,8 @@ from linebot import LineBotApi, WebhookParser
 from linebot.models import TextSendMessage, QuickReply, QuickReplyButton, URIAction
 
 load_dotenv()
-line_bot_api = LineBotApi(settings.LINE_MESSAGING_CHANNEL_ACCESS_TOKEN)
-parser = WebhookParser(settings.LINE_MESSAGING_CHANNEL_SECRET)
+line_bot_api = LineBotApi(os.getenv("LINE_MESSAGING_CHANNEL_ACCESS_TOKEN"))
+parser = WebhookParser(os.getenv("LINE_MESSAGING_CHANNEL_SECRET"))
 
 def sendSocial(event): #社群互動
     try:

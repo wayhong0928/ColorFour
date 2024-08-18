@@ -18,6 +18,12 @@ import closet_detail from "@/views/closet_detail.vue";
 import closet_new from "@/views/closet_new.vue";
 import closet_trash from "@/views/closet_trash.vue"
 
+//suggest
+import suggest_index from '@/views/suggest_index.vue';
+import suggest_detail from '@/views/suggest_detail.vue';
+import suggest_recommend from '@/views/suggest_recommend.vue';
+import suggest_results from '@/views/suggest_results.vue';
+
 const routes = [
   {
     path: "/",
@@ -94,6 +100,27 @@ const routes = [
     path: "/callback",
     name: "Callback",
     component: Callback,
+  },
+  {
+    path: '/suggest_index',
+    name: 'suggest_index',
+    component: suggest_index
+  },
+  {
+    path: '/suggest_detail/:id',
+    name: 'suggest_detail',
+    component: suggest_detail,
+    props: true,
+  },
+  {
+    path: '/suggest_recommend',
+    name: 'suggest_recommend',
+    component: suggest_recommend,
+  },
+  {
+    path: '/suggest_results',
+    name: 'suggest_results',
+    component:suggest_results,
   },
 ];
 

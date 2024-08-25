@@ -19,14 +19,16 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:8080",
-#     "https://upward-gorgeous-bedbug.ngrok-free.app",
-# ]
 CORS_ALLOWED_ORIGINS = [
-	os.getenv("FRONTEND_URL"),
-	os.getenv("NGROK_URL"),
+     "http://localhost:8080",
+     "https://upward-gorgeous-bedbug.ngrok-free.app",
 ]
+
+#CORS_ALLOWED_ORIGINS = [
+	#os.getenv("FRONTEND_URL"), 直接用下面那行取代，解決makemigrations的問題
+	#os.getenv("NGROK_URL"),    同上
+#    url for url in [os.getenv("FRONTEND_URL"), os.getenv("NGROK_URL")] if url
+#]
 
 INSTALLED_APPS = [
     "django.contrib.admin",

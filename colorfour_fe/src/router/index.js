@@ -16,7 +16,16 @@ import color_test from "@/views/color_test.vue";
 import closet_index from "@/views/closet_index.vue";
 import closet_detail from "@/views/closet_detail.vue";
 import closet_new from "@/views/closet_new.vue";
-import closet_trash from "@/views/closet_trash.vue"
+import closet_trash from "@/views/closet_trash.vue";
+
+//Social
+import social_index from "@/views/social_index.vue";
+import user_profile from "@/views/user_profile.vue"
+import social_collect from "@/views/social_collect.vue"
+import post_new from "@/views/post_new.vue"
+import post_edit from "@/views/post_edit.vue"
+import social_follow_list from "@/views/social_follow_list.vue"
+
 
 const routes = [
   {
@@ -95,6 +104,37 @@ const routes = [
     name: "Callback",
     component: Callback,
   },
+  {
+    path: "/social_index",
+    name: "social_index",
+    component: social_index,
+  },
+  {
+    path: "/user_profile",
+    name: "user_profile",
+    component: user_profile,
+  },
+  {
+    path: "/social_collect",
+    name: "social_collect",
+    component: social_collect,
+  },
+  {
+    path: "/post_new",
+    name: "post_new",
+    component: post_new,
+  },
+  {
+    path: "/post_edit",
+    name: "post_edit",
+    component: post_edit,
+  },
+  {
+    path: "/social_follow_list",
+    name: "social_follow_list",
+    component: social_follow_list,
+  },
+
 ];
 
 const router = createRouter({

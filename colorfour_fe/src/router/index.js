@@ -4,6 +4,9 @@ import Login from "@/views/Login.vue";
 import Error404 from "@/views/Error404.vue";
 import Callback from '@/views/Callback.vue';
 
+// user
+import user_setting from '@/views/user_setting.vue';
+
 // Color 
 import color_index from "@/views/color_index.vue";
 import color_detail_1 from "@/views/color_detail_1.vue";
@@ -18,7 +21,7 @@ import closet_detail from "@/views/closet_detail.vue";
 import closet_new from "@/views/closet_new.vue";
 import closet_trash from "@/views/closet_trash.vue";
 
-//Social
+// Social
 import social_index from "@/views/social_index.vue";
 import user_profile from "@/views/user_profile.vue"
 import social_collect from "@/views/social_collect.vue"
@@ -26,6 +29,18 @@ import post_new from "@/views/post_new.vue"
 import post_edit from "@/views/post_edit.vue"
 import social_follow_list from "@/views/social_follow_list.vue"
 
+
+// suggest
+import suggest_index from '@/views/suggest_index.vue';
+import suggest_detail from '@/views/suggest_detail.vue';
+import suggest_recommend from '@/views/suggest_recommend.vue';
+import suggest_results from '@/views/suggest_results.vue';
+
+// buy
+import buy_result from '@/views/buy_result.vue';
+import buy_suggest from '@/views/buy_suggest.vue';
+import buy_detail from '@/views/buy_detail.vue';
+import buy_index from '@/views/buy_index.vue';
 
 const routes = [
   {
@@ -37,6 +52,21 @@ const routes = [
     path: "/about",
     name: "about",
     component: () => import("../views/AboutView.vue"),
+  },
+  {
+    path: "/user_profile",
+    name: "user_profile",
+    component: user_profile,
+  },
+  {
+    path: "/user_setting",
+    name: "user_setting",
+    component:user_setting,
+  },
+  {
+    path: "/callback",
+    name: "Callback",
+    component: Callback,
   },
   {
     path: "/Login",
@@ -100,19 +130,9 @@ const routes = [
     component: closet_trash,
   },
   {
-    path: "/callback",
-    name: "Callback",
-    component: Callback,
-  },
-  {
     path: "/social_index",
     name: "social_index",
     component: social_index,
-  },
-  {
-    path: "/user_profile",
-    name: "user_profile",
-    component: user_profile,
   },
   {
     path: "/social_collect",
@@ -134,7 +154,46 @@ const routes = [
     name: "social_follow_list",
     component: social_follow_list,
   },
-
+    path: "/suggest_index",
+    name: "suggest_index",
+    component: suggest_index,
+  },
+  {
+    path: "/suggest_detail/:id",
+    name: "suggest_detail",
+    component: suggest_detail,
+    props: true,
+  },
+  {
+    path: "/suggest_recommend",
+    name: "suggest_recommend",
+    component: suggest_recommend,
+  },
+  {
+    path: "/suggest_results",
+    name: "suggest_results",
+    component:suggest_results,
+  },
+  {
+    path: "/buy_index",
+    name: "buy_index",
+    component: buy_index,
+  },
+  {
+    path: "/buy_suggest",
+    name: "buy_suggest",
+    component:buy_suggest,
+  },
+  {
+    path: "/buy_detail",
+    name: "buy_detail",
+    component:buy_detail,
+  },
+  {
+    path: "/buy_result",
+    name: "buy_result",
+    component:buy_result,
+  },
 ];
 
 const router = createRouter({

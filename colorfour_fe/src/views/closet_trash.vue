@@ -39,8 +39,8 @@
               </select>
             </div>
             <div>
-              <a href="closet_new.html" class="btn btn-outline-secondary">新增單品</a>
-              <a href="closet_trash.html" class="btn btn-outline-secondary">回收區</a>
+              <button @click="restoreItems" class="btn btn-outline-secondary">復原</button>
+              <button @click="deleteItems" class="btn btn-outline-secondary">永久刪除</button>
             </div>
           </div>
           <div class="row" id="wardrobe-list">
@@ -51,6 +51,10 @@
                   <h5 class="card-title">
                     <a :href="item.link">{{ item.name }}</a>
                   </h5>
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" v-model="selectedItems" :value="item.id" />
+                    <label class="form-check-label"></label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -66,6 +70,7 @@
   </div>
 </template>
 
+
 <script>
 export default {
   name: "closet_trash",
@@ -74,6 +79,7 @@ export default {
       selectedCategory: "all",
       selectedBrand: "all",
       sortBy: "newest",
+      selectedItems: [],
       items: [
         {
           id: 1,
@@ -327,6 +333,18 @@ export default {
       return filteredItems;
     },
   },
+  methods: {
+    restoreItems() {
+      this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
+      this.selectedItems = [];
+      alert("選中的項目已經復原");
+    },
+    deleteItems() {
+      this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
+      this.selectedItems = [];
+      alert("選中的項目已永久刪除");
+    }
+  }
 };
 </script>
 

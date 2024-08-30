@@ -5,7 +5,7 @@ class ColorAnalysisForm(forms.ModelForm):
     class Meta:
         model = ColorAnalysis
         fields = [
-            'user_id', 
+            'user', 
             'season', 
             'skin_color', 
             'hair_color', 

@@ -1,58 +1,112 @@
-from rest_framework import generics, status
-from rest_framework.views import APIView
+from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from .models import (
+    WardrobeCategory,
+    WardrobeType,
+    WardrobeItem,
+    WardrobeOccasion,
+    WardrobeItemOccasion,
+    WardrobeOutfit,
+    WardrobeOutfitItem,
+    WardrobeOutfitOccasion,
+)
+from .serializers import (
+    WardrobeCategorySerializer,
+    WardrobeTypeSerializer,
+    WardrobeItemSerializer,
+    WardrobeOccasionSerializer,
+    WardrobeItemOccasionSerializer,
+    WardrobeOutfitSerializer,
+    WardrobeOutfitItemSerializer,
+    WardrobeOutfitOccasionSerializer,
+)
+
+
+class WardrobeCategoryViewSet(viewsets.ModelViewSet):
+    queryset = WardrobeCategory.objects.all()
+    serializer_class = WardrobeCategorySerializer
+
+
+class WardrobeTypeViewSet(viewsets.ModelViewSet):
+    queryset = WardrobeType.objects.all()
+    serializer_class = WardrobeTypeSerializer
+
+
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from .models import WardrobeItem
 from .serializers import WardrobeItemSerializer
-from rest_framework.permissions import AllowAny
 
-# 總覽 LIST
-class WardrobeItemListCreate(generics.ListCreateAPIView):
-	queryset = WardrobeItem.objects.filter(garbage_can=False).order_by("-created_at")
-	serializer_class = WardrobeItemSerializer
-	permission_classes = [AllowAny] # 此為暫時測試用，待第三方登入開發完成後移除。
-	def perform_create(self, serializer):
-		serializer.save()
-		
-# 垃圾桶裡的單品 LIST
-class WardrobeItemListInGarbage(generics.ListCreateAPIView):
-	queryset = WardrobeItem.objects.filter(garbage_can=True).order_by("-created_at")
-	serializer_class = WardrobeItemSerializer
-	permission_classes = [AllowAny] # 此為暫時測試用，待第三方登入開發完成後移除。
+class WardrobeItemViewSet(viewsets.ModelViewSet):
+  queryset = WardrobeItem.objects.filter(is_in_trash=False)  # 過濾掉垃圾桶內的項目
+  serializer_class = WardrobeItemSerializer
 
-	def perform_create(self, serializer):
-		serializer.save()
+  @action(detail=False, methods=['get'])
+  def overview(self, request):
+    """總攬畫面"""
+    items = self.get_queryset()
+    serializer = self.get_serializer(items, many=True)
+    return Response(serializer.data)
 
-# 詳細、更新與刪除功能
-class WardrobeItemDetail(generics.RetrieveUpdateDestroyAPIView):
-	queryset = WardrobeItem.objects.all()
-	serializer_class = WardrobeItemSerializer
-	permission_classes = [AllowAny] # 此為暫時測試用，待第三方登入開發完成後移除。
+  def retrieve(self, request, *args, **kwargs):
+    """詳細資料頁面"""
+    item = self.get_object()
+    serializer = self.get_serializer(item)
+    return Response(serializer.data)
 
-	def delete(self, request, *args, **kwargs):
-		item = self.get_object()
-		if item.garbage_can:
-			return super().delete(request, *args, **kwargs)
-		else:
-			item.garbage_can = True
-			item.save()
-			return Response({"message": "Item moved to garbage can"}, status=status.HTTP_200_OK)
+  @action(detail=False, methods=["get"])
+  def trash(self, request):
+    """獲取垃圾桶中的項目"""
+    trash_items = WardrobeItem.objects.filter(is_in_trash=True)
+    serializer = self.get_serializer(trash_items, many=True)
+    return Response(serializer.data)
 
-	def update(self, request, *args, **kwargs):
-		partial = kwargs.pop('partial', False)
-		instance = self.get_object()
-		serializer = self.get_serializer(instance, data=request.data, partial=partial)
-		serializer.is_valid(raise_exception=True)
-		self.perform_update(serializer)
-		return Response(serializer.data)
+  @action(detail=True, methods=["post"])
+  def move_to_trash(self, request, pk=None):
+    """將項目移到垃圾桶"""
+    item = self.get_object()
+    item.is_in_trash = True
+    item.save()
+    return Response({"status": "moved to trash"})
 
-# 真正刪除垃圾桶中的單品
-class DeleteFromGarbage(APIView):
-	permission_classes = [AllowAny] # 此為暫時測試用，待第三方登入開發完成後移除。
+  @action(detail=True, methods=["post"])
+  def restore(self, request, pk=None):
+    """從垃圾桶恢復項目"""
+    item = self.get_object()
+    item.is_in_trash = False
+    item.save()
+    return Response({"status": "restored from trash"})
 
-	def delete(self, request, item_id):
-		try:
-			item = WardrobeItem.objects.get(id=item_id, garbage_can=True)
-			item.delete()
-			return Response({"message": "Item deleted permanently"}, status=status.HTTP_204_NO_CONTENT)
-		except WardrobeItem.DoesNotExist:
-			return Response({"error": "Item not found or not in garbage can"}, status=status.HTTP_404_NOT_FOUND)
+  @action(detail=True, methods=["delete"])
+  def permanent_delete(self, request, pk=None):
+    """永久刪除項目"""
+    item = self.get_object()
+    item.delete()
+    return Response({"status": "permanently deleted"})
+
+
+class WardrobeOccasionViewSet(viewsets.ModelViewSet):
+    queryset = WardrobeOccasion.objects.all()
+    serializer_class = WardrobeOccasionSerializer
+
+
+class WardrobeItemOccasionViewSet(viewsets.ModelViewSet):
+    queryset = WardrobeItemOccasion.objects.all()
+    serializer_class = WardrobeItemOccasionSerializer
+
+
+class WardrobeOutfitViewSet(viewsets.ModelViewSet):
+    queryset = WardrobeOutfit.objects.all()
+    serializer_class = WardrobeOutfitSerializer
+
+
+class WardrobeOutfitItemViewSet(viewsets.ModelViewSet):
+    queryset = WardrobeOutfitItem.objects.all()
+    serializer_class = WardrobeOutfitItemSerializer
+
+
+class WardrobeOutfitOccasionViewSet(viewsets.ModelViewSet):
+    queryset = WardrobeOutfitOccasion.objects.all()
+    serializer_class = WardrobeOutfitOccasionSerializer

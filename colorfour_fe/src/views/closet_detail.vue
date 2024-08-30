@@ -26,97 +26,36 @@
   import axios from "axios";
 
   export default {
-    name: "closet_detail",
-    props: ["id"],
     data() {
       return {
-        item: {
-          name: "",
-          category: "",
-          brand: "",
-          price: 0,
-          addedDate: "",
-          image: "",
-          tags: [],
-        },
+        item: null,
       };
     },
-
-    created() {
-      this.fetchItem(this.id);
-    },
-
     methods: {
-      fetchItem(id) {
-        axios
-          .get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${id}/`)
-          .then((response) => {
-            if (response.data) {
-              this.item = {
-                name: response.data.item_name,
-                category: response.data.item_type,
-                brand: response.data.brand,
-                price: response.data.price,
-                addedDate: new Date(response.data.created_at).toLocaleDateString(),
-                image: response.data.photo_url,
-                tags: JSON.parse(response.data.tags || "[]"),
-              };
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching item:", error);
-            alert("找不到該商品，將返回列表頁面");
-            this.$router.push({ name: "closet_index" });
-          });
+      async fetchItem() {
+        const itemId = this.$route.params.id;
+        try {
+          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${itemId}/`);
+          this.item = response.data;
+        } catch (error) {
+          console.error("Error fetching item details:", error);
+        }
       },
-
-      //TODO 請修正 editItem，應該要是一份表單。
-
+      async deleteItem() {
+        const itemId = this.$route.params.id;
+        try {
+          await axios.delete(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${itemId}/`);
+          this.$router.push("/closet");
+        } catch (error) {
+          console.error("Error deleting item:", error);
+        }
+      },
       editItem() {
-        const newName = prompt("修改商品名稱", this.item.name);
-        const newBrand = prompt("修改品牌", this.item.brand);
-        const newPrice = prompt("修改價格", this.item.price);
-        if (newName && newBrand && newPrice) {
-          this.item.name = newName;
-          this.item.brand = newBrand;
-          this.item.price = newPrice;
-          alert("商品資訊已更新");
-        }
+        this.$router.push({ name: "edit_item", params: { id: this.item.id } });
       },
-
-      deleteItem() {
-        const userConfirmed = confirm("確定要刪除此單品嗎？");
-
-        if (userConfirmed) {
-          axios
-            .delete(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`)
-            .then(() => {
-              alert("商品已移至垃圾桶");
-              this.$router.push({ name: "closet_index" });
-            })
-            .catch((error) => {
-              console.error("Error deleting item:", error);
-              alert("刪除商品時發生錯誤");
-            });
-        }
-      },
-
-      permanentlyDeleteItem() {
-        const userConfirmed = confirm("此操作將永久刪除商品，確定要繼續嗎？");
-
-        if (userConfirmed) {
-          axios
-            .delete(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/delete/`)
-            .then(() => {
-              alert("商品已永久刪除");
-              this.$router.push({ name: "closet_index" });
-            })
-            .catch((error) => {
-              console.error("Error permanently deleting item:", error);
-              alert("永久刪除商品時發生錯誤");
-            });
-        }
-      },
+    },
+    created() {
+      this.fetchItem();
     },
   };
 </script>

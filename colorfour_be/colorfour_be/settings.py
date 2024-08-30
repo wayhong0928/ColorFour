@@ -20,15 +20,13 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-     "http://localhost:8080",
-     "https://upward-gorgeous-bedbug.ngrok-free.app",
+    "http://localhost:8080",
+    "https://upward-gorgeous-bedbug.ngrok-free.app",
 ]
 
-#CORS_ALLOWED_ORIGINS = [
-	#os.getenv("FRONTEND_URL"), 直接用下面那行取代，解決makemigrations的問題
-	#os.getenv("NGROK_URL"),    同上
+# CORS_ALLOWED_ORIGINS = [
 #    url for url in [os.getenv("FRONTEND_URL"), os.getenv("NGROK_URL")] if url
-#]
+# ]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -40,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "rest_framework",
     "rest_framework.authtoken",
+    "rest_framework_simplejwt",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "allauth",
@@ -47,7 +46,9 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.line",
+    "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
+    "member",
     "color_analyzer",
     "wardrobe_manager",
     "outfit_recommender",
@@ -57,6 +58,8 @@ INSTALLED_APPS = [
     "line",
 ]
 
+AUTH_USER_MODEL = "member.User"
+
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
@@ -64,10 +67,16 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
+ACCOUNT_ADAPTER = 'member.adapters.CustomAccountAdapter'
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'member.serializers.UserSerializer',
+}
+
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = "email"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_PASSWORD_REQUIRED = False
 LOGIN_REDIRECT_URL = "/"
@@ -83,9 +92,6 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": os.getenv("LINE_LOGIN_CHANNEL_SECRET"),
         },
         "SCOPE": ["profile", "openid", "email"],
-        "OAUTH_GET_PARAMS": {
-            "redirect_uri": "https://upward-gorgeous-bedbug.ngrok-free.app/accounts/line/login/callback/",
-        },
     },
     "google": {
         "APP": {
@@ -93,10 +99,7 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
             "key": "",
         },
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
+        "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {
             "access_type": "online",
         },
@@ -109,30 +112,42 @@ ACCOUNT_ADAPTER = "allauth.account.adapter.DefaultAccountAdapter"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
-        'rest_framework.authentication.TokenAuthentication',
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
-        'rest_framework.permissions.IsAdminUser',
     ],
 }
 
 from datetime import timedelta
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "AUTH_HEADER_TYPES": ("Bearer",),
-    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
-    "AUTH_COOKIE": "access_token",
-    "AUTH_COOKIE_SECURE": True,
-    "AUTH_COOKIE_HTTP_ONLY": True,
-    "AUTH_COOKIE_PATH": "/",
-    "AUTH_COOKIE_SAMESITE": "Lax",
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = "my-app-auth"
+JWT_AUTH_REFRESH_COOKIE = "my-refresh-token"
+
+REST_AUTH = {
+    "USE_JWT": True,
+    "JWT_AUTH_COOKIE": "_auth",  # Name of access token cookie
+    "JWT_AUTH_REFRESH_COOKIE": "_refresh", # Name of refresh token cookie
+    "JWT_AUTH_HTTPONLY": False,  # Makes sure refresh token is sent
 }
 
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": None,
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

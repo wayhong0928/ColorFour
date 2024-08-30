@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer bg-light">
+  <footer v-if="isAuthenticated" class="footer bg-light">
     <div class="container footer-container">
       <div class="footer-col">
         <router-link to="/">
@@ -23,7 +23,13 @@
 </template>
 
 <script>
-  export default {};
+  import { mapGetters } from "vuex";
+
+  export default {
+    computed: {
+      ...mapGetters("auth", ["isAuthenticated"]),
+    },
+  };
 </script>
 
 <style scoped>

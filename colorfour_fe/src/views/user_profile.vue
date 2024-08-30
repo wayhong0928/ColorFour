@@ -1,8 +1,21 @@
 <template>
   <div>
     <div id="header"></div>
-
     <main class="container">
+      <!-- test area -->
+      <div>
+        <h1>User Profile</h1>
+        <div v-if="user">
+          <p><strong>First Name:</strong> {{ user.first_name }}</p>
+          <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+          <p><strong>Email:</strong> {{ user.email }}</p>
+          <!-- test area -->
+        </div>
+        <div v-else>
+          <p>Loading...</p>
+        </div>
+      </div>
+      <!--  -->
       <div class="row my-4">
         <!-- Existing profile information section -->
         <div class="col-6 d-flex justify-content-between align-items-center">
@@ -128,81 +141,95 @@
 </template>
 
 <script>
-export default {
-  name: "user_profile",
-};
+  import axios from "axios";
+  export default {
+    name: "user_profile",
+    data() {
+      return {
+        user: null,
+      };
+    },
+    async mounted() {
+      try {
+        const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/dj-rest-auth/user/`);
+        this.user = response.data;
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+      }
+    },
+  };
 </script>
 
 <style scoped>
-.container {
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  max-width: 1200px;
-  margin: 100px auto 100px auto;
-}
+  .container {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 100px auto 100px auto;
+  }
 
-.img-fluid {
-  border-radius: 10px;
-}
+  .img-fluid {
+    border-radius: 10px;
+  }
 
-.nav-tabs .nav-link {
-  color: #333;
-}
+  .nav-tabs .nav-link {
+    color: #333;
+  }
 
-.nav-tabs .nav-link.active {
-  color: #000;
-  font-weight: bold;
-}
+  .nav-tabs .nav-link.active {
+    color: #000;
+    font-weight: bold;
+  }
 
-.text-center p {
-  font-size: 1.2rem;
-  color: #777;
-}
+  .text-center p {
+    font-size: 1.2rem;
+    color: #777;
+  }
 
-.rounded-circle {
-  border-radius: 50%;
-}
+  .rounded-circle {
+    border-radius: 50%;
+  }
 
-/* Two-column layout */
-.result-item {
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.result-item .date {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.line-qr-code img {
-  max-width: 50%;
-  height: auto;
-  border-radius: 10px;
-}
-
-.icon {
-  width: 20px; /* Adjust the size as needed */
-  height: 20px;
-  margin-left: 5px; /* Add some margin if needed */
-}
-
-/* Position small icon in the top right corner */
-.corner-icon {
-  width: 26px;
-  height: 26px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(50%, -50%); /* Adjust position to align with the corner */
-}
-
-@media (min-width: 992px) {
-  .col-lg-6 {
+  /* Two-column layout */
+  .result-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
     margin-bottom: 20px;
   }
-}
+
+  .result-item .date {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .line-qr-code img {
+    max-width: 50%;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  .icon {
+    width: 20px; /* Adjust the size as needed */
+    height: 20px;
+    margin-left: 5px; /* Add some margin if needed */
+  }
+
+  /* Position small icon in the top right corner */
+  .corner-icon {
+    width: 26px;
+    height: 26px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%); /* Adjust position to align with the corner */
+  }
+
+  @media (min-width: 992px) {
+    .col-lg-6 {
+      margin-bottom: 20px;
+    }
+  }
 </style>

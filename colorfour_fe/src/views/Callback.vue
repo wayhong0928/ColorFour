@@ -1,38 +1,59 @@
 <template>
-  <div>Logging you in...</div>
+  <div>
+    <p v-if="loading">正在處理登入，請稍候...</p>
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+  </div>
 </template>
 
 <script>
+  import { mapActions } from "vuex";
+
   export default {
-    async created() {
-      console.log("Current URL:", window.location.href);
+    data() {
+      return {
+        loading: true,
+        errorMessage: null,
+      };
+    },
+    methods: {
+      ...mapActions("auth", ["login", "refreshToken", "logout"]),
+      async handleCallback() {
+        const code = new URL(window.location.href).searchParams.get("code");
+        const state = new URL(window.location.href).searchParams.get("state");
 
-      const code = new URL(window.location.href).searchParams.get("code");
+        console.log("OAuth Code:", code);
+        console.log("OAuth State:", state);
 
-      if (code) {
-        console.log("Authorization code found:", code);
-        try {
-          const provider = window.location.href.includes("google") ? "google" : "line";
-          console.log("Using provider:", provider);
-
-          const response = await this.$axios.post(`${process.env.VUE_APP_NGROK_URL}/accounts/${provider}/login/callback/`, {
-            code: code,
-            redirect_uri: process.env.VUE_APP_NGROK_URL + `/accounts/${provider}/login/callback/`,
-          });
-
-          console.log("Response received:", response.data);
-
-          localStorage.setItem("token", response.data.access_token);
-          console.log("Access token stored:", response.data.access_token);
-
-          this.$router.push({ name: "home" });
-        } catch (error) {
-          console.error("Login failed:", error);
-          console.error("Error details:", error.response ? error.response.data : "No response from server");
+        if (!code) {
+          this.errorMessage = "未找到授權碼，請重新嘗試登入。";
+          this.loading = false;
+          return;
         }
-      } else {
-        console.error("Authorization code not found");
-      }
+
+        try {
+          if (state === "google") {
+            await this.login({ code, provider: 'google' });
+            this.$router.push({ name: "home" });
+          } else if (state === "line") {
+            await this.login({ code, provider: 'line' });
+            this.$router.push({ name: "home" });
+          } else {
+            throw new Error("未知的登入提供者");
+          }
+        } catch (error) {
+          console.error("登入失敗:", error);
+          this.errorMessage = "登入失敗，請重新嘗試。";
+          if (error.response) {
+            console.error("服務器回應:", error.response.data);
+          }
+        } finally {
+          this.loading = false;
+        }
+      },
+    },
+
+    mounted() {
+      this.handleCallback();
     },
   };
 </script>

@@ -16,6 +16,11 @@ class User(AbstractUser):
     last_login = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        if self.username == "":
+            self.username = None
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.email
 

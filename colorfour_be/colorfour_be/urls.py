@@ -22,4 +22,6 @@ urlpatterns = [
     path("shopping/", include("shopping_advisor.urls")),
     path("outfit/", include("outfit_scheduler.urls")),
     path("line/", include("line.urls")),
+
+    path('social_platform/', include('social_platform.urls')),  # 留言功能
 ]

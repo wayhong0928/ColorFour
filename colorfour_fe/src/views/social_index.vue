@@ -87,8 +87,8 @@
   <span>{{ post.comments }}</span>
 </div>
 <div class="comment-section mt-3">
-  <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
-  <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
+    <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
+    <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
 </div>
 
         </div>
@@ -100,6 +100,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -158,18 +160,18 @@ export default {
       });
     });
   },
-  methods: {
+    methods: {
     editPost(post) {
-    this.$router.push({ 
-      name: 'post_edit', 
-      params: { postId: post.id } 
-    });
-  },
-
+      this.$router.push({ 
+        name: 'post_edit', 
+        params: { postId: post.id } 
+      });
+    },
 
     toggleDropdown(event) {
       event.currentTarget.nextElementSibling.classList.toggle("show");
     },
+    
     toggleCommentBox(event) {
       const commentBox =
         event.currentTarget.parentElement.nextElementSibling;
@@ -178,34 +180,131 @@ export default {
           ? "block"
           : "none";
     },
-  likePost(post) {
+
+    likePost(post) {
       // 增加貼文的讚數
       post.likes++;
     },
-    submitComment(post) {
-      if (post.newComment.trim()) {
-        post.comments++;
-        post.newComment = ""; // 清空留言框
+
+    /*問題
+      抓不到有效token
+      會有401 Unauthorized
+    */
+   
+    /* Google 登入並提交留言的整合功能 */
+    async handleGoogleLoginAndSubmitComment(response, post) {
+      try {
+        // 1. 發送 Google 登入請求到後端，並獲取 JWT Token
+        const jwtResponse = await axios.post('http://localhost:8000/auth/google/', {
+          access_token: response.tokenObj.access_token  // Google OAuth 取得的 access_token
+        });
+
+        // 2. 從後端的回應中獲取 JWT Token
+        const token = jwtResponse.data.access;
+        console.log('JWT Token:', token);
+
+        // 3. 將 JWT Token 保存到 localStorage
+        localStorage.setItem('token', token);
+
+        // 4. 檢查留言內容是否為空
+        console.log("留言內容:", post.newComment);  // 調試，檢查留言內容
+        if (post.newComment.trim() === '') {
+          alert('留言不能為空');
+          return;
+        }
+
+        // 5. 從 localStorage 中讀取保存的 JWT Token
+        const storedToken = localStorage.getItem('token');
+        console.log("從 localStorage 讀取到的 token:", storedToken);
+
+        if (!storedToken) {
+          alert('未找到有效的 token');
+          return;
+        }
+
+        // 6. 發送提交留言的請求
+        const commentResponse = await axios.post('http://localhost:8000/social_platform/comments/', {
+          content: post.newComment,  // 留言的內容
+          post: post.id,  // 貼文的 ID
+        }, {
+          headers: {
+            'Authorization': `Bearer ${storedToken}`  // 使用 JWT Token
+          }
+        });
+
+        // 7. 提交成功後的處理
+        alert('留言提交成功');
+        post.comments++; // 更新本地的留言數量
+        post.newComment = '';  // 清空留言框
+      } catch (error) {
+        console.error("錯誤信息:", error.response ? error.response.data : error.message);
+        alert('提交失敗，請重試');
       }
     },
-  editPost(post) {
+
+    async submitComment(post) {
+      console.log("留言內容:", post.newComment);  // 調試，檢查留言內容
+      
+      // 檢查留言內容是否為空
+      if (post.newComment.trim() === '') {
+        alert('留言不能為空');
+        return;
+      }
+
+      try {
+        // 從 localStorage 中獲取 token
+        const token = localStorage.getItem('token');  
+        console.log("Token:", token);  // 調試以確保 token 是否存在
+
+        // 如果未找到 token，提示用戶
+        if (!token) {
+          alert('未找到有效的 token');
+          return;
+        }
+
+        // 發送留言的 POST 請求
+        const response = await axios.post('http://localhost:8000/social_platform/comments/', {
+          content: post.newComment,  // 留言的內容
+          post: post.id,  // 貼文的 ID
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`  // 將 token 添加到 Authorization 標頭
+          }
+        });
+
+        // 提交成功後的處理邏輯
+        alert('留言提交成功');
+        post.comments++; // 更新本地的留言數量
+        post.newComment = '';  // 清空留言框
+      } catch (error) {
+        // 錯誤處理
+        console.error("錯誤信息:", error.response ? error.response.data : error.message);
+        alert('提交失敗，請重試');
+      }
+    },
+
+    editPost(post) {
       // 編輯貼文的邏輯
       console.log('編輯貼文:', post);
     },
+    
     deletePost(post) {
       // 刪除貼文的邏輯
       console.log('刪除貼文:', post);
     },
+
     sharePost(post) {
       // 分享貼文的邏輯
       console.log('分享貼文:', post);
     },
+    
     savePostToCollect(post) {
       // 將貼文存入收藏頁面的邏輯
       console.log('收藏貼文:', post);
       this.$router.push({ name: 'social_collect' }); // 導航到收藏頁面
     },
   },
+
 };
 </script>
 

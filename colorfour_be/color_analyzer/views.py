@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from .models import ColorAnalysis
-from .forms import ColorAnalysisForm
+# from .models import ColorAnalysis 舊的資料表
+# from .forms import ColorAnalysisForm 舊的資料表
 
 from django.http import JsonResponse
 from django.views import View

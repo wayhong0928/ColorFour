@@ -50,17 +50,24 @@
 
           <!-- 這裡是關鍵的資料顯示區域 -->
           <div class="row" id="wardrobe-list">
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" v-for="item in sortedAndFilteredItems" :key="item.id">
-              <div class="card mb-3">
-                <img :src="item.photo_url" class="card-img-top" :alt="item.item_name" />
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <router-link :to="{ name: 'closet_detail', params: { id: item.id } }">{{ item.item_name }}</router-link>
-                  </h5>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" v-for="item in sortedAndFilteredItems" :key="item.id">
+      <div class="card mb-3">
+        <img :src="item.photo_url" class="card-img-top" :alt="item.item_name" />
+        <div class="card-body">
+          <h5 class="card-title">
+            <router-link :to="{ name: 'closet_detail', params: { id: item.id } }">{{ item.item_name }}</router-link>
+          </h5>
+          <!-- Add the "穿搭組合推薦" button -->
+          <router-link
+            class="btn btn-outline-secondary"
+            :to="{ name: 'suggest_detail', params: { id: item.id } }"
+          >
+            穿搭推薦
+          </router-link>
+        </div>
+      </div>
+    </div>
+  </div>
 
           <section aria-label="Page navigation" style="margin-bottom: 100px">
             <ul class="pagination justify-content-center">

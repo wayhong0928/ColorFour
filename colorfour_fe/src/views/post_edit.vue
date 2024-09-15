@@ -96,21 +96,66 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
       post: {
-        username: "嗡嗡嗡",
-        description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
-        hashtags: "#OOTD #帥氣 #甜美",
-        location: "中原大學",
-        time: "2024-04-18T10:00",
-        image: require('@/assets/img/post_01.jpg'),
+        id: "",
+        username: "",
+        description: "",
+        hashtags: "",
+        location: "",
+        time: "",
+        image: "",
       },
     };
   },
+  mounted() {
+    this.fetchPost();
+  },
   methods: {
+    fetchPost() {
+      const postId = parseInt(this.$route.params.postId);
+      console.log('Fetching post with ID:', postId);
+
+      const posts = [
+        {
+          id: 1,
+          username: "嗡嗡嗡",
+          description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
+          hashtags: "#OOTD #帥氣 #甜美",
+          location: "中原大學",
+          time: "2024-04-18T10:00",
+          image: require('@/assets/img/post_01.jpg'),
+        },
+        {
+          id: 2,
+          username: "哇哈哈",
+          description: "今天天氣真好，出門散步拍了些美照。",
+          hashtags: "#散步 #美照 #好心情",
+          location: "台北市",
+          time: "2024-04-17T10:00",
+          image: "https://picsum.photos/300/200?random=1",
+        },
+        {
+          id: 3,
+          username: "小明",
+          description: "剛完成了一幅新畫作，分享給大家看看。",
+          hashtags: "#畫作 #藝術 #分享",
+          location: "高雄市",
+          time: "2024-04-16",
+          image: "https://picsum.photos/300/200?random=2",
+        },
+      ];
+
+      const post = posts.find(p => p.id === postId);
+      if (post) {
+        console.log('Post found:', post);
+        this.post = { ...post };
+      } else {
+        console.error('Post not found');
+      }
+    },
     onImageChange(event) {
       const file = event.target.files[0];
       if (file) {
@@ -124,7 +169,9 @@ export default {
     },
   },
 };
+
 </script>
+
 
 <style scoped>
 .main-content {
@@ -259,7 +306,7 @@ export default {
   .left-sidebar {
     width: 100%;
     position: fixed;
-    top: 90px;
+    top: 60px;
     left: 0;
     height: 60px;
     display: flex;

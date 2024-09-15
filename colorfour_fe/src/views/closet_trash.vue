@@ -49,13 +49,21 @@
                 <img :src="item.image" class="card-img-top" :alt="item.name" />
                 <div class="card-body">
                   <h5 class="card-title">
-                    <a :href="item.link">{{ item.name }}</a>
+                  <router-link :to="{ name: 'closet_detail', params: { id: item.id } }">{{ item.name }}</router-link>
                   </h5>
-                  <div class="form-check">
-                    <input type="checkbox" class="form-check-input" v-model="selectedItems" :value="item.id" />
-                    <label class="form-check-label"></label>
-                  </div>
-                </div>
+                  <!-- Add the "穿搭組合推薦" button -->
+          <router-link
+            class="btn btn-outline-secondary"
+            :to="{ name: 'suggest_detail', params: { id: item.id } }"
+          >
+            穿搭推薦
+          </router-link>
+  <div class="form-check">
+    <input type="checkbox" class="form-check-input" v-model="selectedItems" :value="item.id" />
+    <label class="form-check-label"></label>
+  </div>
+</div>
+
               </div>
             </div>
           </div>
@@ -73,6 +81,7 @@
 
 <script>
 export default {
+  props: ['id'],
   name: "closet_trash",
   data() {
     return {
@@ -80,7 +89,7 @@ export default {
       selectedBrand: "all",
       sortBy: "newest",
       selectedItems: [],
-      items: [
+          items: [
         {
           id: 1,
           name: "白T萬歲",
@@ -333,20 +342,22 @@ export default {
       return filteredItems;
     },
   },
-  methods: {
-    restoreItems() {
-      this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
-      this.selectedItems = [];
-      alert("選中的項目已經復原");
-    },
-    deleteItems() {
-      this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
-      this.selectedItems = [];
-      alert("選中的項目已永久刪除");
-    }
-  }
-};
+methods: {
+  restoreItems() {
+    this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
+    this.selectedItems = [];
+    alert("選中的項目已經復原");
+  },
+  deleteItems() {
+    this.items = this.items.filter(item => !this.selectedItems.includes(item.id));
+    this.selectedItems = [];
+    alert("選中的項目已永久刪除");
+  },
+  
+}
+}
 </script>
+
 
 <style scoped>
 #wardrobe-list .card {

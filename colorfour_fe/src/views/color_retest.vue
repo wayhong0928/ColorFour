@@ -1,4 +1,3 @@
-<!-- 原來的template 
 <template>
   <div class="container">
     <header>
@@ -7,74 +6,6 @@
       </nav>
     </header>
     <img src="@/assets/img/face.png" alt="Header Image" class="header-image" />
-    <main>
-      <form @submit.prevent="handleSubmit">
-        <div class="question-container">
-          <div
-            :class="['question', { active: currentQuestionIndex === index }]"
-            v-for="(question, index) in questions"
-            :key="question.title"
-          >
-            <h2 class="question-title">{{ question.title }}</h2>
-            <div class="options" v-if="question.options">
-              <label v-for="(option, idx) in question.options" :key="option.value" class="option-label">
-                <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="answers[index]" class="option-input" />
-                <span v-if="option.color" class="color-block" :style="{ backgroundColor: option.color }"></span>
-                {{ option.text }}
-              </label>
-            </div>
-            <div v-else>
-              <label v-for="(option, idx) in question.colors" :key="option.value" class="option-label">
-                <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="answers[index]" class="option-input" />
-                <div class="color-blocks">
-                  <span
-                    v-for="color in option.colors"
-                    :key="color"
-                    class="color-block"
-                    :style="{ backgroundColor: color }"
-                  ></span>
-                </div>
-              </label>
-            </div>
-            <p v-if="error && !answers[index]" class="error-text">此問題為必填</p>
-          </div>
-        </div>
-
-        <div class="button-container">
-          <button v-if="currentQuestionIndex > 0" @click="prevQuestion" id="prev-button" type="button">上一題</button>
-          <button
-            v-if="currentQuestionIndex < questions.length - 1"
-            @click="nextQuestion"
-            id="next-button"
-            type="button"
-            :disabled="!answers[currentQuestionIndex]"
-          >
-            下一題
-          </button>
-          <button v-if="currentQuestionIndex === questions.length - 1" type="submit" id="submit-button">提交</button>
-        </div>
-      </form>
-    </main>
-  </div>
-</template>
--->
-<!-- 修改後的template  -->
-<template>
-  <div class="container">
-    <header>
-      <nav>
-        <router-link to="/color_index" class="close-btn" id="close-questionnaire">x</router-link>
-      </nav>
-    </header>
-   <div class="image-upload-container">
-      <!-- 按鈕：開啟相機 -->
-      <button @click="openCamera">開啟相機</button>
-      <!-- 按鈕：上傳圖片 -->
-      <input type="file" @change="onImageUpload" accept="image/*" />
-
-      <!-- 顯示上傳的圖片 -->
-      <img v-if="uploadedImage" :src="uploadedImage" alt="Uploaded Image" class="header-image" />
-    </div>
     <main>
       <form @submit.prevent="handleSubmit">
         <div class="question-container">
@@ -249,7 +180,6 @@ export default {
   name: "ColorTest",
   data() {
     return {
-      uploadedImage: null, // 上傳圖片的 URL
       currentQuestionIndex: 0,
       questions: [
         {
@@ -330,20 +260,6 @@ export default {
     };
   },
   methods: {
-    onImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.uploadedImage = URL.createObjectURL(file); // 將圖片文件轉換為 URL 並顯示
-      }
-    },
-    openCamera() {
-      const fileInput = document.createElement("input");
-      fileInput.type = "file";
-      fileInput.accept = "image/*";
-      fileInput.capture = "user"; // 打開相機（對應前置攝像頭）
-      fileInput.onchange = (event) => this.onImageUpload(event); // 處理上傳
-      fileInput.click(); // 模擬點擊打開相機
-    },
     nextQuestion() {
       if (this.answers[this.currentQuestionIndex]) {
         this.currentQuestionIndex++;
@@ -377,14 +293,13 @@ export default {
           console.log(response.data.message);
           this.$router.push("/color_detail_1");
         } catch (error) {
-          console.error('提交表單時出錯:', error);
+          console.error('Error submitting form:', error);
         }
       }
     },
   },
 };
 </script>
-
 
 
 <style scoped>
@@ -506,48 +421,4 @@ export default {
   #submit-button:hover {
     background-color: #f9d9ca;
   }
-
-  .image-upload-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.image-upload-container button,
-.image-upload-container input[type="file"] {
-  background-color: #f1f1f1;
-  color: #333;
-  border: 1px solid #ccc;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.image-upload-container button:hover,
-.image-upload-container input[type="file"]:hover {
-  background-color: #7b838a;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.image-upload-container input[type="file"] {
-  padding: 0.75rem;
-  width: 230px;
-  text-align: center;
-  appearance: none;
-  display: block;
-  -webkit-appearance: none;
-  text-align: center;
-}
-
-.image-upload-container img {
-  margin-top: 1rem;
-  max-width: 100%;
-  height: auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
 </style>

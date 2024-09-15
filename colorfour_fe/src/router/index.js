@@ -16,6 +16,8 @@ import color_detail_2 from "@/views/color_detail_2.vue";
 import color_detail_3 from "@/views/color_detail_3.vue";
 import color_detail_4 from "@/views/color_detail_4.vue";
 import color_test from "@/views/color_test.vue";
+import color_result from "@/views/color_result.vue";
+import color_retest from "@/views/color_retest.vue";
 
 // Closet
 import closet_index from "@/views/closet_index.vue";
@@ -111,6 +113,16 @@ const routes = [
     component: color_test,
   },
   {
+    path: "/color_result",
+    name: "color_result",
+    component: color_result,
+  },
+  {
+    path: "/color_retest",
+    name: "color_retest",
+    component: color_retest,
+  },
+  {
     path: "/closet_index",
     name: "closet_index",
     component: closet_index,
@@ -118,7 +130,7 @@ const routes = [
   {
     path: "/closet_detail/:id",
     name: "closet_detail",
-    component: closet_detail,
+    component: closet_detail, 
     props: true,
   },
   {
@@ -151,7 +163,7 @@ const routes = [
     path: "/post_edit",
     name: "post_edit",
     component: post_edit,
-    meta: { requiresAuth: true },
+    //meta: { requiresAuth: true },
   },
   {
     path: "/social_follow_list",

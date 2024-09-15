@@ -67,12 +67,22 @@
         </tbody>
       </table>
     </section>
+
+    <!-- Add the "重新測驗" button here -->
+    <div class="text-center retest-button">
+      <button @click="goToRetest" class="btn btn-primary mt-3">重新測驗</button>
+    </div>
   </main>
 </template>
 
 <script>
 export default {
-  name: 'color_detail'
+  name: 'color_detail',
+  methods: {
+    goToRetest() {
+      this.$router.push({ name: 'color_retest' }); // Assuming the route name is 'color_retest'
+    }
+  }
 };
 </script>
 
@@ -90,15 +100,6 @@ export default {
   justify-content: center;
   align-items: center;
   padding-bottom: 15px;
-}
-
-.text-center::after {
-  content: "";
-  display: block;
-  width: 93%;
-  height: 1px;
-  background-color: #ccc;
-  margin-top: 15px;
 }
 
 .text-left p {
@@ -133,6 +134,10 @@ export default {
   object-fit: cover;
   margin-top: 20px;
   margin-bottom: 20px;
+}
+
+.retest-button {
+  margin-top: -40px; /* 调整此值以控制按钮与上方元素之间的距离 */
 }
 
 /* 小屏幕下调整图片样式 */

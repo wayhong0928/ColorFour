@@ -376,7 +376,7 @@ export default {
   .left-sidebar {
     width: 100%;
     position: fixed;
-    top: 90px;
+    top: 60px;
     left: 0;
     height: 60px;
     display: flex;

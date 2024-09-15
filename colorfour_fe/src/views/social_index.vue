@@ -105,6 +105,7 @@ export default {
     return {
       posts: [
         {
+          id: 1,
           username: "嗡嗡嗡",
           description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
           hashtags: "#OOTD #帥氣 #甜美",
@@ -116,6 +117,7 @@ export default {
           newComment: "", // 新增一个属性用于存储新留言
         },
         {
+          id: 2,
           username: "哇哈哈",
           description: "今天天氣真好，出門散步拍了些美照。",
           hashtags: "#散步 #美照 #好心情",
@@ -127,6 +129,7 @@ export default {
           newComment: "", // 新增一个属性用于存储新留言
         },
         {
+          id: 3,
           username: "小明",
           description: "剛完成了一幅新畫作，分享給大家看看。",
           hashtags: "#畫作 #藝術 #分享",
@@ -160,11 +163,39 @@ export default {
   },
   methods: {
     editPost(post) {
-    this.$router.push({ 
-      name: 'post_edit', 
-      params: { postId: post.id } 
-    });
-  },
+        this.$router.push({ 
+            name: 'post_edit', 
+            params: { postId: post.id } 
+        });
+    },
+    deletePost(post) {
+  // 使用 confirm 彈出確認框，讓使用者確認是否要刪除
+  const confirmation = confirm('確定要刪除這則貼文嗎？');
+
+  // 如果使用者確認，就刪除貼文
+  if (confirmation) {
+    const index = this.posts.indexOf(post);
+    if (index !== -1) {
+      this.posts.splice(index, 1); // 刪除該貼文
+      console.log('貼文已刪除:', post);
+    }
+  } else {
+    console.log('使用者取消刪除操作');
+  }
+},
+    sharePost(post) {
+  if (navigator.share) {
+    navigator.share({
+      title: post.username + '的貼文',
+      text: post.description,
+      url: window.location.href, // 當前頁面的網址
+    })
+    .then(() => console.log('貼文已分享'))
+    .catch((error) => console.error('分享失敗:', error));
+  } else {
+    alert('你的瀏覽器不支援分享功能');
+  }
+},
 
 
     toggleDropdown(event) {
@@ -192,19 +223,14 @@ export default {
       // 編輯貼文的邏輯
       console.log('編輯貼文:', post);
     },
-    deletePost(post) {
-      // 刪除貼文的邏輯
-      console.log('刪除貼文:', post);
-    },
-    sharePost(post) {
-      // 分享貼文的邏輯
-      console.log('分享貼文:', post);
-    },
     savePostToCollect(post) {
-      // 將貼文存入收藏頁面的邏輯
+   post.saved = !post.saved;
+   if (post.saved) {
       console.log('收藏貼文:', post);
-      this.$router.push({ name: 'social_collect' }); // 導航到收藏頁面
-    },
+   } else {
+      console.log('取消收藏:', post);
+   }
+},
   },
 };
 </script>
@@ -437,7 +463,7 @@ export default {
   .left-sidebar {
     width: 100%;
     position: fixed;
-    top: 90px;
+    top: 60px;
     left: 0;
     height: 60px;
     display: flex;

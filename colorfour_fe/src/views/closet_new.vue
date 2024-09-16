@@ -94,24 +94,7 @@
 </script>
 
 <style scoped>
-  /* 防止 header 和 footer 遮擋 body 內容 */
-  body {
-    padding-top: 70px; /* 根據 header 的高度調整 */
-    margin-bottom: 100px; /* 為 footer 留出空間 */
-  }
-
-  /* 增加標題與表單之間的間距 */
   h1 {
     margin-bottom: 30px;
-  }
-
-  /* 確保 footer 固定在頁面底部 */
-  footer-component {
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-    background-color: #f8f9fa;
-    padding: 10px 0;
-    text-align: center;
   }
 </style>

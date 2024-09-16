@@ -9,23 +9,46 @@
 </template>
 
 <script>
-  import Header from "@/components/Header.vue";
-  import Footer from "@/components/Footer.vue";
-  import { mapActions } from "vuex";
+import Header from "@/components/Header.vue";
+import Footer from "@/components/Footer.vue";
+import { mapActions } from "vuex";
 
-  export default {
-    name: "App",
-    components: {
-      Header,
-      Footer,
+export default {
+  name: "App",
+  components: {
+    Header,
+    Footer,
+  },
+  data() {
+    return {
+      refreshInterval: null,
+    };
+  },
+  created() {
+    this.initializeAuth();
+    this.startTokenRefreshInterval();
+  },
+  beforeUnmount() {
+    this.stopTokenRefreshInterval();
+  },
+  methods: {
+    ...mapActions("auth", ["initializeAuth", "refreshToken"]),
+    startTokenRefreshInterval() {
+      this.refreshInterval = setInterval(() => {
+        if (this.$store.getters["auth/isAuthenticated"]) {
+          this.refreshToken().catch(error => {
+            console.error("自動刷新令牌失敗:", error);
+          });
+        }
+      }, 10 * 60 * 1000); // 每10分鐘刷新一次
     },
-    created() {
-      this.initializeAuth();
+    stopTokenRefreshInterval() {
+      if (this.refreshInterval) {
+        clearInterval(this.refreshInterval);
+      }
     },
-    methods: {
-      ...mapActions("auth", ["initializeAuth"]),
-    },
-  };
+  },
+};
 </script>
 
 <style>

@@ -19,4 +19,6 @@ store.dispatch("auth/initializeAuth");
 const toastOptions = {};
 
 const app = createApp(App);
-app.use(store).use(router).use(Toast, toastOptions).mount("#app");
+app.use(store).use(router).use(Toast, toastOptions);
+
+app.mount("#app");

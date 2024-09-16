@@ -2,135 +2,114 @@
   <div>
     <div id="header"></div>
     <main class="container">
-      <!-- test area -->
-      <div>
-        <h1>User Profile</h1>
-        <div v-if="user">
-          <p><strong>First Name:</strong> {{ user.first_name }}</p>
-          <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-          <p><strong>Email:</strong> {{ user.email }}</p>
-          <!-- test area -->
-        </div>
-        <div v-else>
-          <p>Loading...</p>
-        </div>
+      <div v-if="loading">
+        <p>Loading...</p>
       </div>
-      <!--  -->
-      <div class="row my-4">
-        <!-- Existing profile information section -->
-        <div class="col-6 d-flex justify-content-between align-items-center">
-          <div>
-            <img
-              src="https://picsum.photos/100/100?random=1"
-              alt="user profile image"
-              class="rounded-circle"
-              width="100"
-              height="100"
-            />
+      <div v-else-if="error">
+        <p>{{ error }}</p>
+      </div>
+      <div v-else>
+        <div class="row my-4">
+          <!-- Profile information section -->
+          <div class="col-6 d-flex justify-content-between align-items-center">
             <div>
-              <h2>ColorFour</h2>
-              <p>@ColorFourAdmin</p>
-              <p>讓你的專屬穿搭造型師，給你點顏色瞧瞧！</p>
-            </div>
-          </div>
-          <div></div>
-        </div>
-        <div class="col-6">
-          <!-- Existing stats section -->
-          <div class="row my-4">
-            <div class="col-12">
-              <div class="d-flex flex-column align-items-start position-relative">
-                <p>男性</p>
-                <p>0 貼文 | 0 粉絲 | 0 追蹤中</p>
-                <img src="@/assets/img/bell_icon.png" alt="gender icon" class="corner-icon" />
+              <img
+                :src="user.profile_image || 'https://picsum.photos/100/100?random=1'"
+                alt="user profile image"
+                class="rounded-circle"
+                width="100"
+                height="100"
+              />
+              <div>
+                <h2>{{ user.nickname || "ColorFour User" }}</h2>
+                <p>@{{ user.username || "ColorFourUser" }}</p>
+                <p>{{ user.bio || "讓你的專屬穿搭造型師，給你點顏色瞧瞧！" }}</p>
               </div>
             </div>
           </div>
-          <div></div>
-        </div>
-      </div>
-
-      <!-- Buttons section -->
-      <div class="buttons d-flex justify-content-center">
-        <button
-          class="btn btn-outline-secondary d-flex justify-content-center"
-          style="width: 45%; margin: 0 2%; border-radius: 20px"
-        >
-          分享個人檔案
-        </button>
-        <a
-          href="#personal-info"
-          class="btn btn-outline-secondary d-flex justify-content-center"
-          style="width: 45%; margin: 0 2%; border-radius: 20px"
-        >
-          編輯個人簡介
-        </a>
-      </div>
-
-      <!-- Navigation tabs section -->
-      <div class="row my-4">
-        <div class="col-12">
-          <ul class="nav nav-tabs d-flex justify-content-center" style="border-radius: 10px">
-            <li class="nav-item">
-              <a class="nav-link active" style="border-radius: 10px" href="#">我的貼文</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" style="border-radius: 10px" href="#">收藏穿搭</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" style="border-radius: 10px" href="#">最愛單品</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Existing content for no posts -->
-      <div class="row my-4">
-        <div class="col-12 text-center">
-          <p>尚未發布任何穿搭</p>
-        </div>
-      </div>
-
-      <!-- New profile information section with two columns -->
-      <div class="row my-4">
-        <div class="col-lg-6">
-          <h3>個人色彩分析結果</h3>
-          <div class="result-item">
-            <span class="date">2023/12/25</span> 夏季型人
-            <br />
-            ☆ 若搭配了適合的顏色
-            <br />
-            ✓ 顯白、肌膚看起來變明亮
-            <br />
-            ✓ 呈現出透明感
-            <br />
-            ✓ 肌膚看起來光滑
-            <br />
-            <img src="@/assets/img/next_icon.png" class="icon" alt="next icon" />
-          </div>
-          <div class="line-qr-code">
-            <h4>Line QR-code</h4>
-            <img src="@/assets/img/line_QRcode.png" alt="Line QR-code" class="img-fluid" />
+          <div class="col-6">
+            <!-- Stats section -->
+            <div class="row my-4">
+              <div class="col-12">
+                <div class="d-flex flex-column align-items-start position-relative">
+                  <p>{{ user.gender || "未設置" }}</p>
+                  <p>
+                    {{ user.posts_count || 0 }} 貼文 | {{ user.followers_count || 0 }} 粉絲 |
+                    {{ user.following_count || 0 }} 追蹤中
+                  </p>
+                  <img src="@/assets/img/bell_icon.png" alt="gender icon" class="corner-icon" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="col-lg-6" id="personal-info">
-          <h3>個人資訊</h3>
-          <div class="mb-3">
-            <label for="nickname" class="form-label">暱稱設定</label>
-            <input type="text" class="form-control" id="nickname" placeholder="輸入暱稱" />
+        <!-- Buttons section -->
+        <div class="buttons d-flex justify-content-center">
+          <button
+            class="btn btn-outline-secondary d-flex justify-content-center"
+            style="width: 45%; margin: 0 2%; border-radius: 20px"
+            @click="shareProfile"
+          >
+            分享個人檔案
+          </button>
+          <router-link
+            :to="{ name: 'user_setting' }"
+            class="btn btn-outline-secondary d-flex justify-content-center"
+            style="width: 45%; margin: 0 2%; border-radius: 20px"
+          >
+            編輯個人簡介
+          </router-link>
+        </div>
+
+        <!-- Navigation tabs section -->
+        <div class="row my-4">
+          <div class="col-12">
+            <ul class="nav nav-tabs d-flex justify-content-center" style="border-radius: 10px">
+              <li class="nav-item">
+                <a class="nav-link active" style="border-radius: 10px" href="#" @click="setActiveTab('posts')">我的貼文</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" style="border-radius: 10px" href="#" @click="setActiveTab('favorites')">收藏穿搭</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" style="border-radius: 10px" href="#" @click="setActiveTab('likes')">最愛單品</a>
+              </li>
+            </ul>
           </div>
-          <div class="mb-3">
-            <label for="id" class="form-label">ID設定</label>
-            <input type="text" class="form-control" id="id" placeholder="輸入ID" />
+        </div>
+
+        <!-- Content based on active tab -->
+        <div class="row my-4">
+          <div class="col-12 text-center" v-if="activeTab === 'posts' && user.posts_count === 0">
+            <p>尚未發布任何穿搭</p>
           </div>
-          <div class="mb-3">
-            <label for="birthday" class="form-label">生日</label>
-            <input type="date" class="form-control" id="birthday" />
+          <!-- Add content for other tabs here -->
+        </div>
+
+        <!-- Color analysis results -->
+        <div class="row my-4">
+          <div class="col-lg-6">
+            <h3>個人色彩分析結果</h3>
+            <div class="result-item" v-if="user.color_analysis">
+              <span class="date">{{ user.color_analysis.date }}</span> {{ user.color_analysis.type }}
+              <br />
+              <div v-for="(feature, index) in user.color_analysis.features" :key="index">
+                {{ feature }}
+                <br />
+              </div>
+              <img src="@/assets/img/next_icon.png" class="icon" alt="next icon" />
+            </div>
+            <div v-else>
+              <p>尚未進行個人色彩分析</p>
+            </div>
           </div>
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" placeholder="輸入Email" />
+
+          <div class="col-lg-6">
+            <div class="line-qr-code" v-if="user.line_qr_code">
+              <h4>Line QR-code</h4>
+              <img :src="user.line_qr_code" alt="Line QR-code" class="img-fluid" />
+            </div>
           </div>
         </div>
       </div>
@@ -141,21 +120,64 @@
 </template>
 
 <script>
-  import axios from "axios";
+  import { mapGetters, mapActions } from "vuex";
+
   export default {
     name: "user_profile",
     data() {
       return {
-        user: null,
+        loading: true,
+        error: null,
+        activeTab: "posts",
       };
     },
-    async mounted() {
-      try {
-        const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/dj-rest-auth/user/`);
-        this.user = response.data;
-      } catch (error) {
-        console.error("Failed to fetch user profile:", error);
+    computed: {
+      ...mapGetters("auth", ["isAuthenticated", "user"]),
+    },
+    methods: {
+      ...mapActions("auth", ["fetchUserProfile"]),
+      async loadUserProfile() {
+        console.log("開始載入用戶資料");
+        try {
+          this.loading = true;
+          this.error = null;
+          await this.fetchUserProfile();
+          console.log("用戶資料載入成功:", this.user);
+        } catch (error) {
+          console.error("載入用戶資料失敗:", error);
+          this.error = "無法載入用戶資料，請稍後再試。";
+        } finally {
+          this.loading = false;
+          console.log("用戶資料載入完成，loading 狀態:", this.loading);
+        }
+      },
+      setActiveTab(tab) {
+        this.activeTab = tab;
+      },
+      shareProfile() {
+        // Implement share functionality
+        alert("分享功能尚未實現");
+      },
+    },
+    mounted() {
+      console.log("user_profile 組件已掛載，認證狀態:", this.isAuthenticated);
+      if (this.isAuthenticated) {
+        this.loadUserProfile();
+      } else {
+        console.log("用戶未認證，重定向到登入頁面");
+        this.$router.push("/login");
       }
+    },
+    watch: {
+      isAuthenticated(newValue) {
+        console.log("認證狀態變更:", newValue);
+        if (newValue) {
+          this.loadUserProfile();
+        } else {
+          console.log("用戶已登出，重定向到登入頁面");
+          this.$router.push("/login");
+        }
+      },
     },
   };
 </script>

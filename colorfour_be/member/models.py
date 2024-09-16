@@ -5,6 +5,7 @@ import uuid
 
 class User(AbstractUser):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    email = models.EmailField(blank=True, null=True)
     profile_picture = models.CharField(max_length=255, blank=True, null=True)
     role = models.ForeignKey(
         "Role", on_delete=models.SET_NULL, null=True
@@ -22,8 +23,7 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.email
-
+        return self.username or self.email or str(self.uuid)
 
 class Role(models.Model):
     role_name = models.CharField(max_length=50, unique=True)
@@ -68,10 +68,11 @@ class UserInteractionHistory(models.Model):
 
 
 class UserAuthProvider(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auth_providers')
     provider = models.CharField(max_length=50)  # google, line
     provider_id = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [
@@ -81,4 +82,4 @@ class UserAuthProvider(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.provider} account of {self.user.email}"
+        return f"{self.provider} account of {self.user.email or self.user.username or self.user.uuid}"

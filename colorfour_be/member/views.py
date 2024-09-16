@@ -1,87 +1,57 @@
 import logging
-from math import log
+import os
+from django.db import transaction
+from django.utils import timezone
+from django.core.exceptions import ImproperlyConfigured
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.line.views import LineOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.views import OAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from .models import UserAuthProvider
 from .serializers import UserAuthProviderSerializer
 
+logger = logging.getLogger(__name__)
 
-def handle_user_auth_provider(user, provider, provider_id=None, email=None):
-    if provider_id:
-        UserAuthProvider.objects.get_or_create(
-            user=user, provider=provider, defaults={"provider_id": provider_id}
-        )
-    elif email:
-        UserAuthProvider.objects.get_or_create(
-            user=user, provider=provider, defaults={"provider_id": email}
-        )
-    else:
-        raise ValueError("Either provider_id or email must be provided")
+class CustomSocialLoginView(SocialLoginView):
+    def get_response(self):
+        try:
+            response = super().get_response()
+            if self.user and hasattr(self, 'serializer'):
+                provider = self.serializer.context.get('view').adapter_class.provider_id
+                uid = self.serializer.validated_data.get('uid')
+                
+                if provider and uid:
+                    auth_provider, created = UserAuthProvider.objects.get_or_create(
+                        user=self.user,
+                        provider=provider,
+                        defaults={'provider_id': uid}
+                    )
+                    if not created:
+                        auth_provider.last_login = timezone.now()
+                        auth_provider.save()
+                    if response.data is not None:
+                        response.data['new_association'] = created
+                else:
+                    logger.warning(f"Provider or UID not found for user {self.user.id}")
+            return response
+        except Exception as e:
+            logger.error(f"Error in CustomSocialLoginView: {str(e)}")
+            return Response({"detail": "social login error"}, status=500)
 
-
-class CustomGoogleLogin(SocialLoginView):
+class CustomGoogleLogin(CustomSocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = "http://localhost:8080/callback"
     client_class = OAuth2Client
 
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        user = self.request.user
-        provider = "google"
-        provider_id = None
 
-        # 檢查 response.data 是否包含 user 資訊
-        if isinstance(response.data, dict) and "user" in response.data:
-            user_info = response.data["user"]
-            email = user_info.get("email", None)
-        else:
-            email = None
-
-        if provider_id is None and email is None:
-            return Response(
-                {"detail": "Unable to retrieve user ID or email from Google response"},
-                status=400,
-            )
-
-        # 使用 email 進行綁定
-        handle_user_auth_provider(user, provider, provider_id, email)
-        return response
-
-
-class CustomLineLogin(SocialLoginView):
+class CustomLineLogin(CustomSocialLoginView):
     adapter_class = LineOAuth2Adapter
     callback_url = "http://localhost:8080/callback"
     client_class = OAuth2Client
-
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        user = self.request.user
-        provider = "line"
-        provider_id = None
-        logging.info(response.data)
-        # 檢查 response.data 是否包含 Line 的使用者資訊
-        # if isinstance(response.data, dict) and "user" in response.data:
-        #     user_info = response.data["user"]
-        #     email = user_info.get("email", None)
-        #     provider_id = user_info.get("user_id", None)
-        # else:
-        #     email = None
-
-        # if provider_id is None and email is None:
-        #     return Response(
-        #         {"detail": "Unable to retrieve user ID or email from Line response"},
-        #         status=400,
-        #     )
-
-        # # 使用 email 或 provider_id 進行綁定
-        # handle_user_auth_provider(user, provider, provider_id, email)
-        # return response
-
 
 class UserAuthProviderView(APIView):
     permission_classes = [IsAuthenticated]
@@ -92,46 +62,53 @@ class UserAuthProviderView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        provider_name = request.data.get("provider")
-        provider_id = request.data.get("provider_id")
+        provider = request.data.get("provider")
+        code = request.data.get("code")
 
-        if UserAuthProvider.objects.filter(
-            user=request.user, provider=provider_name
-        ).exists():
-            return Response({"detail": "此登入方式已綁定"}, status=400)
+        if not provider or not code:
+            return Response({"detail": "Provider and code are required."}, status=400)
 
-        UserAuthProvider.objects.create(
-            user=request.user, provider=provider_name, provider_id=provider_id
-        )
-        return Response({"detail": "綁定成功"})
+        if provider not in ["google", "line"]:
+            return Response({"detail": "Invalid provider."}, status=400)
 
-    def delete(self, request):
-        provider_name = request.data.get("provider")
+        view_class = CustomGoogleLogin if provider == "google" else CustomLineLogin
+        view = view_class()
+        view.request = request
 
-        provider = UserAuthProvider.objects.filter(
-            user=request.user, provider=provider_name
-        ).first()
-        if provider:
-            provider.delete()
-            return Response({"detail": "取消綁定成功"})
-        return Response({"detail": "找不到該綁定方式"}, status=400)
+        try:
+            with transaction.atomic():
+                existing_provider = UserAuthProvider.objects.filter(
+                    user=request.user, provider=provider
+                ).first()
 
+                if existing_provider:
+                    return Response(
+                        {
+                            "detail": f"A {provider} account is already bound to this user."
+                        },
+                        status=400,
+                    )
 
-class BindAnotherLoginProvider(APIView):
-    permission_classes = [IsAuthenticated]
+                # 使用提供的 code 進行身份驗證
+                auth_login = view.post(request._request)
+                if auth_login.status_code != 200:
+                    return Response({"detail": "Authentication failed."}, status=400)
 
-    def post(self, request):
-        provider_name = request.data.get("provider_name")
-        provider_user_id = request.data.get("provider_user_id")
+                # 創建新的 UserAuthProvider
+                UserAuthProvider.objects.create(
+                    user=request.user,
+                    provider=provider,
+                    provider_id=auth_login.data.get("user", {}).get("id") if auth_login.data and "user" in auth_login.data else None,
+                )
 
-        if UserAuthProvider.objects.filter(
-            user=request.user, provider=provider_name
-        ).exists():
-            return Response({"detail": "此登入方式已綁定"}, status=400)
+                provider_id = auth_login.data.get("user", {}).get("id") if auth_login.data and "user" in auth_login.data else None
 
-        UserAuthProvider.objects.create(
-            user=request.user,
-            provider=provider_name,
-            provider_id=provider_user_id,
-        )
-        return Response({"detail": "綁定成功"})
+                if provider_id:
+                    return Response({"detail": f"{provider} 帳號綁定成功。"})
+                else:
+                    return Response({"detail": "無法獲取提供者ID。"}, status=400)
+        except Exception as e:
+            logger.error(f"Error in binding social account: {str(e)}")
+            return Response(
+                {"detail": "An error occurred while binding the account."}, status=500
+            )

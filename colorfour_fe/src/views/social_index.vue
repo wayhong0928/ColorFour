@@ -58,10 +58,10 @@
                 <circle cx="18" cy="12" r="1.5"></circle>
               </svg>
               <ul class="dropdown-menu position-absolute">
-                <li><a href="post_edit" @click="editPost(post)">編輯</a></li>
+                <li><router-link :to="{ name: 'post_edit', params: { id: post.id } }">編輯</router-link></li>
                 <li><a href="#" @click="deletePost(post)">刪除</a></li>
                 <li><a href="#" @click="sharePost(post)">分享</a></li>
-                <li><a href="#" @click="savePostToCollect(post)">收藏</a></li>
+                <li><a href="#" @click="addToCollection(post)">收藏</a></li>
               </ul>
             </div>
 
@@ -101,6 +101,7 @@
 
 <script>
 import axios from 'axios';
+import { mapActions } from 'vuex';
 
 export default {
   data() {
@@ -164,14 +165,21 @@ export default {
     });
   },
     methods: {
-    editPost(post) {
-        this.$router.push({ 
-            name: 'post_edit', 
-            params: { postId: post.id } 
-        });
+    // 獲取貼文列表
+    async fetchPosts() {
+      try {
+        const response = await http.get('/api/posts');
+        this.posts = response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    // 跳轉到編輯頁面
+    editPost(postId) {
+      this.$router.push({ name: 'post_edit', params: { postId } }); // Pass postId as a parameter} });
     },
     deletePost(post) {
-  // 使用 confirm 彈出確認框，讓使用者確認是否要刪除
+  // 使用 confirm 彈確認框，讓使用者確認是否要刪除
   const confirmation = confirm('確定要刪除這則貼文嗎？');
 
   // 如果使用者確認，就刪除貼文
@@ -216,6 +224,16 @@ export default {
       // 增加貼文的讚數
       post.likes++;
     },
+    created() {
+    this.fetchPosts();
+  },
+
+    // 正確使用 mapActions
+    ...mapActions(['addToCollection']),
+  addToCollection(postId) {
+    // Use Vuex dispatch, not a direct method call
+    this.$store.dispatch('addToCollection', postId);
+  },
 
     /*問題
       抓不到有效token
@@ -314,7 +332,7 @@ export default {
       }
     },
 
-    editPost(post) {
+    /*editPost(post) {
       // 編輯貼文的邏輯
       console.log('編輯貼文:', post);
     },
@@ -335,7 +353,7 @@ export default {
    } else {
       console.log('取消收藏:', post);
    }
-},
+},*/
   },
 
 };

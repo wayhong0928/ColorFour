@@ -31,58 +31,66 @@
       </div>
 
       <div id="saved-posts-container" class="content">
-        <div v-for="post in savedPosts" :key="post.username" class="post mb-5">
-          <div class="post-header d-flex justify-content-between align-items-center">
-            <div class="post-userinfo d-flex align-items-center">
-              <img src="https://picsum.photos/25" alt="User Avatar" class="post-avatar rounded-circle" />
-              <span class="post-username ms-2">{{ post.username }}</span>
+      <h2 class="collect" >❤️ 我的收藏 ❤️</h2>
+        <div v-if="collectedPosts.length">
+          <div v-for="post in collectedPosts" :key="post.id" class="post mb-5">
+            <div class="post-header d-flex justify-content-between align-items-center">
+              <div class="post-userinfo d-flex align-items-center">
+                <img src="https://picsum.photos/25" alt="User Avatar" class="post-avatar rounded-circle" />
+                <span class="post-username ms-2">{{ post.username }}</span>
+              </div>
+
+              <div class="more-options position-relative">
+                <svg
+                  aria-label="更多選項"
+                  class="change"
+                  fill="currentColor"
+                  height="24"
+                  role="img"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  @click="toggleDropdown"
+                >
+                  <title>更多選項</title>
+                  <circle cx="12" cy="12" r="1.5"></circle>
+                  <circle cx="6" cy="12" r="1.5"></circle>
+                  <circle cx="18" cy="12" r="1.5"></circle>
+                </svg>
+                <ul class="dropdown-menu position-absolute">
+                  <li><a href="#" @click="removePost(post)">移除收藏</a></li>
+                </ul>
+              </div>
             </div>
-            <div class="more-options position-relative">
-              <svg
-                aria-label="更多選項"
-                class="change"
-                fill="currentColor"
-                height="24"
-                role="img"
-                viewBox="0 0 24 24"
-                width="24"
-                @click="toggleDropdown($event)"
-              >
-                <title>更多選項</title>
-                <circle cx="12" cy="12" r="1.5"></circle>
-                <circle cx="6" cy="12" r="1.5"></circle>
-                <circle cx="18" cy="12" r="1.5"></circle>
-              </svg>
-              <ul class="dropdown-menu position-absolute">
-                <li><a href="#" @click="removePost(post)">移除收藏</a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="slider_container1 mt-3">
-            <div>
+
+            <div class="slider_container1 mt-3">
               <img :src="post.image" class="l_photo img-fluid" />
             </div>
-          </div>
-          <ul class="prot mt-3">
-            <li>{{ post.description }}</li>
-            <li>{{ post.hashtags }}</li>
-          </ul>
-          <div class="post-time-location d-flex justify-content-left mt-2">
-            <span class="post-location">地點：{{ post.location }}</span>
-            <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-            <span class="post-time">時間：{{ post.time }}</span>
-          </div>
-          <div class="post-actions mt-3 d-flex justify-content-left">
-            <button @click="likePost(post)" class="like-button btn btn-outline-primary">讚</button>
-            <span>{{ post.likes }}</span>
-            <button @click="toggleCommentBox" class="comment-button btn btn-outline-secondary">留言</button>
-            <span>{{ post.comments }}</span>
-          </div>
-          <div class="comment-section mt-3">
-            <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
-            <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
+
+            <ul class="prot mt-3">
+              <li>{{ post.description }}</li>
+              <li>{{ post.hashtags }}</li>
+            </ul>
+
+            <div class="post-time-location d-flex justify-content-left mt-2">
+              <span class="post-location">地點：{{ post.location }}</span>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <span class="post-time">時間：{{ post.time }}</span>
+            </div>
+
+            <div class="post-actions mt-3 d-flex justify-content-left">
+              <button @click="likePost(post)" class="like-button btn btn-outline-primary">讚</button>
+              <span>{{ post.likes }}</span>
+              <button @click="toggleCommentBox" class="comment-button btn btn-outline-secondary">留言</button>
+              <span>{{ post.comments }}</span>
+            </div>
+
+            <div class="comment-section mt-3">
+              <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
+              <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
+            </div>
           </div>
         </div>
+        <p v-else class="collect-null" >尚未收藏任何貼文</p>
       </div>
     </main>
     <div class="zone"></div>
@@ -91,60 +99,43 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
-  data() {
-    return {
-      savedPosts: [
-        {
-          username: "嗡嗡嗡",
-          description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
-          hashtags: "#OOTD #帥氣 #甜美",
-          location: "中原大學",
-          time: "2024-04-18",
-          image: require('@/assets/img/post_01.jpg'),
-          likes: 12,
-          comments: 3,
-          newComment: "",
-        },
-        {
-          username: "哇哈哈",
-          description: "今天天氣真好，出門散步拍了些美照。",
-          hashtags: "#散步 #美照 #好心情",
-          location: "台北市",
-          time: "2024-04-17",
-          image: "https://picsum.photos/300/200?random=1",
-          likes: 8,
-          comments: 5,
-          newComment: "",
-        },
-      ],
-    };
+  computed: {
+    ...mapGetters(['collectedPosts']),
   },
   methods: {
-    toggleDropdown(event) {
-      event.currentTarget.nextElementSibling.classList.toggle("show");
-    },
-    toggleCommentBox(event) {
-      const commentBox = event.currentTarget.parentElement.nextElementSibling;
-      commentBox.style.display =
-        commentBox.style.display === "none" || !commentBox.style.display
-          ? "block"
-          : "none";
-    },
-    likePost(post) {
-      post.likes++;
-    },
-    submitComment(post) {
-      if (post.newComment.trim()) {
-        post.comments++;
-        post.newComment = "";
-      }
-    },
-    removePost(post) {
-      // 移除收藏邏輯
-      this.savedPosts = this.savedPosts.filter(p => p !== post);
-    },
+  ...mapActions(['removeFromCollection']),
+  
+  toggleDropdown(event) {
+    const dropdownMenu = event.currentTarget.nextElementSibling;
+    dropdownMenu.classList.toggle("show");
   },
+  
+  toggleCommentBox(event) {
+    const commentBox = event.currentTarget.parentElement.nextElementSibling;
+    commentBox.style.display =
+      commentBox.style.display === "none" || !commentBox.style.display
+        ? "block"
+        : "none";
+  },
+
+  likePost(post) {
+    post.likes++;
+  },
+
+  submitComment(post) {
+    if (post.newComment.trim()) {
+      post.comments++;
+      post.newComment = "";
+    }
+  },
+
+  removePost(post) {
+    this.removeFromCollection(post); // 直接调用 Vuex 的 action
+  },
+},
 };
 </script>
 
@@ -305,6 +296,39 @@ export default {
 
 .comment-section button:hover {
   background-color: #e09393; /* 當鼠標懸停時，顏色變深 */
+}
+
+.left-sidebar {
+  width: 200px;
+  padding: 20px;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  height: calc(100% - 120px);
+  background-color: #f0f0f0;
+  overflow-y: auto;
+}
+
+.collect {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: var(--primary-bg-color);
+  color: #917b56;
+  margin-bottom: 30px;
+}
+
+.collect-null {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: var(--primary-bg-color);
+  font-size: 20px;
+  color: var(--primary-text-color);
 }
 
 

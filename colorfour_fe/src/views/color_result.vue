@@ -32,7 +32,7 @@ export default {
   methods: {
     confirmResult() {
       // 在此處添加確認紀錄的邏輯，例如將數據存儲到數據庫中
-      this.$router.push('/color_detail_1'); // 假設確認後跳轉到詳細頁面
+      this.$router.push('/color_index'); // 假設確認後跳轉到詳細頁面
     },
     deleteResult() {
       // 在此處添加刪除紀錄的邏輯，例如清除測驗結果

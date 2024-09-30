@@ -163,7 +163,6 @@ const routes = [
     path: "/post_edit",
     name: "post_edit",
     component: post_edit,
-    //meta: { requiresAuth: true },
   },
   {
     path: "/social_follow_list",
@@ -202,9 +201,10 @@ const routes = [
     component: buy_suggest,
   },
   {
-    path: "/buy_detail",
+    path: '/buy_detail/:id',
     name: "buy_detail",
-    component: buy_detail,
+    props: true,
+    component: () => import('@/views/buy_detail.vue'),
   },
   {
     path: "/buy_result",

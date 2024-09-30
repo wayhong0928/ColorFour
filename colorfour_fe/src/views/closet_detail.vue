@@ -18,6 +18,7 @@
           <p class="added-date">加入日期: {{ item.addedDate }}</p>
         </div>
       </section>
+      <button class="btn btn-outline-secondary" @click="goBack">返回上一頁</button>
     </main>
   </div>
 </template>
@@ -255,7 +256,12 @@
   // Based on the props id, find the corresponding item
   console.log(this.id); // Check if the correct ID is being logged
   this.item = this.items.find((item) => item.id == this.id);
-}
+},
+methods: {
+    goBack() {
+      this.$router.go(-1);  // 返回上一頁
+    }
+  }
 };
 </script>
 
@@ -286,12 +292,34 @@
     color: #333;
   }
 
-  main button {
-    width: 15%;
-    display: flex;
-    align-items: end;
-    justify-content: end;
+  .item-info-wrap .edit-button {
+    margin-right: 20px; /* 增加按鈕之間的距離 */
   }
+
+  main button {
+    width: auto; /* 讓按鈕的寬度自適應內容 */
+    text-align: center; /* 讓按鈕內的字置中 */
+    padding: 10px 20px; /* 添加適當的內邊距讓按鈕看起來更大 */
+    display: inline-flex;
+    align-items: center; /* 水平置中 */
+    justify-content: center; /* 垂直置中 */
+    margin-top:20px;
+  }
+
+  .back-button {
+  padding: 10px 20px;
+  background-color: #d4b7a1;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin-top:20px;
+}
+
+.back-button:hover {
+  background-color: #b3957e;
+}
 
   .container {
     width: 90%;

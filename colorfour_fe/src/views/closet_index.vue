@@ -1,5 +1,4 @@
 <template>
-  <!-- 修改後code -->
   <div>
     <nav aria-label="breadcrumb">
       <ol class="bread">
@@ -181,6 +180,7 @@
     display: flex;
     align-items: end;
     justify-content: end;
+    margin: 20px;
   }
 
   .container {

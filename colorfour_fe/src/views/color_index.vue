@@ -17,7 +17,7 @@
                   <option value="oldest">新增時間 (後到先)</option>
                 </select>
               </div>
-              <div>
+              <div class="item-info-wrap">
                 <router-link to="/color_test">
                   <button class="btn btn-outline-secondary">新增</button>
                 </router-link>
@@ -187,6 +187,11 @@
     margin-left: 15px;
     width: 20px;
     height: 20px;
+  }
+
+  /* 按鈕之間的間距 */
+  .item-info-wrap .btn {
+    margin-right: 10px;
   }
 
   .btn-secondary {

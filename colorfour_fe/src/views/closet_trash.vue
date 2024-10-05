@@ -1,5 +1,12 @@
 <template>
   <div>
+    <nav aria-label="breadcrumb">
+      <ol class="bread">
+        <li><router-link to="/">首頁</router-link></li>
+        <li><router-link to="/closet_index">衣櫃管理</router-link></li>
+        <li aria-current="page">回收區</li>
+      </ol>
+    </nav>
     <main class="container">
       <div class="row">
         <aside class="col-lg-3 mb-4">
@@ -38,7 +45,7 @@
                 <option value="price-high-low">價格 (高到低)</option>
               </select>
             </div>
-            <div>
+            <div class="item-info-wrap">
               <button @click="restoreItems" class="btn btn-outline-secondary">復原</button>
               <button @click="deleteItems" class="btn btn-outline-secondary">永久刪除</button>
             </div>
@@ -353,6 +360,31 @@
 </script>
 
 <style scoped>
+  .bread {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bread li {
+    padding: 0 20px;
+  }
+
+  .bread li + li {
+    padding-left: 0;
+  }
+
+  .bread li + li:before {
+    content: ">";
+    color: #333;
+    margin-right: 20px;
+  }
+
+  .bread a {
+    text-decoration: none;
+    color: #333;
+  }
   #wardrobe-list .card {
     margin-bottom: 1.5em;
   }
@@ -415,4 +447,16 @@
   .btn {
     color: #8d8185;
   }
+
+  /* 按鈕之間的間距 */
+.item-info-wrap .btn {
+  margin-right: 10px;
+}
+
+/* 勾選框位置設定，放置於右上角 */
+.form-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
 </style>

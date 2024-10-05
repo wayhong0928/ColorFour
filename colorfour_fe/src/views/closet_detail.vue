@@ -2,14 +2,21 @@
   <div>
     <main>
       <div class="item-info-wrap">
-        <button class="btn btn-outline-secondary edit-button" @click="editItem">復原單品</button>
-        <button class="btn btn-outline-secondary" @click="deleteItem">永久刪除</button>
+        <button class="btn btn-outline-secondary edit-button" @click="toggleEdit">編輯</button>
+        <button class="btn btn-outline-secondary" @click="deleteItem">刪除</button>
       </div>
       <section class="container">
+      <!-- 愛心圖標顯示與點擊功能 -->
+        <div class="favorite-icon" @click="toggleFavorite">
+          <transition name="zoom" mode="out-in">
+            <img v-if="isFavorite" :src="require('@/assets/img/愛了.png')" alt="已加入最愛" key="liked" />
+            <img v-else :src="require('@/assets/img/未愛.png')" alt="未加入最愛" key="unliked" />
+          </transition>
+        </div>
         <div class="item-img">
           <img :src="item.image" alt="服飾圖片" />
         </div>
-        <div class="item-info">
+        <div class="item-info" v-if="!isEditing">
           <h1>{{ item.name }}</h1>
           <p>品牌: {{ item.brand }}</p>
           <p>價格: ${{ item.price }}</p>
@@ -17,8 +24,27 @@
           <p class="hashtag">標籤：{{ item.tags.map(tag => `#${tag}`).join(' ') }}</p>
           <p class="added-date">加入日期: {{ item.addedDate }}</p>
         </div>
+        <!-- 編輯模式 -->
+        <div class="edit-form" v-else>
+          <label>名稱:</label>
+          <input v-model="editForm.name" />
+
+          <label>品牌:</label>
+          <input v-model="editForm.brand" />
+
+          <label>價格:</label>
+          <input v-model="editForm.price" type="number" />
+
+          <label>種類:</label>
+          <input v-model="editForm.category" />
+
+          <label>標籤:</label>
+          <input v-model="editForm.tags" placeholder="用逗號分隔" />
+
+          <button class="btn btn-outline-secondary" @click="saveEdit">儲存</button>
+        </div>
       </section>
-      <button class="btn btn-outline-secondary" @click="goBack">返回上一頁</button>
+      <button class="btn btn-outline-secondary" @click="goBack">返回</button>
     </main>
   </div>
 </template>
@@ -32,6 +58,15 @@
   data() {
     return {
       item: null, // 儲存對應id的項目
+      isFavorite: false,
+      isEditing: false, // 是否進入編輯模式
+      editForm: { // 編輯表單資料
+        name: '',
+        brand: '',
+        price: 0,
+        category: '',
+        tags: '',
+      },
       items: [
         {
           id: 1,
@@ -237,31 +272,53 @@
     };
   },
   methods: {
-  editItem() {
-    // 恢復單品邏輯
-    alert(`Restoring item: ${this.item.name}`);
-    // 恢復成功後跳轉回 closet_trash.vue
-    this.$router.push('/closet_trash');
+  toggleEdit() {
+    this.isEditing = !this.isEditing;
+    if (this.isEditing) {
+      // 將原始資料填入編輯表單中
+      this.editForm = { ...this.item, tags: this.item.tags.join(', ') };
+    }
+  },
+  saveEdit() {
+    // 儲存編輯後的資料
+    this.item.name = this.editForm.name;
+    this.item.brand = this.editForm.brand;
+    this.item.price = this.editForm.price;
+    this.item.category = this.editForm.category;
+    this.item.tags = this.editForm.tags.split(',').map(tag => tag.trim());
+    this.isEditing = false; // 結束編輯模式
   },
   deleteItem() {
-    // 刪除單品邏輯
-    alert(`Permanently deleting item: ${this.item.name}`);
+    alert(`成功刪除: ${this.item.name}`);
     // 從列表中移除單品
     this.items = this.items.filter(item => item.id !== this.item.id);
     // 刪除成功後跳轉回 closet_trash.vue
     this.$router.push('/closet_trash');
+  },
+  toggleFavorite() {
+    this.isFavorite = !this.isFavorite;  // 切換最愛狀態
+    if (this.isFavorite) {
+      this.addToFavorites(this.item);
+    } else {
+      this.removeFromFavorites(this.item);
+    }
+  },
+  addToFavorites(item) {
+    console.log(`加入最愛: ${item.name}`);
+  },
+  removeFromFavorites(item) {
+    console.log(`移除最愛: ${item.name}`);
+  },
+  goBack() {
+    this.$router.go(-1);  // 返回上一頁
   }
 },
   created() {
   // Based on the props id, find the corresponding item
   console.log(this.id); // Check if the correct ID is being logged
   this.item = this.items.find((item) => item.id == this.id);
+  this.isFavorite = false;
 },
-methods: {
-    goBack() {
-      this.$router.go(-1);  // 返回上一頁
-    }
-  }
 };
 </script>
 
@@ -306,7 +363,7 @@ methods: {
     margin-top:20px;
   }
 
-  .back-button {
+.back-button {
   padding: 10px 20px;
   background-color: #d4b7a1;
   color: white;
@@ -320,6 +377,30 @@ methods: {
 .back-button:hover {
   background-color: #b3957e;
 }
+
+.favorite-icon {
+    cursor: pointer;
+    width: 90px;
+    height: 90px;
+    margin-bottom: 10px;
+    position: absolute;
+    top:20px;
+    right:20px;
+  }
+
+  .favorite-icon img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .zoom-enter-active, .zoom-leave-active {
+    transition: transform 0.3s ease;
+  }
+
+  .zoom-enter, .zoom-leave-to /* .zoom-leave-active in <2.1.8 */ {
+    transform: scale(0.8);
+  }
 
   .container {
     width: 90%;
@@ -391,6 +472,17 @@ methods: {
   .item-info .added-date {
     font-size: 1rem;
     color: #777;
+  }
+
+  .edit-form label {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .edit-form input {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
   }
 
   @media screen and (max-width: 768px) {

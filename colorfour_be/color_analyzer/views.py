@@ -9,6 +9,12 @@ from django.utils.decorators import method_decorator
 import json
 import random  # random加入季節
 
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from .models import UserColorTests, ColorTestQuestions
+from .serializers import UserColorTestsSerializer, ColorTestQuestionsSerializer
+
 
 # 新增色彩分析資料
 @csrf_exempt
@@ -70,12 +76,36 @@ def add_color_analysis(request):
 class DeleteColorAnalysisView(View):
 	def delete(self, request, item_id):
 		try:
-			item = ColorAnalysis.objects.get(id=item_id)  # 根據ID查找資料
+			item = ColorAnalysis.objects.get(id=item_id)  # type: ignore # 根據ID查找資料
 			item.delete()  # 刪除資料
 			return JsonResponse({"message": "Item deleted successfully!"}, status=200)
-		except ColorAnalysis.DoesNotExist:
+		except ColorAnalysis.DoesNotExist: # type: ignore
 			return JsonResponse({"error": "Item not found!"}, status=404)
 		except Exception as e:
 			return JsonResponse(
 				{"error": "Internal server error", "details": str(e)}, status=500
 			)
+
+
+class UserColorTestsViewSet(viewsets.ModelViewSet):
+  queryset = UserColorTests.objects.all()
+  serializer_class = UserColorTestsSerializer
+
+  @action(detail=True, methods=['get'])
+  def result(self, request, pk=None):
+    """顯示測驗結果"""
+    user_test = self.get_object()
+    serializer = self.get_serializer(user_test)
+    return Response(serializer.data)
+
+  @action(detail=True, methods=['post'])
+  def retake_test(self, request, pk=None):
+    """重新測驗"""
+    user_test = self.get_object()
+    user_test.delete()  # 刪除舊的測驗結果
+    # 可以根據需求重新創建一個新的測驗紀錄
+    return Response({"status": "test retaken, you can start again"})
+
+class ColorTestQuestionsViewSet(viewsets.ModelViewSet):
+  queryset = ColorTestQuestions.objects.all()
+  serializer_class = ColorTestQuestionsSerializer

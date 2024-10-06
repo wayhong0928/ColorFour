@@ -10,6 +10,19 @@ from .models import (
     WardrobeOutfitOccasion,
 )
 
+#新增服飾功能
+class WardrobeItemCreateSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = WardrobeItem
+    fields = ['id', 'user', 'item_name', 'brand', 'color', 'price', 'purchase_date', 'Label', 'photo_url', 'is_in_trash', 'created_at', 'latest_edit']
+    read_only_fields = ['user', 'created_at', 'latest_edit']
+
+  def create(self, validated_data):
+    # 如果需要，這裡可以自動填入購買日期
+    # if 'purchase_date' not in validated_data:
+    #   validated_data['purchase_date'] = datetime.date.today()
+    return super().create(validated_data)
+
 
 class WardrobeCategorySerializer(serializers.ModelSerializer):
     class Meta:

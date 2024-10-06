@@ -1,6 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework import generics #import for 新增衣服
+from rest_framework.permissions import IsAuthenticated #import for 新增衣服
 from .models import (
     WardrobeCategory,
     WardrobeType,
@@ -20,7 +22,19 @@ from .serializers import (
     WardrobeOutfitSerializer,
     WardrobeOutfitItemSerializer,
     WardrobeOutfitOccasionSerializer,
+    WardrobeItemCreateSerializer,
 )
+
+#新增服飾 接不起來
+class WardrobeItemCreateView(generics.CreateAPIView):
+  queryset = WardrobeItem.objects.all()
+  serializer_class = WardrobeItemCreateSerializer  # 修改為 WardrobeItemCreateSerializer
+  permission_classes = [IsAuthenticated]
+
+  def perform_create(self, serializer):
+    # 自動將當前登入使用者設定為 user
+    print("WardrobeItemCreateView 被調用") #測試代碼 檢查伺服器終端輸出，看是否能看到WardrobeItemCreateView 被調用
+    serializer.save(user=self.request.user)
 
 
 class WardrobeCategoryViewSet(viewsets.ModelViewSet):

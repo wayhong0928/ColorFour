@@ -31,7 +31,7 @@
       </div>
 
       <div id="saved-posts-container" class="content">
-      <h2 class="collect" >❤️ 我的收藏 ❤️</h2>
+      <h2 class="collect">我的收藏</h2>
         <div v-if="collectedPosts.length">
           <div v-for="post in collectedPosts" :key="post.id" class="post mb-5">
             <div class="post-header d-flex justify-content-between align-items-center">
@@ -41,6 +41,14 @@
               </div>
 
               <div class="more-options position-relative">
+              <!-- 追蹤按鈕 -->
+    <button 
+      @click="handleToggleFollow(post)" 
+      class="follow-button btn"
+      :class="{'btn-primary': isFollowing(post.username), 'btn-outline-primary': !isFollowing(post.username)}"
+    >
+      {{ isFollowing(post.username) ? '已追蹤' : '追蹤' }}
+    </button>
                 <svg
                   aria-label="更多選項"
                   class="change"
@@ -85,9 +93,21 @@
             </div>
 
             <div class="comment-section mt-3">
-              <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
-              <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
-            </div>
+  <!-- 渲染每個留言 -->
+  <div v-for="(comment, index) in post.commentList" :key="index" class="comment-content">
+    <!-- 顯示用戶頭像 -->
+    <img :src="comment.avatar" alt="User Avatar" class="comment-avatar rounded-circle me-2" />
+    <!-- 顯示用戶名和留言內容 -->
+    <div>
+      <span class="fw-bold">{{ comment.username }}</span>
+      <p class="comment-text mb-0">{{ comment.content }}</p>
+    </div>
+  </div>
+  
+  <!-- 留言輸入框 -->
+  <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
+  <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
+</div>
           </div>
         </div>
         <p v-else class="collect-null" >尚未收藏任何貼文</p>
@@ -104,7 +124,9 @@ import { mapGetters, mapActions } from 'vuex';
 export default {
   computed: {
     ...mapGetters(['collectedPosts']),
+    ...mapGetters('follow', ['isFollowing'])
   },
+  
   methods: {
   ...mapActions(['removeFromCollection']),
   
@@ -120,6 +142,20 @@ export default {
         ? "block"
         : "none";
   },
+
+  ...mapActions('follow', ['followUser', 'unfollowUser']),
+    
+    // 處理追蹤按鈕點擊
+    handleToggleFollow(post) {
+      const isFollowing = this.isFollowing(post.username);
+      if (isFollowing) {
+        // 如果已追蹤，則取消追蹤
+        this.unfollowUser(post.username);
+      } else {
+        // 如果未追蹤，則進行追蹤
+        this.followUser({ username: post.username });
+      }
+    },
 
   likePost(post) {
     post.likes++;
@@ -145,6 +181,10 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
+}
+
+.follow-button {
+  margin-right: 20px;
 }
 
 .post {
@@ -296,6 +336,33 @@ export default {
 
 .comment-section button:hover {
   background-color: #e09393; /* 當鼠標懸停時，顏色變深 */
+}
+
+.comment-avatar {
+  width: 40px;  /* 增加頭像大小 */
+  height: 40px; /* 同樣增加高度來匹配寬度 */
+  border-radius: 50%;
+  margin-right: 10px; /* 調整頭像和文字之間的距離 */
+}
+
+.comment-content {
+  display: flex;
+  flex-direction: row; /* 確保是水平排列 */
+  align-items: flex-start; /* 頭像和文字對齊 */
+  justify-content: flex-start; /* 確保所有內容靠左 */
+  text-align: left; /* 留言內容靠左對齊 */
+  margin-bottom: 10px; /* 調整上下間距 */
+  width: 100%; /* 確保內容不溢出 */
+}
+
+.comment-content div {
+  flex: 1; /* 讓留言內容占據剩餘空間 */
+}
+
+.comment-text {
+  text-align: left; /* 留言文字靠左對齊 */
+  margin: 0; /* 去掉多餘的上下間距 */
+  white-space: pre-wrap; /* 保持換行格式 */
 }
 
 .left-sidebar {

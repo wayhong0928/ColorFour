@@ -9,21 +9,21 @@
         </div>
 
         <div class="icon-link">
-          <router-link to="social_index">
+          <router-link :to="{ name: 'social_index' }">
             <img src="@/assets/img/social_home_icon.png" alt="Home Icon" />
             <span>社群平台首頁</span>
           </router-link>
         </div>
 
         <div class="icon-link">
-          <router-link to="social_collect">
+          <router-link :to="{ name: 'social_collect' }">
             <img src="@/assets/img/like_icon.png" alt="Saved Posts Icon" />
             <span>收藏貼文</span>
           </router-link>
         </div>
 
         <div class="icon-link">
-          <router-link to="social_follow_list">
+          <router-link :to="{ name: 'social_follow_list' }">
             <img src="@/assets/img/followers_icon.png" alt="Overview Icon" />
             <span>追蹤總覽</span>
           </router-link>
@@ -84,7 +84,7 @@
 
             <div class="form-group">
               <button type="submit" class="btn btn-primary">保存變更</button>
-              <router-link to="social_index" class="btn btn-secondary ms-3">取消</router-link>
+              <router-link :to="{ name: 'social_index' }" class="btn btn-secondary ms-3">取消</router-link>
             </div>
           </form>
         </div>
@@ -96,82 +96,67 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
+  props: ['id'], // 接收來自路由的 postId
   data() {
-    return {
-      post: {
-        id: "",
-        username: "",
-        description: "",
-        hashtags: "",
-        location: "",
-        time: "",
-        image: "",
+  return {
+    post: null,
+    posts: [
+      {
+        id: 1,
+        username: "嗡嗡嗡",
+        description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
+        hashtags: "#OOTD #帥氣 #甜美",
+        location: "中原大學",
+        time: "2024-04-18",
+        image: require('@/assets/img/post_01.jpg'),
+        likes: 12,
+        comments: 3,
+        newComment: "", // 新增一个属性用于存储新留言
       },
-    };
-  },
-  mounted() {
-    this.fetchPost();
-  },
+      {
+        id: 2,
+        username: "哇哈哈",
+        description: "今天天氣真好，出門散步拍了些美照。",
+        hashtags: "#散步 #美照 #好心情",
+        location: "台北市",
+        time: "2024-04-17",
+        image: "https://picsum.photos/300/200?random=1",
+        likes: 8,
+        comments: 5,
+        newComment: "", // 新增一个属性用于存储新留言
+      },
+      {
+        id: 3,
+        username: "小明",
+        description: "剛完成了一幅新畫作，分享給大家看看。",
+        hashtags: "#畫作 #藝術 #分享",
+        location: "高雄市",
+        time: "2024-04-16",
+        image: "https://picsum.photos/300/200?random=2",
+        likes: 15,
+        comments: 10,
+        newComment: "", // 新增一个属性用于存储新留言
+      },
+    ],
+  };
+},
+
   methods: {
-    fetchPost() {
-      const postId = parseInt(this.$route.params.postId);
-      console.log('Fetching post with ID:', postId);
-
-      const posts = [
-        {
-          id: 1,
-          username: "嗡嗡嗡",
-          description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
-          hashtags: "#OOTD #帥氣 #甜美",
-          location: "中原大學",
-          time: "2024-04-18T10:00",
-          image: require('@/assets/img/post_01.jpg'),
-        },
-        {
-          id: 2,
-          username: "哇哈哈",
-          description: "今天天氣真好，出門散步拍了些美照。",
-          hashtags: "#散步 #美照 #好心情",
-          location: "台北市",
-          time: "2024-04-17T10:00",
-          image: "https://picsum.photos/300/200?random=1",
-        },
-        {
-          id: 3,
-          username: "小明",
-          description: "剛完成了一幅新畫作，分享給大家看看。",
-          hashtags: "#畫作 #藝術 #分享",
-          location: "高雄市",
-          time: "2024-04-16",
-          image: "https://picsum.photos/300/200?random=2",
-        },
-      ];
-
-      const post = posts.find(p => p.id === postId);
-      if (post) {
-        console.log('Post found:', post);
-        this.post = { ...post };
-      } else {
-        console.error('Post not found');
-      }
-    },
     onImageChange(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.post.image = URL.createObjectURL(file);
-      }
-    },
-    updatePost() {
-      // 更新貼文的邏輯
-      console.log('更新貼文:', this.post);
-      this.$router.push({ name: 'social_index' }); // 返回社群平台首頁
-    },
+  const file = event.target.files[0];
+  if (file) {
+    this.post.image = URL.createObjectURL(file); // 預覽圖片
+  }
+}
   },
+  created() {
+  this.post = this.posts.find((post) => post.id == this.id);
+}
 };
-
 </script>
-
 
 <style scoped>
 .main-content {
@@ -339,4 +324,24 @@ export default {
     height: 40px;
   }
 }
+
+
+.left-sidebar .icon-search input {
+  width: 100px; /* 设置搜索框的宽度 */
+  height: 30px; /* 设置搜索框的高度 */
+  padding: 5px; /* 调整内边距 */
+  font-size: 14px; /* 调整字体大小 */
+  border-radius: 10px; /* 调整圆角 */
+  border: 1px solid #ccc; /* 设置边框 */
+}
+
+/* 在小屏幕时也可以相应调整搜索框大小 */
+@media (max-width: 768px) {
+  .left-sidebar .icon-search input {
+    width: 100px; /* 调整小屏幕时的宽度 */
+    height: 25px; /* 调整小屏幕时的高度 */
+    font-size: 12px; /* 调整小屏幕时的字体大小 */
+  }
+}
+
 </style>

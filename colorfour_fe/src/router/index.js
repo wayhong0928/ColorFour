@@ -165,9 +165,11 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/post_edit",
+    path: "/post_edit/:id",
     name: "post_edit",
     component: post_edit,
+    props: true, 
+    //meta: { requiresAuth: true },
   },
   {
     path: "/social_follow_list",

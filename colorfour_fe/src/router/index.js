@@ -8,6 +8,8 @@ import Callback from "@/views/Callback.vue";
 // user
 import user_profile from "@/views/user_profile.vue";
 import user_setting from "@/views/user_setting.vue";
+import user_notice from "@/views/user_notice.vue";
+
 
 // Color
 import color_index from "@/views/color_index.vue";
@@ -43,6 +45,9 @@ import buy_result from "@/views/buy_result.vue";
 import buy_suggest from "@/views/buy_suggest.vue";
 import buy_detail from "@/views/buy_detail.vue";
 import buy_index from "@/views/buy_index.vue";
+
+// todo
+import todo_index from "@/views/todo_index.vue";
 
 const routes = [
   {
@@ -163,12 +168,16 @@ const routes = [
     path: "/post_edit",
     name: "post_edit",
     component: post_edit,
-    //meta: { requiresAuth: true },
   },
   {
     path: "/social_follow_list",
     name: "social_follow_list",
     component: social_follow_list,
+  },
+  {
+    path: '/user_notice',
+    name: 'user_notice',
+    component: user_notice,
   },
   {
     path: "/suggest_index",
@@ -202,14 +211,20 @@ const routes = [
     component: buy_suggest,
   },
   {
-    path: "/buy_detail",
+    path: '/buy_detail/:id',
     name: "buy_detail",
-    component: buy_detail,
+    props: true,
+    component: () => import('@/views/buy_detail.vue'),
   },
   {
     path: "/buy_result",
     name: "buy_result",
     component: buy_result,
+  },
+  {
+    path: "/todo_index",
+    name: "todo_index",
+    component: todo_index,
   },
 ];
 

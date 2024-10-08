@@ -21,13 +21,46 @@
     <div class="personal-info">
       <h3>編輯個人資料</h3>
       <div class="form-group">
-        <label for="nickname">暱稱</label>
+        <label for="profile_image">頭像</label>
+        <input type="file" id="profile_image" @change="handleImageChange" />
+        <div v-if="profile_image">
+          <img :src="profile_image" alt="預覽" class="preview-image" />
+        </div>
+      </div>
+
+      <!-- 昵称输入 -->
+      <div class="form-group">
+        <label for="nickname">姓名</label>
         <input type="text" id="nickname" v-model="nickname" placeholder="輸入暱稱" />
       </div>
+
+      <!-- 用户名输入 -->
+      <div class="form-group">
+        <label for="username">用戶名稱</label>
+        <input type="text" id="username" v-model="username" placeholder="輸入英文、符號" />
+      </div>
+
+      <!-- 性别选择下拉菜单 -->
+      <div class="form-group">
+        <label for="gender">性別</label>
+        <select id="gender" v-model="gender">
+          <option value="male">男性</option>
+          <option value="female">女性</option>
+          <option value="other">不方便回答</option>
+        </select>
+      </div>
+
+      <!-- 个性签名（个人简介） -->
+      <div class="form-group">
+        <label for="talk">個人簡介</label>
+        <input type="text" id="talk" v-model="talk" placeholder="輸入簡介" />
+      </div>
+
       <div class="form-group">
         <label for="birthday">生日</label>
         <input type="date" id="birthday" v-model="birthday" />
       </div>
+
       <div class="form-group">
         <label for="email">Email</label>
         <input type="email" id="email" v-model="email" placeholder="輸入Email" />
@@ -44,8 +77,12 @@
     name: "user_setting",
     data() {
       return {
+        profile_image: null,
         nickname: "",
+        username:"",
         birthday: "",
+        gender:"",
+        talk:"",
         email: "",
       };
     },
@@ -59,16 +96,30 @@
       },
     },
     methods: {
+      handleImageChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+          this.profile_image = URL.createObjectURL(file); // 在上传前预览图像
+        }
+      },
       ...mapActions("auth", ["fetchUserProfile", "updateUserProfile", "linkSocialAccount", "unlinkSocialAccount"]),
       async loadUserSettings() {
         console.log("載入設定中...");
         if (this.user) {
+          this.profile_image = this.user.profile_image || "";
           this.nickname = this.user.nickname || "";
+          this.username = this.user.username || "";
           this.birthday = this.user.birthday || "";
+          this.gender = this.user.gender || "";
+          this.talk = this.user.talk || "";
           this.email = this.user.email || "";
           console.log("設定載入完成:", {
+            profile_image: this.profile_image,
             nickname: this.nickname,
+            username: this.username,
             birthday: this.birthday,
+            gender: this.gender,
+            talk: this.talk,
             email: this.email,
             isGoogleLinked: this.isGoogleLinked,
             isLineLinked: this.isLineLinked,
@@ -79,20 +130,26 @@
         }
       },
       async savePersonalInfo() {
-        console.log("開始儲存個人資料");
-        try {
-          await this.updateUserProfile({
-            nickname: this.nickname,
-            birthday: this.birthday,
-            email: this.email,
-          });
-          console.log("個人資料儲存成功");
-          alert("個人資料已成功更新");
-        } catch (error) {
-          console.error("儲存個人資料失敗:", error);
-          alert("更新個人資料失敗，請稍後再試");
-        }
-      },
+       console.log("開始儲存個人資料");
+       try {
+         await this.updateUserProfile({
+           profile_image: this.profile_image,
+           nickname: this.nickname,
+           username: this.username,
+           birthday: this.birthday,
+           gender: this.gender,
+           talk: this.talk,
+           email: this.email,
+         });
+         console.log("個人資料儲存成功");
+         alert("個人資料已成功更新");    
+         // 儲存成功後添加重定向邏輯
+         this.$router.push("/user_profile");
+       } catch (error) {
+         console.error("儲存個人資料失敗:", error);
+         alert("更新個人資料失敗，請稍後再試");
+       }
+     },
       async connectGoogle() {
         console.log("開始連結 Google 帳號");
         try {
@@ -172,6 +229,13 @@
   };
 </script>
 <style scoped>
+.preview-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-top: 10px;
+  }
+
   .user-setting {
     padding: 20px;
     max-width: 600px;

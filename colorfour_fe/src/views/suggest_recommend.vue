@@ -62,7 +62,10 @@
                 </button>
               </div>
             </div>
+            <div class="submit-section">
             <button type="submit" class="btn btn-primary">送出</button>
+            <button class="back-button" @click="goBack">返回</button>
+            </div>
           </form>
         </div>
       </div>
@@ -104,6 +107,10 @@ export default {
       // 你可以在此處處理表單提交，這裡簡單地將數據記錄到控制台
       console.log(this.formData);
       alert('表單提交成功');
+      this.$router.push({ path: '/suggest_results' });
+    },
+    goBack() {
+      this.$router.go(-1);
     }
   }
 };
@@ -118,6 +125,16 @@ export default {
 .selected {
   background-color: #6c757d !important;
   color: white;
+}
+
+.submit-section button {
+  padding: 10px 20px;
+  background-color: #d4b7a1;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 10px; /* 增加按鈕間距 */
 }
 </style>
 

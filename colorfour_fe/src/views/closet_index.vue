@@ -1,5 +1,4 @@
 <template>
-  <!-- 修改後code -->
   <div>
     <nav aria-label="breadcrumb">
       <ol class="bread">
@@ -42,7 +41,7 @@
                 <option value="price-high-low">價格 (高到低)</option>
               </select>
             </div>
-            <div>
+            <div class="item-info-wrap">
               <router-link to="/closet_new" class="btn btn-outline-secondary">新增單品</router-link>
               <router-link to="/closet_trash" class="btn btn-outline-secondary">回收區</router-link>
             </div>
@@ -83,10 +82,12 @@
   export default {
     data() {
       return {
-        items: [],
         selectedCategory: "all",
         selectedBrand: "all",
         sortBy: "newest",
+        items: [
+          
+        ],
       };
     },
     computed: {
@@ -181,6 +182,7 @@
     display: flex;
     align-items: end;
     justify-content: end;
+    margin: 20px;
   }
 
   .container {
@@ -197,14 +199,6 @@
     padding: 20px;
     border-radius: 20px;
     position: relative;
-  }
-
-  .item-info-wrap {
-    width: 90%;
-    display: flex;
-    align-items: end;
-    justify-content: end;
-    margin-bottom: 20px;
   }
 
   .item-img {
@@ -255,6 +249,10 @@
     color: #777;
   }
 
+  /* 按鈕之間的間距 */
+  .item-info-wrap .btn {
+    margin-right: 10px;
+  }
   @media screen and (max-width: 768px) {
     .item-img {
       width: 90%;

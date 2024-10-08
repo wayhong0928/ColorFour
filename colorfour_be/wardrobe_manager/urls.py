@@ -1,12 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import WardrobeItemViewSet
+from .views import WardrobeItemViewSet, WardrobeItemCreateView
 
 router = DefaultRouter()
 router.register(r'items', WardrobeItemViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),  # 包含所有 ViewSet 的標準路由
+    path('items/create/', WardrobeItemCreateView.as_view(), name='wardrobe_item_create'), #新增衣服
 ]
 
 # URL 前綴：基於 items 註冊的路由，會生成如下的 API 路徑：

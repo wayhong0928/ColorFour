@@ -1,5 +1,12 @@
 <template>
   <div>
+  <nav aria-label="breadcrumb">
+      <ol class="bread">
+        <li><router-link to="/user_profile">會員管理</router-link></li>
+        <li><router-link to="/social_index">社群首頁</router-link></li>
+        <li aria-current="page">追蹤中</li>
+      </ol>
+    </nav>
     <div id="header"></div>
     <main class="main-content container">
       <div class="left-sidebar">
@@ -85,6 +92,32 @@ export default {
 </script>
 
 <style scoped>
+.bread {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bread li {
+    padding: 0 20px;
+  }
+
+  .bread li + li {
+    padding-left: 0;
+  }
+
+  .bread li + li:before {
+    content: ">";
+    color: #333;
+    margin-right: 20px;
+  }
+
+  .bread a {
+    text-decoration: none;
+    color: #333;
+  }
+  
 .main-content {
   width: 90%;
   position: relative;

@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from linebot import LineBotApi, WebhookParser
 from linebot.models import TextSendMessage,TemplateSendMessage,ButtonsTemplate,MessageEvent,TextMessage, ImageCarouselColumn,ImageCarouselTemplate,MessageTemplateAction
 from linebot.models import DatetimePickerTemplateAction,ConfirmTemplate,PostbackTemplateAction,PostbackEvent
-
+from line import google_calender
 
 load_dotenv()
 line_bot_api = LineBotApi(os.getenv("LINE_MESSAGING_CHANNEL_ACCESS_TOKEN"))
@@ -23,7 +23,7 @@ def sendDate(event): #穿搭日程快速選日期
             label="選取日期",
             data="action=date&mode=date",
             mode="date",
-            initial="2024-06-21",
+            initial="2024-11-02",
             min="2024-01-01",
             max="2024-12-31"
           )
@@ -87,7 +87,7 @@ def sendStartTime(event): #新增穿搭日程的確認按鈕(好呀)
             label="選取開始日期時間",
             data="action=start_time",
             mode="datetime",
-            initial="2024-09-10T10:00",
+            initial="2024-11-02T10:00",
             min="2024-01-01T00:00",
             max="2024-12-31T23:59"
           )
@@ -110,7 +110,7 @@ def sendEndTime(event):
             label="選取結束日期時間",
             data="action=end_time",
             mode="datetime",
-            initial="2024-09-10T12:00",
+            initial="2024-11-02T12:00",
             min="2024-01-01T00:00",
             max="2024-12-31T23:59"
           )
@@ -205,14 +205,14 @@ def choose_dress(event): #選擇推薦的穿搭組合
                         image_url='https://imgur.com/OXVtzRw.png',
                         action=MessageTemplateAction(
                             label='期末報告服裝',  # 與穿搭名稱相同
-                            text='日程名稱：SE期末報告\n開始時間：2024-06-21 10:00\n結束時間：2024-06-21 12:00\n地點：中原大學\n活動：SE期末報告\n穿搭名稱：期末報告服裝'
+                            text='日程名稱：SE期末報告\n開始時間：2024-11-02 10:00\n結束時間：2024-11-02 12:00\n地點：中原大學\n活動：SE期末報告\n穿搭名稱：期末報告服裝'
                         )
                     ),
                     ImageCarouselColumn(
                         image_url='https://imgur.com/5UY0qLU.png',
                         action=MessageTemplateAction(
                             label='表演服',  # 與穿搭名稱相同
-                            text='日程名稱：期末成發\n開始時間：2024-09-10 10:00\n結束時間：2024-09-10 12:00\n地點：中原大學\n活動：期末成發\n穿搭名稱：表演服'
+                            text='日程名稱：期末成發\n開始時間：2024-11-02 10:00\n結束時間：2024-11-02 12:00\n地點：中原大學\n活動：期末成發\n穿搭名稱：表演服'
                         )
                     )
                 ]
@@ -249,8 +249,10 @@ def handleUserInput(event, conversation_state):
         elif step == 'choose_dress':
             # 處理用戶選擇的穿搭
             conversation_state['data']['dress'] = event.message.text
+            google_calender.CreateCalendarEvent(event, conversation_state['data'])
             conversation_state['step'] = 'complete'
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text='建立成功！'))
+            conversation_state['data'] = {}
+            #line_bot_api.reply_message(event.reply_token, TextSendMessage(text='建立成功！'))
 
 #conversation_state 初始值
 conversation_state = {'step': 'start_time', 'data': {}}

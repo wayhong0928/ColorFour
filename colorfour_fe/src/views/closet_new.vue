@@ -35,7 +35,10 @@
           <input type="file" class="form-control" id="itemImage" accept="image/*" @change="handleImageUpload" required />
           <button type="button" class="btn btn-outline-primary mt-2" @click="openCamera">開啟相機</button>
         </div>
+        <div class="submit-section">
         <button type="submit" class="btn btn-primary">新增單品</button>
+        <button class="back-button" @click="goBack">返回</button>
+        </div>
       </form>
     </div>
 
@@ -89,6 +92,9 @@
           }
         };
       },
+      goBack() {
+      this.$router.go(-1);
+    },
     },
   };
 </script>
@@ -97,4 +103,20 @@
   h1 {
     margin-bottom: 30px;
   }
+
+  .submit-section {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.submit-section button {
+  padding: 10px 20px;
+  background-color: #d4b7a1;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 10px; /* 增加按鈕間距 */
+}
+
 </style>

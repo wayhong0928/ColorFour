@@ -67,6 +67,26 @@ export default {
         commit("clearAuthData");
       }
     },
+    async login({ commit, dispatch }, { username, password }) {
+      // 將名字中的特殊字符或圖示進行編碼
+      const encodedUsername = encodeURIComponent(username);
+
+      // 根據你的需求選擇後端 API URL
+      let url = `${BACKEND_URL}/member/login/`;
+
+      try {
+        // 使用編碼過的 username 發送請求
+        const response = await axios.post(url, {
+          username: encodedUsername,
+          password: password,
+        });
+
+        // 後續的登錄邏輯
+        commit("setUser", response.data);
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
+    },
     async login({ commit, dispatch }, { code, provider }) {
       let url;
       if (provider === "google") {
@@ -137,17 +157,15 @@ export default {
       try {
         const response = await axios.get(`${BACKEND_URL}/dj-rest-auth/user/`);
         commit("setUser", response.data);
-        
-        const isGoogleLinked = response.data.is_google_linked !== undefined 
-          ? response.data.is_google_linked 
-          : state.loginProvider === "google";
-        const isLineLinked = response.data.is_line_linked !== undefined 
-          ? response.data.is_line_linked 
-          : state.loginProvider === "line";
-        
+
+        const isGoogleLinked =
+          response.data.is_google_linked !== undefined ? response.data.is_google_linked : state.loginProvider === "google";
+        const isLineLinked =
+          response.data.is_line_linked !== undefined ? response.data.is_line_linked : state.loginProvider === "line";
+
         commit("setIsGoogleLinked", isGoogleLinked);
         commit("setIsLineLinked", isLineLinked);
-        
+
         console.log("User profile fetched:", response.data);
         console.log("isGoogleLinked:", isGoogleLinked);
         console.log("isLineLinked:", isLineLinked);

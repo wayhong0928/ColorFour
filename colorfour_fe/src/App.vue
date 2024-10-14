@@ -9,23 +9,23 @@
 </template>
 
 <script>
-  import Header from "@/components/Header.vue";
-  import Footer from "@/components/Footer.vue";
-  import { mapActions } from "vuex";
+import Header from "@/components/Header.vue";
+import Footer from "@/components/Footer.vue";
+import { mapActions } from "vuex";
 
-  export default {
-    name: "App",
-    components: {
-      Header,
-      Footer,
-    },
-    created() {
-      this.initializeAuth();
-    },
-    methods: {
-      ...mapActions("auth", ["initializeAuth"]),
-    },
-  };
+export default {
+  name: "App",
+  components: {
+    Header,
+    Footer,
+  },
+  created() {
+    this.initializeAuth();
+  },
+  methods: {
+    ...mapActions("auth", ["initializeAuth"]),
+  },
+};
 </script>
 
 <style>

@@ -1,5 +1,12 @@
 <template>
   <div>
+  <nav aria-label="breadcrumb">
+      <ol class="bread">
+        <li><router-link to="/user_profile">會員管理</router-link></li>
+        <li><router-link to="/social_index">社群首頁</router-link></li>
+        <li aria-current="page">追蹤中</li>
+      </ol>
+    </nav>
     <div id="header"></div>
     <main class="main-content container">
       <div class="left-sidebar">
@@ -7,7 +14,6 @@
           <img src="@/assets/img/search_icon.png" alt="Search Icon" />
           <input type="text" placeholder="search" />
         </div>
-
         <div class="icon-link">
           <router-link to="social_index">
             <img src="@/assets/img/social_home_icon.png" alt="Home Icon" />
@@ -30,24 +36,26 @@
         </div>
       </div>
 
+      <!-- 這裡我們要顯示 followingList 中的資料 -->
       <div id="follow-list-container" class="content">
-        <div v-for="follower in followers" :key="follower.id" class="follower-row">
+      <h2 class="follow_list" >追蹤名單</h2>
+        <div v-for="follower in followingList" :key="follower.id" class="follower-row">
           <div class="follower-info">
-            <img :src="follower.avatar" alt="Follower Avatar" class="follower-avatar rounded-circle" />
+            <img src="https://picsum.photos/25"
+                alt="User Avatar"
+                class="post-avatar rounded-circle"
+              />
             <router-link :to="{ name: 'user_profile', params: { userId: follower.id } }" class="follower-name">
-              {{ follower.name }}
+              {{ follower.username }}  <!-- 確保顯示的是 follower.username -->
             </router-link>
             <div class="follower-actions">
               <button @click="toggleFollow(follower)" class="follow-button btn btn-outline-primary">
-                {{ follower.isFollowing ? '追蹤中' : '追蹤' }}
+                {{ follower.isFollowing ? '已追蹤' : '追蹤' }}
               </button>
               <button @click="unfollow(follower)" class="unfollow-icon btn btn-outline-danger">
                 &times;
               </button>
             </div>
-          </div>
-          <div class="color-analysis">
-            {{ follower.colorAnalysis }}
           </div>
         </div>
       </div>
@@ -57,55 +65,82 @@
   </div>
 </template>
 
-
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
-  data() {
-    return {
-      followers: [
-        {
-          id: 1,
-          name: "小紅",
-          avatar: "https://picsum.photos/40?random=1",
-          isFollowing: true,
-          colorAnalysis: "春季型人"
-        },
-        {
-          id: 2,
-          name: "小明",
-          avatar: "https://picsum.photos/40?random=2",
-          isFollowing: true,
-          colorAnalysis: "夏季型人"
-        },
-        {
-          id: 3,
-          name: "小花",
-          avatar: "https://picsum.photos/40?random=3",
-          isFollowing: true,
-          colorAnalysis: "秋季型人"
-        },
-      ],
-    };
+  computed: {
+    // 使用 Vuex 的 getter 來取得追蹤列表
+    ...mapGetters('follow', ['followingList']),  // 確保 getter 名稱和 store 模組一致
   },
   methods: {
-    toggleFollow(follower) {
-      follower.isFollowing = !follower.isFollowing;
-    },
-    unfollow(follower) {
-      this.followers = this.followers.filter((f) => f.id !== follower.id);
-    },
+  ...mapActions('follow', ['followUser', 'unfollowUser']),
+  
+  toggleFollow(follower) {
+    if (follower.isFollowing) {
+      this.unfollowUser(follower.username); // 取消追蹤
+    } else {
+      this.followUser(follower); // 追蹤
+    }
   },
+  
+  unfollow(follower) {
+    this.unfollowUser(follower.username); // 明確取消追蹤
+  }
+}
 };
 </script>
 
-
-
 <style scoped>
+.bread {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bread li {
+    padding: 0 20px;
+  }
+
+  .bread li + li {
+    padding-left: 0;
+  }
+
+  .bread li + li:before {
+    content: ">";
+    color: #333;
+    margin-right: 20px;
+  }
+
+  .bread a {
+    text-decoration: none;
+    color: #333;
+  }
+  
 .main-content {
   width: 90%;
   position: relative;
   display: flex;
   flex-direction: column;
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.follow_list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: var(--primary-bg-color);
+  color: #917b56;
+  margin-bottom: 30px;
 }
 
 .follower-row {
@@ -115,6 +150,7 @@ export default {
   background-color: #fff;
   max-width: 600px;
   margin: 0 auto;
+  margin-bottom: 10px;
 }
 
 .follower-info {
@@ -135,13 +171,6 @@ export default {
   color: #333;
   text-decoration: none;
   margin-left: 5px;
-}
-
-.color-analysis {
-  background-color: #f0f0f0;
-  padding: 5px 10px;
-  border-radius: 4px;
-  margin-top: 10px; /* Ensure spacing on small screens */
 }
 
 .follower-name:hover {
@@ -191,13 +220,7 @@ export default {
   flex: 1;
 }
 
-.left-sidebar .icon-link a {
-  text-decoration: none;
-  color: var(--primary-text-color);
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
+/* Responsive styles */
 @media (max-width: 768px) {
   .left-sidebar {
     width: 100%;
@@ -237,20 +260,20 @@ export default {
 }
 
 .left-sidebar .icon-search input {
-  width: 100px; /* 设置搜索框的宽度 */
-  height: 30px; /* 设置搜索框的高度 */
-  padding: 5px; /* 调整内边距 */
-  font-size: 14px; /* 调整字体大小 */
-  border-radius: 10px; /* 调整圆角 */
-  border: 1px solid #ccc; /* 设置边框 */
+  width: 100px; /* Set the width of the search box */
+  height: 30px; /* Set the height of the search box */
+  padding: 5px; /* Adjust padding */
+  font-size: 14px; /* Adjust font size */
+  border-radius: 10px; /* Adjust border radius */
+  border: 1px solid #ccc; /* Set border */
 }
 
-/* 在小屏幕时也可以相应调整搜索框大小 */
+/* Adjust search box size on small screens */
 @media (max-width: 768px) {
   .left-sidebar .icon-search input {
-    width: 100px; /* 调整小屏幕时的宽度 */
-    height: 25px; /* 调整小屏幕时的高度 */
-    font-size: 12px; /* 调整小屏幕时的字体大小 */
+    width: 100px; /* Adjust width for small screens */
+    height: 25px; /* Adjust height for small screens */
+    font-size: 12px; /* Adjust font size for small screens */
   }
 }
 
@@ -259,11 +282,6 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .color-analysis {
-    margin-top: 10px;
-    display: block; /* Ensure it’s on a new line */
   }
 
   .follower-actions {

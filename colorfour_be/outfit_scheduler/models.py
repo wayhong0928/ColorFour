@@ -8,7 +8,7 @@ class OutfitSchedule(models.Model):
     end_time = models.DateTimeField()
     location = models.CharField(max_length=255, blank=True, null=True)
     event_description = models.TextField(blank=True, null=True)
-    outfit = models.ForeignKey('wardrobe_manager.WardrobeOutfit', on_delete=models.CASCADE)
+    outfit = models.ForeignKey('wardrobe_manager.Outfit', on_delete=models.CASCADE)
     google_event_id = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -8,6 +8,7 @@
       <img src="../assets/img/line_44.png" alt="LINE Logo" />
       使用 LINE 登入
     </button>
+    <p>登入後會取得用戶 Email 等個人資訊作為會員個人資訊使用。</p>
     <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
   </div>
 </template>
@@ -23,10 +24,10 @@
     },
     computed: {
       googleLoginUrl() {
-        return `${process.env.VUE_APP_BACKEND_URL}/dj-rest-auth/google/`;
+        return `${process.env.VUE_APP_BACKEND_URL}/member/login/google/`;
       },
       lineLoginUrl() {
-        return `${process.env.VUE_APP_BACKEND_URL}/dj-rest-auth/line/`;
+        return `${process.env.VUE_APP_BACKEND_URL}/member/login/line/`;
       },
     },
     methods: {

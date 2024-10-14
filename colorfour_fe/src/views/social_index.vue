@@ -42,6 +42,14 @@
               <span class="post-username ms-2">{{ post.username }}</span>
             </div>
             <div class="more-options position-relative">
+            <!-- 追蹤按鈕 -->
+    <button 
+      @click="handleToggleFollow(post)" 
+      class="follow-button btn"
+      :class="{'btn-primary': isFollowing(post.username), 'btn-outline-primary': !isFollowing(post.username)}"
+    >
+      {{ isFollowing(post.username) ? '已追蹤' : '追蹤' }}
+    </button>
               <svg
                 aria-label="更多選項"
                 class="change"
@@ -58,10 +66,10 @@
                 <circle cx="18" cy="12" r="1.5"></circle>
               </svg>
               <ul class="dropdown-menu position-absolute">
-                <li><a href="post_edit" @click="editPost(post)">編輯</a></li>
+                <li><router-link :to="{ name: 'post_edit', params: { id: post.id } }">編輯</router-link></li>
                 <li><a href="#" @click="deletePost(post)">刪除</a></li>
                 <li><a href="#" @click="sharePost(post)">分享</a></li>
-                <li><a href="#" @click="savePostToCollect(post)">收藏</a></li>
+                <li><a href="#" @click="addToCollection(post)">收藏</a></li>
               </ul>
             </div>
 
@@ -87,8 +95,20 @@
   <span>{{ post.comments }}</span>
 </div>
 <div class="comment-section mt-3">
-    <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
-    <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
+  <!-- 渲染每個留言 -->
+  <div v-for="(comment, index) in post.commentList" :key="index" class="comment-content">
+    <!-- 顯示用戶頭像 -->
+    <img :src="comment.avatar" alt="User Avatar" class="comment-avatar rounded-circle me-2" />
+    <!-- 顯示用戶名和留言內容 -->
+    <div>
+      <span class="fw-bold">{{ comment.username }}</span>
+      <p class="comment-text mb-0">{{ comment.content }}</p>
+    </div>
+  </div>
+  
+  <!-- 留言輸入框 -->
+  <textarea v-model="post.newComment" class="form-control mb-2" placeholder="請輸入留言..."></textarea>
+  <button @click="submitComment(post)" class="btn btn-primary">提交留言</button>
 </div>
 
         </div>
@@ -101,6 +121,7 @@
 
 <script>
 import axios from 'axios';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   data() {
@@ -116,7 +137,13 @@ export default {
           image: require('@/assets/img/post_01.jpg'),
           likes: 12,
           comments: 3,
-          newComment: "", // 新增一个属性用于存储新留言
+          newComment: "",
+          commentList: [
+            { username: "用戶A", content: "兩個都超愛 ❤️", avatar: "https://picsum.photos/25?random=1" },
+            { username: "用戶B", content: "小孩子才做選擇，我兩個都要！", avatar: "https://picsum.photos/25?random=2" },
+            { username: "用戶C", content: "怎麼可以這麼會搭😍", avatar: "https://picsum.photos/25?random=3" },
+          ],
+          isFollowing: false,  // 初始狀態為未追蹤 // 新增留言列表屬性
         },
         {
           id: 2,
@@ -129,6 +156,14 @@ export default {
           likes: 8,
           comments: 5,
           newComment: "", // 新增一个属性用于存储新留言
+          commentList: [
+  { username: "用戶A", content: "照片好美！陽光真的讓人心情大好呢！", avatar: "https://picsum.photos/25?random=1" },
+  { username: "用戶B", content: "看起來好放鬆，真的很適合散步的天氣～", avatar: "https://picsum.photos/25?random=2" },
+  { username: "用戶C", content: "這樣的日子就是要好好享受戶外活動啊！😍", avatar: "https://picsum.photos/25?random=3" },
+  { username: "用戶D", content: "台北今天的天氣確實很棒！拍得真好！📸", avatar: "https://picsum.photos/25?random=4" },
+  { username: "用戶E", content: "哇，風景美麗，人心情更美～❤️", avatar: "https://picsum.photos/25?random=5" },
+          ],
+          isFollowing: false,  // 初始狀態為未追蹤 
         },
         {
           id: 3,
@@ -139,8 +174,19 @@ export default {
           time: "2024-04-16",
           image: "https://picsum.photos/300/200?random=2",
           likes: 15,
-          comments: 10,
+          comments: 7,
           newComment: "", // 新增一个属性用于存储新留言
+          commentList: [
+  { username: "用戶A", content: "這幅畫好有創意，顏色搭配得真棒 🎨", avatar: "https://picsum.photos/25?random=6" },
+  { username: "用戶B", content: "哇，藝術家！這幅畫的細節太美了，厲害！", avatar: "https://picsum.photos/25?random=7" },
+  { username: "用戶C", content: "喜歡你的風格，這次的作品也很棒！💖", avatar: "https://picsum.photos/25?random=8" },
+  { username: "用戶D", content: "感覺好有故事的一幅畫，真想多了解背後的靈感～", avatar: "https://picsum.photos/25?random=9" },
+  { username: "用戶E", content: "每次看到你的作品都讓人眼前一亮，繼續加油！💪", avatar: "https://picsum.photos/25?random=10" },
+  { username: "用戶F", content: "這畫充滿了獨特的情感，能感受到你的用心！👍", avatar: "https://picsum.photos/25?random=11" },
+  { username: "用戶G", content: "每次看到你的作品，都覺得很震撼！這幅畫真的很有層次感～👏", avatar: "https://picsum.photos/25?random=12" },
+],
+isFollowing: false,  // 初始狀態為未追蹤
+
         },
       ],
     };
@@ -163,15 +209,41 @@ export default {
       });
     });
   },
-    methods: {
-    editPost(post) {
-        this.$router.push({ 
-            name: 'post_edit', 
-            params: { postId: post.id } 
-        });
+computed: {
+    ...mapGetters('follow', ['isFollowing'])
+    },
+  
+  methods: {
+    ...mapActions('follow', ['followUser', 'unfollowUser']),
+    
+    // 處理追蹤按鈕點擊
+    handleToggleFollow(post) {
+      const isFollowing = this.isFollowing(post.username);
+      if (isFollowing) {
+        // 如果已追蹤，則取消追蹤
+        this.unfollowUser(post.username);
+      } else {
+        // 如果未追蹤，則進行追蹤
+        this.followUser({ username: post.username });
+      }
+    },
+
+
+    // 獲取貼文列表
+    async fetchPosts() {
+      try {
+        const response = await http.get('/api/posts');
+        this.posts = response.data;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    // 跳轉到編輯頁面
+    editPost(postId) {
+      this.$router.push({ name: 'post_edit', params: { postId } }); // Pass postId as a parameter} });
     },
     deletePost(post) {
-  // 使用 confirm 彈出確認框，讓使用者確認是否要刪除
+  // 使用 confirm 彈確認框，讓使用者確認是否要刪除
   const confirmation = confirm('確定要刪除這則貼文嗎？');
 
   // 如果使用者確認，就刪除貼文
@@ -216,6 +288,16 @@ export default {
       // 增加貼文的讚數
       post.likes++;
     },
+    created() {
+    this.fetchPosts();
+  },
+
+    // 正確使用 mapActions
+    ...mapActions(['addToCollection']),
+  addToCollection(postId) {
+    // Use Vuex dispatch, not a direct method call
+    this.$store.dispatch('addToCollection', postId);
+  },
 
     /*問題
       抓不到有效token
@@ -314,7 +396,7 @@ export default {
       }
     },
 
-    editPost(post) {
+    /*editPost(post) {
       // 編輯貼文的邏輯
       console.log('編輯貼文:', post);
     },
@@ -335,7 +417,7 @@ export default {
    } else {
       console.log('取消收藏:', post);
    }
-},
+},*/
   },
 
 };
@@ -426,6 +508,10 @@ export default {
   background-color: #f0f0f0;
 }
 
+.follow-button {
+  margin-right: 20px;
+}
+
 .post img {
   display: block;
   margin: 0 auto;
@@ -500,6 +586,32 @@ export default {
   background-color: #e09393; /* 當鼠標懸停時，顏色變深 */
 }
 
+.comment-avatar {
+  width: 40px;  /* 增加頭像大小 */
+  height: 40px; /* 同樣增加高度來匹配寬度 */
+  border-radius: 50%;
+  margin-right: 10px; /* 調整頭像和文字之間的距離 */
+}
+
+.comment-content {
+  display: flex;
+  flex-direction: row; /* 確保是水平排列 */
+  align-items: flex-start; /* 頭像和文字對齊 */
+  justify-content: flex-start; /* 確保所有內容靠左 */
+  text-align: left; /* 留言內容靠左對齊 */
+  margin-bottom: 10px; /* 調整上下間距 */
+  width: 100%; /* 確保內容不溢出 */
+}
+
+.comment-content div {
+  flex: 1; /* 讓留言內容占據剩餘空間 */
+}
+
+.comment-text {
+  text-align: left; /* 留言文字靠左對齊 */
+  margin: 0; /* 去掉多餘的上下間距 */
+  white-space: pre-wrap; /* 保持換行格式 */
+}
 
 @media screen and (max-width: 800px) {
   .slider {

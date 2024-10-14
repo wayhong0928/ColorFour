@@ -22,7 +22,7 @@ def search_Date(event): #穿搭日程快速選日期
             label="選取日期",
             data="action=search_date&mode=date",
             mode="date",
-            initial="2024-06-21",
+            initial="2024-11-02",
             min="2024-01-01",
             max="2024-12-31"
           )
@@ -32,7 +32,8 @@ def search_Date(event): #穿搭日程快速選日期
     line_bot_api.reply_message(event.reply_token, message)
   except Exception as e:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f'發生錯誤！{e}'))
-    
+
+
 def Back_search_date(event, backdata): #回傳日期以及確認按鈕
     try:
         if backdata.get('mode') == 'date':
@@ -46,7 +47,7 @@ def Back_search_date(event, backdata): #回傳日期以及確認按鈕
               preview_image_url = "https://imgur.com/OXVtzRw.png"
           ),
           TextSendMessage(
-            text = "日程名稱：SE期末報告\n開始時間：2024-06-21 10:00\n結束時間：2024-06-21 12:00\n地點：中原大學\n活動：SE期末報告\n穿搭名稱：期末報告服裝"            
+            text = "日程名稱：SE期末報告\n開始時間：2024-11-02 10:00\n結束時間：2024-11-02 12:00\n地點：中原大學\n活動：SE期末報告\n穿搭名稱：期末報告服裝"            
           ),
           TemplateSendMessage(
             alt_text='確認是否要新增穿搭日程安排',

@@ -14,9 +14,9 @@ axios.defaults.baseURL = process.env.VUE_APP_BACKEND_URL;
 axios.defaults.headers.common["Content-Type"] = "application/json";
 
 setupInterceptors();
-store.dispatch("auth/initializeAuth");
 
-const toastOptions = {};
-
-const app = createApp(App);
-app.use(store).use(router).use(Toast, toastOptions).mount("#app");
+store.dispatch("auth/initializeAuth").then(() => {
+  const app = createApp(App);
+  app.use(store).use(router).use(Toast, {});
+  app.mount("#app");
+});

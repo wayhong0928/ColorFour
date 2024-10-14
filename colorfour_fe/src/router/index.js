@@ -10,7 +10,6 @@ import user_profile from "@/views/user_profile.vue";
 import user_setting from "@/views/user_setting.vue";
 import user_notice from "@/views/user_notice.vue";
 
-
 // Color
 import color_index from "@/views/color_index.vue";
 import color_detail_1 from "@/views/color_detail_1.vue";
@@ -131,22 +130,26 @@ const routes = [
     path: "/closet_index",
     name: "closet_index",
     component: closet_index,
+    meta: { requiresAuth: true },
   },
   {
     path: "/closet_detail/:id",
     name: "closet_detail",
-    component: closet_detail, 
+    component: closet_detail,
+    meta: { requiresAuth: true },
     props: true,
   },
   {
     path: "/closet_new",
     name: "closet_new",
     component: closet_new,
+    meta: { requiresAuth: true },
   },
   {
     path: "/closet_trash",
     name: "closet_trash",
     component: closet_trash,
+    meta: { requiresAuth: true },
   },
   {
     path: "/social_index",
@@ -168,7 +171,7 @@ const routes = [
     path: "/post_edit/:id",
     name: "post_edit",
     component: post_edit,
-    props: true, 
+    props: true,
     //meta: { requiresAuth: true },
   },
   {
@@ -177,8 +180,8 @@ const routes = [
     component: social_follow_list,
   },
   {
-    path: '/user_notice',
-    name: 'user_notice',
+    path: "/user_notice",
+    name: "user_notice",
     component: user_notice,
   },
   {
@@ -213,10 +216,10 @@ const routes = [
     component: buy_suggest,
   },
   {
-    path: '/buy_detail/:id',
+    path: "/buy_detail/:id",
     name: "buy_detail",
     props: true,
-    component: () => import('@/views/buy_detail.vue'),
+    component: () => import("@/views/buy_detail.vue"),
   },
   {
     path: "/buy_result",
@@ -246,14 +249,16 @@ router.beforeEach(async (to, from, next) => {
           next("/login");
         }
       } catch (error) {
-        next("/login");
+        console.error("Authentication error:", error);
+        next("/login"); 
       }
     } else {
-      next();
+      next(); 
     }
   } else {
     next();
   }
 });
+
 
 export default router;

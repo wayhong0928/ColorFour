@@ -2,44 +2,113 @@
   <div>
     <main>
       <div class="item-info-wrap">
-        <button class="btn btn-outline-secondary edit-button" @click="toggleEdit">編輯</button>
-        <button class="btn btn-outline-secondary" @click="deleteItem">刪除</button>
+        <!-- 根據 isInTrash 狀態決定顯示的按鈕 -->
+        <button class="btn btn-outline-secondary edit-button" @click="toggleEdit" v-if="item && !item.is_in_trash">編輯</button>
+        <button class="btn btn-outline-secondary" @click="moveToTrash" v-if="item && !item.is_in_trash">移置垃圾桶</button>
+
+        <!-- 如果項目在垃圾桶中，顯示復原和永久刪除按鈕 -->
+        <button class="btn btn-outline-secondary" @click="restoreItem" v-if="item && item.is_in_trash">復原</button>
+        <button class="btn btn-outline-danger" @click="deleteItem" v-if="item && item.is_in_trash">永久刪除</button>
       </div>
-      <section class="container">
-      <!-- 愛心圖標顯示與點擊功能 -->
-        <div class="favorite-icon" @click="toggleFavorite">
-          <transition name="zoom" mode="out-in">
-            <img v-if="isFavorite" :src="require('@/assets/img/愛了.png')" alt="已加入最愛" key="liked" />
-            <img v-else :src="require('@/assets/img/未愛.png')" alt="未加入最愛" key="unliked" />
-          </transition>
-        </div>
+      <section class="container" v-if="item">
+        <!-- 檢查 item 是否存在 -->
         <div class="item-img">
-          <img :src="item.image" alt="服飾圖片" />
+          <img :src="item.photo_url" alt="服飾圖片" />
         </div>
         <div class="item-info" v-if="!isEditing">
-          <h1>{{ item.name }}</h1>
-          <p>品牌: {{ item.brand }}</p>
+          <h1>{{ item.item_name }}</h1>
+          <p>品牌: {{ getBrandName(item.brand) }}</p>
           <p>價格: ${{ item.price }}</p>
-          <p class="hashtag">種類：#{{ item.category }}</p>
-          <p class="hashtag">標籤：{{ item.tags.map(tag => `#${tag}`).join(' ') }}</p>
-          <p class="added-date">加入日期: {{ item.addedDate }}</p>
+
+          <!-- 判斷顯示服飾種類 -->
+          <template v-if="isClothing">
+            <p class="hashtag">服飾主要分類：{{ getCategoryName(item.main_category) }}</p>
+            <p class="hashtag">服飾次要分類：{{ getSubCategoryName(item.sub_category) }}</p>
+          </template>
+
+          <!-- 判斷顯示鞋子種類 -->
+          <template v-if="isShoe">
+            <p class="hashtag">鞋子主要分類：{{ getShoeCategoryName(item.shoe_category) }}</p>
+            <p class="hashtag">鞋子次要分類：{{ getShoeSubCategoryName(item.shoe_sub_category) }}</p>
+          </template>
+
+          <p class="hashtag">
+            場合標籤：
+            <span v-for="(occasion, index) in item.occasions" :key="occasion">
+              #{{ getOccasionName(occasion) }}<span v-if="index < item.occasions.length - 1">, </span>
+            </span>
+          </p>
+          <p class="hashtag">顏色：{{ getColorName(item.color) }}</p>
+          <p class="added-date">加入日期: {{ formatDate(item.add_date) }}</p>
+          <p class="edit-date">編輯時間: {{ formatDate(item.edit_date) }}</p>
         </div>
+
         <!-- 編輯模式 -->
         <div class="edit-form" v-else>
           <label>名稱:</label>
-          <input v-model="editForm.name" />
+          <input v-model="editForm.item_name" />
 
           <label>品牌:</label>
-          <input v-model="editForm.brand" />
+          <select v-model="editForm.brand">
+            <option v-for="brand in brands" :key="brand.id" :value="brand.id">
+              {{ brand.name }}
+            </option>
+          </select>
 
           <label>價格:</label>
           <input v-model="editForm.price" type="number" />
 
-          <label>種類:</label>
-          <input v-model="editForm.category" />
+          <label>主要分類:</label>
+          <select v-model="editForm.main_category">
+            <option v-for="category in categories" :key="category.id" :value="category.id">
+              {{ category.name }}
+            </option>
+          </select>
 
-          <label>標籤:</label>
-          <input v-model="editForm.tags" placeholder="用逗號分隔" />
+          <label>次要分類:</label>
+          <select v-model="editForm.sub_category">
+            <option v-for="subCategory in subCategories" :key="subCategory.id" :value="subCategory.id">
+              {{ subCategory.name }}
+            </option>
+          </select>
+
+          <label>鞋子主要分類:</label>
+          <select v-model="editForm.shoe_category">
+            <option v-for="shoeCategory in shoeCategories" :key="shoeCategory.id" :value="shoeCategory.id">
+              {{ shoeCategory.name }}
+            </option>
+          </select>
+
+          <label>鞋子次要分類:</label>
+          <select v-model="editForm.shoe_sub_category">
+            <option v-for="shoeSubCategory in shoeSubCategories" :key="shoeSubCategory.id" :value="shoeSubCategory.id">
+              {{ shoeSubCategory.name }}
+            </option>
+          </select>
+
+          <label>顏色:</label>
+          <select v-model="editForm.color">
+            <option v-for="color in colors" :key="color.id" :value="color.id">
+              {{ color.name }}
+            </option>
+          </select>
+
+          <!-- 場合標籤編輯 -->
+          <label>場合標籤:</label>
+          <div>
+            <div v-for="(selectedOccasion, index) in editForm.occasions" :key="selectedOccasion">
+              <span class="badge bg-primary m-1">{{ getOccasionName(selectedOccasion) }}</span>
+              <button @click="removeOccasion(index)" class="btn btn-sm btn-danger">移除</button>
+            </div>
+          </div>
+          <div>
+            <select v-model="newOccasion">
+              <option v-for="occasion in occasions" :key="occasion.id" :value="occasion.id">
+                {{ occasion.occasion_name }}
+              </option>
+            </select>
+            <button @click="addOccasion" class="btn btn-sm btn-primary">新增場合</button>
+          </div>
 
           <button class="btn btn-outline-secondary" @click="saveEdit">儲存</button>
         </div>
@@ -49,277 +118,209 @@
   </div>
 </template>
 
-
 <script>
-  import axios from "axios";
+    import axios from "axios";
+    import { closetApiMixin } from "../mixins/closetApiMixin.js";
+    import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
 
-  export default {
-  props: ['id'],
-  data() {
-    return {
-      item: null, // 儲存對應id的項目
-      isFavorite: false,
-      isEditing: false, // 是否進入編輯模式
-      editForm: { // 編輯表單資料
-        name: '',
-        brand: '',
-        price: 0,
-        category: '',
-        tags: '',
+    export default {
+      mixins: [closetApiMixin, closet_filterSortMixin],
+      props: ["id"],
+      data() {
+        return {
+          item: null,
+          isEditing: false,
+          editForm: {
+            item_name: "",
+            brand: "",
+            price: 0,
+            main_category: "",
+            sub_category: "",
+            shoe_category: "",
+            shoe_sub_category: "",
+            color: "",
+            occasions: [], // 用於存放選中的場合標籤
+          },
+          brands: [],
+          categories: [],
+          subCategories: [],
+          shoeCategories: [],
+          shoeSubCategories: [],
+          colors: [],
+          occasions: [], // 所有場合標籤選項
+          newOccasion: "", // 用於存放新增的場合標籤
+        };
       },
-      items: [
-        {
-          id: 1,
-          name: "白T萬歲",
-          category: "t-shirt",
-          brand: "UNIQLO",
-          price: 150,
-          addedDate: "2024/06/01",
-          image: require("@/assets/img/Uniqlo_white_Tshirt.png"),
-          tags: ["春天", "夏天", "休閒", "百搭"],
+      computed: {
+        // 判斷是否為服飾類別
+        isClothing() {
+          return this.item && this.item.main_category != 1;
         },
-        {
-          id: 2,
-          name: "連身裙",
-          category: "dress",
-          brand: "GU",
-          price: 100,
-          addedDate: "2024/06/02",
-          image: require("@/assets/img/closet_02.png"),
-          tags: ["春天", "夏天"],
+        // 判斷是否為鞋子類別
+        isShoe() {
+          return this.item && this.item.shoe_category != 1;
         },
-        {
-          id: 3,
-          name: "牛仔褲",
-          category: "bottom",
-          brand: "GU",
-          price: 70,
-          addedDate: "2024/06/03",
-          image: require("@/assets/img/closet_03.png"),
-          tags: ["春天", "夏天"],
+      },
+      methods: {
+   
+        async fetchItem() {
+          try {
+            const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`, {
+              headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+              },
+            });
+            this.item = response.data;
+          } catch (error) {
+            console.error("Error fetching item:", error);
+          }
         },
-        {
-          id: 4,
-          name: "短褲",
-          category: "bottom",
-          brand: "UNIQLO",
-          price: 220,
-          addedDate: "2024/06/04",
-          image: require("@/assets/img/closet_04.png"),
-          tags: ["秋天", "冬天"],
+        async fetchMetadata() {
+          // 獲取品牌、分類、顏色、場合等資料
+          try {
+            const [
+              brandsResponse,
+              categoriesResponse,
+              subCategoriesResponse,
+              shoeCategoriesResponse,
+              shoeSubCategoriesResponse,
+              colorsResponse,
+              occasionsResponse,
+            ] = await Promise.all([
+              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/brands/`),
+              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/categories/`),
+              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/subcategories/`),
+              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/shoes_categories/`),
+              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/shoes_subcategories/`),
+              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/colors/`),
+              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/occasions/`),
+            ]);
+            this.brands = brandsResponse.data;
+            this.categories = categoriesResponse.data;
+            this.subCategories = subCategoriesResponse.data;
+            this.shoeCategories = shoeCategoriesResponse.data;
+            this.shoeSubCategories = shoeSubCategoriesResponse.data;
+            this.colors = colorsResponse.data;
+            this.occasions = occasionsResponse.data;
+          } catch (error) {
+            console.error("Error fetching metadata:", error);
+          }
         },
-        {
-          id: 5,
-          name: "小白鞋",
-          category: "shoes",
-          brand: "無印",
-          price: 80,
-          addedDate: "2024/06/05",
-          image: require("@/assets/img/closet_05.png"),
-          tags: ["春天", "夏天"],
+        toggleEdit() {
+          this.isEditing = !this.isEditing;
+          if (this.isEditing) {
+            this.populateEditForm(); // 進入編輯模式時，填充 editForm
+          }
         },
-        {
-          id: 6,
-          name: "西裝外套",
-          category: "coat",
-          brand: "GU",
-          price: 120,
-          addedDate: "2024/06/06",
-          image: require("@/assets/img/closet_06.png"),
-          tags: ["春天", "秋天"],
+        populateEditForm() {
+          this.editForm = {
+            item_name: this.item.item_name,
+            brand: this.item.brand,
+            price: this.item.price,
+            main_category: this.item.main_category,
+            sub_category: this.item.sub_category,
+            shoe_category: this.item.shoe_category,
+            shoe_sub_category: this.item.shoe_sub_category,
+            color: this.item.color,
+            occasions: [...this.item.occasions],
+          };
         },
-        {
-          id: 7,
-          name: "墨鏡",
-          category: "accessories",
-          brand: "品牌C",
-          price: 50,
-          addedDate: "2024/06/07",
-          image: "https://picsum.photos/300/200?random=6",
-          tags: ["春天", "夏天"],
+        addOccasion() {
+          if (this.newOccasion && !this.editForm.occasions.includes(this.newOccasion)) {
+            this.editForm.occasions.push(this.newOccasion);
+            this.newOccasion = "";
+          }
         },
-        {
-          id: 8,
-          name: "手錶",
-          category: "accessories",
-          brand: "品牌A",
-          price: 200,
-          addedDate: "2024/06/08",
-          image: "https://picsum.photos/300/200?random=7",
-          tags: ["全年"],
+        removeOccasion(index) {
+          this.editForm.occasions.splice(index, 1);
         },
-        {
-          id: 9,
-          name: "風衣",
-          category: "coat",
-          brand: "品牌B",
-          price: 180,
-          addedDate: "2024/06/09",
-          image: "https://picsum.photos/300/200?random=8",
-          tags: ["秋天", "冬天"],
+        async saveEdit() {
+          try {
+            await axios.put(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`, this.editForm, {
+              headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+              },
+            });
+            // 更新 item 資料
+            this.item = { ...this.item, ...this.editForm };
+            this.isEditing = false;
+          } catch (error) {
+            console.error("Error saving item:", error);
+          }
         },
-        {
-          id: 10,
-          name: "連帽衫",
-          category: "top",
-          brand: "品牌C",
-          price: 130,
-          addedDate: "2024/06/10",
-          image: "https://picsum.photos/300/200?random=9",
-          tags: ["秋天", "冬天"],
+        async restoreItem() {
+          try {
+            await this.modifyItem("restore", this.id);
+            alert("項目已成功復原！");
+            this.$router.push("/closet_trash");
+          } catch (error) {
+            console.error("復原失敗:", error);
+            alert("復原失敗，請稍後再試。");
+          }
         },
-        {
-          id: 11,
-          name: "T恤",
-          category: "top",
-          brand: "品牌E",
-          price: 50,
-          addedDate: "2024/06/11",
-          image: "https://picsum.photos/300/200?random=12",
-          tags: ["春天", "夏天"],
+        async deleteItem() {
+          try {
+            const confirmed = confirm("永久刪除無法復原，確定要刪除嗎？");
+            if (confirmed) {
+              await this.modifyItem("delete", this.id);
+              alert("項目已成功永久刪除！");
+              this.$router.push("/closet_trash");
+            }
+          } catch (error) {
+            console.error("永久刪除失敗:", error);
+            alert("永久刪除失敗，請稍後再試。");
+          }
         },
-        {
-          id: 12,
-          name: "針織衫",
-          category: "top",
-          brand: "GU",
-          price: 90,
-          addedDate: "2024/06/12",
-          image: "https://picsum.photos/300/200?random=1",
-          tags: ["秋天"],
+        async moveToTrash() {
+          try {
+            await this.modifyItem("move_to_trash", this.id);
+            alert(`成功將 ${this.item.item_name} 移至垃圾桶`);
+            this.$router.push("/closet_trash");
+          } catch (error) {
+            console.error("移置垃圾桶失敗:", error);
+          }
         },
-        {
-          id: 13,
-          name: "皮帶",
-          category: "accessories",
-          brand: "品牌F",
-          price: 40,
-          addedDate: "2024/06/13",
-          image: "https://picsum.photos/300/200?random=13",
-          tags: ["全年"],
+        getBrandName(brandId) {
+          const brand = this.brands.find((b) => b.id === brandId);
+          return brand ? brand.name : "未知品牌";
         },
-        {
-          id: 14,
-          name: "運動褲",
-          category: "bottom",
-          brand: "品牌G",
-          price: 60,
-          addedDate: "2024/06/14",
-          image: "https://picsum.photos/300/200?random=14",
-          tags: ["春天", "夏天"],
+        getCategoryName(categoryId) {
+          const category = this.categories.find((c) => c.id === categoryId);
+          return category ? category.name : "未知分類";
         },
-        {
-          id: 15,
-          name: "棒球帽",
-          category: "accessories",
-          brand: "品牌H",
-          price: 30,
-          addedDate: "2024/06/15",
-          image: "https://picsum.photos/300/200?random=15",
-          tags: ["春天", "夏天"],
+        getSubCategoryName(subCategoryId) {
+          const subCategory = this.subCategories.find((sc) => sc.id === subCategoryId);
+          return subCategory ? subCategory.name : "未知次分類";
         },
-        {
-          id: 16,
-          name: "羽絨服",
-          category: "coat",
-          brand: "品牌I",
-          price: 250,
-          addedDate: "2024/06/16",
-          image: "https://picsum.photos/300/200?random=16",
-          tags: ["冬天"],
+        getShoeCategoryName(shoeCategoryId) {
+          const shoeCategory = this.shoeCategories.find((sc) => sc.id === shoeCategoryId);
+          return shoeCategory ? shoeCategory.name : "未知鞋子分類";
         },
-        {
-          id: 17,
-          name: "連身裙",
-          category: "dress",
-          brand: "品牌J",
-          price: 110,
-          addedDate: "2024/06/17",
-          image: "https://picsum.photos/300/200?random=17",
-          tags: ["春天", "夏天"],
+        getShoeSubCategoryName(shoeSubCategoryId) {
+          const shoeSubCategory = this.shoeSubCategories.find((ssc) => ssc.id === shoeSubCategoryId);
+          return shoeSubCategory ? shoeSubCategory.name : "未知鞋子次分類";
         },
-        {
-          id: 18,
-          name: "短靴",
-          category: "shoes",
-          brand: "品牌K",
-          price: 140,
-          addedDate: "2024/06/18",
-          image: "https://picsum.photos/300/200?random=18",
-          tags: ["秋天", "冬天"],
+        getOccasionName(occasionId) {
+          const occasion = this.occasions.find((o) => o.id === occasionId);
+          return occasion ? occasion.occasion_name : "未知場合";
         },
-        {
-          id: 19,
-          name: "牛仔外套",
-          category: "coat",
-          brand: "品牌L",
-          price: 160,
-          addedDate: "2024/06/19",
-          image: "https://picsum.photos/300/200?random=19",
-          tags: ["秋天", "冬天"],
+        getColorName(colorId) {
+          const color = this.colors.find((c) => c.id === colorId);
+          return color ? color.name : "未知顏色";
         },
-        {
-          id: 20,
-          name: "手提包",
-          category: "accessories",
-          brand: "品牌M",
-          price: 90,
-          addedDate: "2024/06/20",
-          image: "https://picsum.photos/300/200?random=20",
-          tags: ["全年"],
+        formatDate(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleString(); // 格式化為日期+時間
         },
-      ],
+        goBack() {
+          this.$router.go(-1);
+        },
+      },
+      async created() {
+        await this.fetchMetadata(); // 先抓取品牌、分類、顏色、場合等資料
+        this.fetchItem(); // 再獲取具體 item
+      },
     };
-  },
-  methods: {
-  toggleEdit() {
-    this.isEditing = !this.isEditing;
-    if (this.isEditing) {
-      // 將原始資料填入編輯表單中
-      this.editForm = { ...this.item, tags: this.item.tags.join(', ') };
-    }
-  },
-  saveEdit() {
-    // 儲存編輯後的資料
-    this.item.name = this.editForm.name;
-    this.item.brand = this.editForm.brand;
-    this.item.price = this.editForm.price;
-    this.item.category = this.editForm.category;
-    this.item.tags = this.editForm.tags.split(',').map(tag => tag.trim());
-    this.isEditing = false; // 結束編輯模式
-  },
-  deleteItem() {
-    alert(`成功刪除: ${this.item.name}`);
-    // 從列表中移除單品
-    this.items = this.items.filter(item => item.id !== this.item.id);
-    // 刪除成功後跳轉回 closet_trash.vue
-    this.$router.push('/closet_trash');
-  },
-  toggleFavorite() {
-    this.isFavorite = !this.isFavorite;  // 切換最愛狀態
-    if (this.isFavorite) {
-      this.addToFavorites(this.item);
-    } else {
-      this.removeFromFavorites(this.item);
-    }
-  },
-  addToFavorites(item) {
-    console.log(`加入最愛: ${item.name}`);
-  },
-  removeFromFavorites(item) {
-    console.log(`移除最愛: ${item.name}`);
-  },
-  goBack() {
-    this.$router.go(-1);  // 返回上一頁
-  }
-},
-  created() {
-  // Based on the props id, find the corresponding item
-  console.log(this.id); // Check if the correct ID is being logged
-  this.item = this.items.find((item) => item.id == this.id);
-  this.isFavorite = false;
-},
-};
 </script>
 
 <style scoped>
@@ -360,32 +361,32 @@
     display: inline-flex;
     align-items: center; /* 水平置中 */
     justify-content: center; /* 垂直置中 */
-    margin-top:20px;
+    margin-top: 20px;
   }
 
-.back-button {
-  padding: 10px 20px;
-  background-color: #d4b7a1;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-  margin-top:20px;
-}
+  .back-button {
+    padding: 10px 20px;
+    background-color: #d4b7a1;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+  }
 
-.back-button:hover {
-  background-color: #b3957e;
-}
+  .back-button:hover {
+    background-color: #b3957e;
+  }
 
-.favorite-icon {
+  .favorite-icon {
     cursor: pointer;
     width: 90px;
     height: 90px;
     margin-bottom: 10px;
     position: absolute;
-    top:20px;
-    right:20px;
+    top: 20px;
+    right: 20px;
   }
 
   .favorite-icon img {
@@ -394,7 +395,8 @@
     transition: transform 0.2s ease-in-out;
   }
 
-  .zoom-enter-active, .zoom-leave-active {
+  .zoom-enter-active,
+  .zoom-leave-active {
     transition: transform 0.3s ease;
   }
 

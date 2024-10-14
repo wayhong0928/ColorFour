@@ -19,34 +19,11 @@ export default {
     Header,
     Footer,
   },
-  data() {
-    return {
-      refreshInterval: null,
-    };
-  },
   created() {
     this.initializeAuth();
-    this.startTokenRefreshInterval();
-  },
-  beforeUnmount() {
-    this.stopTokenRefreshInterval();
   },
   methods: {
-    ...mapActions("auth", ["initializeAuth", "refreshToken"]),
-    startTokenRefreshInterval() {
-      this.refreshInterval = setInterval(() => {
-        if (this.$store.getters["auth/isAuthenticated"]) {
-          this.refreshToken().catch(error => {
-            console.error("自動刷新令牌失敗:", error);
-          });
-        }
-      }, 10 * 60 * 1000); // 每10分鐘刷新一次
-    },
-    stopTokenRefreshInterval() {
-      if (this.refreshInterval) {
-        clearInterval(this.refreshInterval);
-      }
-    },
+    ...mapActions("auth", ["initializeAuth"]),
   },
 };
 </script>

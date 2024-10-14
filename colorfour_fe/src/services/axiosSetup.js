@@ -1,12 +1,13 @@
 import axios from "axios";
 import store from "../store";
+import router from "../router";
 
 export const setupInterceptors = () => {
   axios.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-      if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         try {
           const newToken = await store.dispatch("auth/refreshToken");
@@ -15,7 +16,6 @@ export const setupInterceptors = () => {
             return axios(originalRequest);
           }
         } catch (refreshError) {
-          console.error("Token refresh failed, redirecting to login page", refreshError);
           await store.dispatch("auth/logout");
           router.push("/login");
         }

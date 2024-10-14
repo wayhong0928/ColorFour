@@ -17,6 +17,7 @@ export default {
     setToken(state, token) {
       state.token = token;
       state.isAuthenticated = true;
+      sessionStorage.setItem("isAuthenticated", true);
       sessionStorage.setItem("my-app-auth", token);
     },
     setRefreshToken(state, refreshToken) {
@@ -36,9 +37,13 @@ export default {
       state.isLineLinked = false;
       sessionStorage.removeItem("my-app-auth");
       sessionStorage.removeItem("my-refresh-token");
+      sessionStorage.removeItem("loginProvider");
+      sessionStorage.removeItem("isAuthenticated");
+      axios.defaults.headers.common["Authorization"] = '';
     },
     setLoginProvider(state, provider) {
       state.loginProvider = provider;
+      sessionStorage.setItem("loginProvider", provider);
     },
     setIsGoogleLinked(state, isLinked) {
       state.isGoogleLinked = isLinked;
@@ -50,7 +55,8 @@ export default {
   actions: {
     async initializeAuth({ commit, dispatch }) {
       const token = sessionStorage.getItem("my-app-auth");
-      if (token) {
+      const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
+      if (token && isAuthenticated) {
         commit("setToken", token);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         try {
@@ -65,26 +71,6 @@ export default {
         }
       } else {
         commit("clearAuthData");
-      }
-    },
-    async login({ commit, dispatch }, { username, password }) {
-      // 將名字中的特殊字符或圖示進行編碼
-      const encodedUsername = encodeURIComponent(username);
-
-      // 根據你的需求選擇後端 API URL
-      let url = `${BACKEND_URL}/member/login/`;
-
-      try {
-        // 使用編碼過的 username 發送請求
-        const response = await axios.post(url, {
-          username: encodedUsername,
-          password: password,
-        });
-
-        // 後續的登錄邏輯
-        commit("setUser", response.data);
-      } catch (error) {
-        console.error("Login failed:", error);
       }
     },
     async login({ commit, dispatch }, { code, provider }) {
@@ -107,10 +93,18 @@ export default {
         commit("setToken", response.data.access);
         commit("setRefreshToken", response.data.refresh);
         commit("setLoginProvider", provider);
+        sessionStorage.setItem("isAuthenticated", true);
+
         if (provider === "google") {
           commit("setIsGoogleLinked", true);
         } else if (provider === "line") {
           commit("setIsLineLinked", true);
+        }
+
+        if (provider === "line" && response.data.user) {
+          const encodedName = encodeURIComponent(response.data.user.name);
+          response.data.user.name = encodedName;
+          console.log("Encoded Username:", encodedName);
         }
 
         axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
@@ -127,31 +121,26 @@ export default {
     },
     async refreshToken({ commit, state }) {
       if (!state.refreshToken) {
-        console.error("No available refresh token. Logging out.");
         commit("clearAuthData");
         return null;
       }
 
       try {
-        const response = await axios.post(
-          `${BACKEND_URL}/api/token/refresh/`,
-          {
-            refresh: state.refreshToken,
-          },
-          { timeout: 10000 }
-        );
+        const response = await axios.post(`${BACKEND_URL}/api/token/refresh/`, { refresh: state.refreshToken });
         const newToken = response.data.access;
         commit("setToken", newToken);
+        sessionStorage.setItem("my-app-auth", newToken);
         axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
         return newToken;
       } catch (error) {
-        console.error("Token refresh failed:", error);
         commit("clearAuthData");
+        console.error("Token refresh failed:", error);
         throw error;
       }
     },
     logout({ commit }) {
       commit("clearAuthData");
+      axios.defaults.headers.common["Authorization"] = '';
     },
     async fetchUserProfile({ commit, state }) {
       try {

@@ -120,7 +120,7 @@
 
 <script>
     import axios from "axios";
-    import { closetApiMixin } from "../mixins/closetApiMixin.js";
+    import { closetApiMixin } from "../mixins/closet_ApiMixin.js";
     import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
 
     export default {

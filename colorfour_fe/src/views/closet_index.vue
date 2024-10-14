@@ -13,7 +13,7 @@
 </template>
 
 <script>
-  import { closetApiMixin } from "../mixins/closetApiMixin.js";
+  import { closetApiMixin } from "../mixins/closet_ApiMixin.js";
   import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
   import WardrobeFilterAndSort from "../components/Wardrobe_FilterAndSort.vue";
   import WardrobeList from "../components/Wardrobe_List.vue";

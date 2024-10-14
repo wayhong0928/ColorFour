@@ -14,7 +14,7 @@
           <div class="col-6 d-flex justify-content-between align-items-center">
             <div>
               <img
-                :src="user.profile_image || 'https://picsum.photos/100/100?random=1'"
+                :src="user.photo_url || defaultProfileImage"
                 alt="user profile image"
                 class="rounded-circle"
                 width="100"
@@ -203,424 +203,429 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+  import { mapGetters, mapActions } from "vuex";
+  import defaultProfileImage from "@/assets/img/user_profile_default.jpg";
 
-export default {
-  name: "user_profile",
-  data() {
-    return {
-      loading: true,
-      error: null,
-      activeTab: "posts",
-      favoriteItems: [], // 儲存最愛單品的陣列
-      savedPosts: [
-        {
-          username: "嗡嗡嗡",
-          description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
-          hashtags: "#OOTD #帥氣 #甜美",
-          location: "中原大學",
-          time: "2024-04-18",
-          image: require("@/assets/img/post_01.jpg"),
-          likes: 12,
-          comments: 3,
-          newComment: "",
-        },
-        {
-          username: "哇哈哈",
-          description: "今天天氣真好，出門散步拍了些美照。",
-          hashtags: "#散步 #美照 #好心情",
-          location: "台北市",
-          time: "2024-04-17",
-          image: "https://picsum.photos/300/200?random=1",
-          likes: 8,
-          comments: 5,
-          newComment: "",
-        },
-      ],
-    };
-  },
-  computed: {
-    ...mapGetters("auth", ["isAuthenticated", "user"]),
-  },
-  methods: {
-    ...mapActions("auth", ["fetchUserProfile"]),
-    async loadUserProfile() {
-      try {
-        this.loading = true;
-        this.error = null;
-        await this.fetchUserProfile();
-      } catch (error) {
-        this.error = "無法載入用戶資料，請稍後再試。";
-      } finally {
-        this.loading = false;
-      }
+  export default {
+    name: "user_profile",
+    data() {
+      return {
+        loading: true,
+        error: null,
+        user: JSON.parse(sessionStorage.getItem("user")) || {},
+        activeTab: "posts",
+        favoriteItems: [], // 儲存最愛單品的陣列
+        savedPosts: [
+          {
+            username: "嗡嗡嗡",
+            description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
+            hashtags: "#OOTD #帥氣 #甜美",
+            location: "中原大學",
+            time: "2024-04-18",
+            image: require("@/assets/img/post_01.jpg"),
+            likes: 12,
+            comments: 3,
+            newComment: "",
+          },
+          {
+            username: "哇哈哈",
+            description: "今天天氣真好，出門散步拍了些美照。",
+            hashtags: "#散步 #美照 #好心情",
+            location: "台北市",
+            time: "2024-04-17",
+            image: "https://picsum.photos/300/200?random=1",
+            likes: 8,
+            comments: 5,
+            newComment: "",
+          },
+        ],
+      };
     },
-    setActiveTab(tab) {
-      this.activeTab = tab;
+    computed: {
+      ...mapGetters("auth", ["isAuthenticated", "user"]),
+      defaultProfileImage() {
+        return defaultProfileImage;
+      },
     },
-    shareProfile() {
-      alert("分享功能尚未實現");
+    methods: {
+      ...mapActions("auth", ["fetchUserProfile"]),
+      async loadUserProfile() {
+        try {
+          this.loading = true;
+          this.error = null;
+          await this.fetchUserProfile();
+        } catch (error) {
+          this.error = "無法載入用戶資料，請稍後再試。";
+        } finally {
+          this.loading = false;
+        }
+      },
+      setActiveTab(tab) {
+        this.activeTab = tab;
+      },
+      shareProfile() {
+        alert("分享功能尚未實現");
+      },
+      goToUserNotice() {
+        this.$router.push({ name: "user_notice" });
+      },
+      goToSocialFollowList() {
+        this.$router.push({ name: "social_follow_list" });
+      },
+      toggleDropdown(event) {
+        event.currentTarget.nextElementSibling.classList.toggle("show");
+      },
+      toggleCommentBox(event) {
+        const commentBox = event.currentTarget.parentElement.nextElementSibling;
+        commentBox.style.display = commentBox.style.display === "none" || !commentBox.style.display ? "block" : "none";
+      },
+      likePost(post) {
+        post.likes++;
+      },
+      submitComment(post) {
+        if (post.newComment.trim()) {
+          post.comments++;
+          post.newComment = "";
+        }
+      },
+      removePost(post) {
+        this.savedPosts = this.savedPosts.filter((p) => p !== post);
+      },
+      setActiveTab(tab) {
+        this.activeTab = tab;
+        if (tab === "likes") {
+          this.loadFavoriteItems();
+        }
+      },
+      // 加載最愛單品數據
+      loadFavoriteItems() {
+        // 在這裡調用API或者Vuex Action來獲取最愛單品的數據
+        this.favoriteItems = [
+          {
+            id: 1,
+            name: "白T",
+            brand: "UNIQLO",
+            price: 150,
+            image: require("@/assets/img/Uniqlo_white_Tshirt.png"),
+          },
+          {
+            id: 2,
+            name: "連身裙",
+            brand: "GU",
+            price: 100,
+            image: require("@/assets/img/closet_02.png"),
+          },
+        ];
+      },
     },
-    goToUserNotice() {
-      this.$router.push({ name: "user_notice" });
-    },
-    goToSocialFollowList() {
-      this.$router.push({ name: "social_follow_list" });
-    },
-    toggleDropdown(event) {
-      event.currentTarget.nextElementSibling.classList.toggle("show");
-    },
-    toggleCommentBox(event) {
-      const commentBox = event.currentTarget.parentElement.nextElementSibling;
-      commentBox.style.display = commentBox.style.display === "none" || !commentBox.style.display ? "block" : "none";
-    },
-    likePost(post) {
-      post.likes++;
-    },
-    submitComment(post) {
-      if (post.newComment.trim()) {
-        post.comments++;
-        post.newComment = "";
-      }
-    },
-    removePost(post) {
-      this.savedPosts = this.savedPosts.filter((p) => p !== post);
-    },
-    setActiveTab(tab) {
-      this.activeTab = tab;
-      if (tab === "likes") {
-        this.loadFavoriteItems();
-      }
-    },
-    // 加載最愛單品數據
-    loadFavoriteItems() {
-      // 在這裡調用API或者Vuex Action來獲取最愛單品的數據
-      this.favoriteItems = [
-        {
-          id: 1,
-          name: "白T",
-          brand: "UNIQLO",
-          price: 150,
-          image: require("@/assets/img/Uniqlo_white_Tshirt.png"),
-        },
-        {
-          id: 2,
-          name: "連身裙",
-          brand: "GU",
-          price: 100,
-          image: require("@/assets/img/closet_02.png"),
-        },
-      ];
-    },
-  },
-  mounted() {
-    if (this.isAuthenticated) {
-      this.loadUserProfile();
-    } else {
-      this.$router.push("/login");
-    }
-  },
-  watch: {
-    isAuthenticated(newValue) {
-      if (newValue) {
+    mounted() {
+      if (this.isAuthenticated) {
         this.loadUserProfile();
       } else {
         this.$router.push("/login");
       }
     },
-  },
-};
+    watch: {
+      isAuthenticated(newValue) {
+        if (newValue) {
+          this.loadUserProfile();
+        } else {
+          this.$router.push("/login");
+        }
+      },
+    },
+  };
 </script>
 
 <style scoped>
-.container {
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  max-width: 1200px;
-  margin: 100px auto 100px auto;
-}
+  .container {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 100px auto 100px auto;
+  }
 
-.img-fluid {
-  border-radius: 10px;
-}
+  .img-fluid {
+    border-radius: 10px;
+  }
 
-.nav-tabs .nav-link {
-  color: #333;
-}
+  .nav-tabs .nav-link {
+    color: #333;
+  }
 
-.nav-tabs .nav-link.active {
-  color: #000;
-  font-weight: bold;
-}
+  .nav-tabs .nav-link.active {
+    color: #000;
+    font-weight: bold;
+  }
 
-.text-center p {
-  font-size: 1.2rem;
-  color: #777;
-}
+  .text-center p {
+    font-size: 1.2rem;
+    color: #777;
+  }
 
-.rounded-circle {
-  border-radius: 50%;
-}
+  .rounded-circle {
+    border-radius: 50%;
+  }
 
-/* Two-column layout */
-.result-item {
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-.result-item .date {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.line-qr-code img {
-  max-width: 50%;
-  height: auto;
-  border-radius: 10px;
-}
-
-.icon {
-  width: 20px; /* Adjust the size as needed */
-  height: 20px;
-  margin-left: 5px; /* Add some margin if needed */
-}
-
-/* Position small icon in the top right corner */
-.corner-icon {
-  width: 26px;
-  height: 26px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(50%, -50%); /* Adjust position to align with the corner */
-}
-
-@media (min-width: 992px) {
-  .col-lg-6 {
+  /* Two-column layout */
+  .result-item {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
     margin-bottom: 20px;
   }
-}
 
-.main-content {
-  width: 90%;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-.post {
-  width: 100%;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  max-width: 600px;
-  background-color: #fff;
-  color: rgb(8, 8, 8);
-  text-align: left;
-}
-
-.post-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.post-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.post-username {
-  font-size: 1.2em;
-  padding: 10px;
-}
-
-.post-userinfo {
-  display: flex;
-  align-items: center;
-}
-
-.more-options {
-  position: relative;
-}
-
-.more-options svg {
-  cursor: pointer;
-}
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 30px;
-  background: white;
-  border: 1px solid #dbdbdb;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
-  overflow: hidden;
-  z-index: 1;
-  white-space: nowrap;
-}
-
-.dropdown-menu.show {
-  display: block;
-}
-
-.dropdown-menu li {
-  list-style: none;
-}
-
-.dropdown-menu li a {
-  display: block;
-  padding: 10px 20px;
-  text-decoration: none;
-  color: black;
-}
-
-.dropdown-menu li a:hover {
-  background-color: #f0f0f0;
-}
-
-.post img {
-  display: block;
-  margin: 0 auto;
-}
-
-.prot {
-  list-style: none;
-  padding: 0;
-  text-align: left;
-  margin-bottom: 20px;
-  margin: 10px 0;
-}
-
-.prot li {
-  margin: 10px 0;
-}
-
-.post-actions {
-  display: flex;
-  justify-content: flex-start;
-  gap: 10px;
-  margin-top: 20px;
-  align-items: center;
-}
-
-.post-actions button {
-  background-color: #f0a9a9;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  color: white;
-}
-
-.post-actions button:hover {
-  background-color: #e09393;
-}
-
-.slider_container1 img {
-  max-width: 100%;
-  border-radius: 8px;
-}
-
-.comment-section {
-  display: none;
-  margin-top: 10px;
-}
-
-.comment-section textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.comment-section button {
-  margin-top: 10px;
-}
-
-.comment-section button {
-  background-color: #f0a9a9;
-  color: white; /* 白色文字 */
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.comment-section button:hover {
-  background-color: #e09393; /* 當鼠標懸停時，顏色變深 */
-}
-
-.custom-card {
-  height: 100%; /* 讓卡片撐滿父元素 */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.custom-img {
-  height: 200px; /* 固定圖片高度 */
-  object-fit: cover; /* 圖片自適應，保持比例 */
-}
-
-.card-body {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* 自定義按鈕樣式 */
-.custom-button {
-  background-color: #e7d8c9; /* 更改按鈕顏色 */
-  color: white; /* 按鈕文字顏色 */
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px; /* 圓角 */
-  cursor: pointer;
-  text-align: center;
-}
-
-.custom-button:hover {
-  background-color: #d6c2b0; /* 懸停時的按鈕顏色 */
-}
-
-@media screen and (max-width: 800px) {
-  .slider {
-    margin: 20px auto;
+  .result-item .date {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
   }
 
-  .slide img {
-    border-radius: 20px;
+  .line-qr-code img {
+    max-width: 50%;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  .icon {
+    width: 20px; /* Adjust the size as needed */
+    height: 20px;
+    margin-left: 5px; /* Add some margin if needed */
+  }
+
+  /* Position small icon in the top right corner */
+  .corner-icon {
+    width: 26px;
+    height: 26px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(50%, -50%); /* Adjust position to align with the corner */
+  }
+
+  @media (min-width: 992px) {
+    .col-lg-6 {
+      margin-bottom: 20px;
+    }
+  }
+
+  .main-content {
+    width: 90%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
   }
 
   .post {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    max-width: 600px;
+    background-color: #fff;
+    color: rgb(8, 8, 8);
+    text-align: left;
+  }
+
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .post-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+
+  .post-username {
+    font-size: 1.2em;
     padding: 10px;
+  }
+
+  .post-userinfo {
+    display: flex;
+    align-items: center;
+  }
+
+  .more-options {
+    position: relative;
+  }
+
+  .more-options svg {
+    cursor: pointer;
+  }
+
+  .dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: white;
+    border: 1px solid #dbdbdb;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    z-index: 1;
+    white-space: nowrap;
+  }
+
+  .dropdown-menu.show {
+    display: block;
+  }
+
+  .dropdown-menu li {
+    list-style: none;
+  }
+
+  .dropdown-menu li a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: black;
+  }
+
+  .dropdown-menu li a:hover {
+    background-color: #f0f0f0;
+  }
+
+  .post img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .prot {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+    margin-bottom: 20px;
     margin: 10px 0;
-    border-radius: 20px;
+  }
+
+  .prot li {
+    margin: 10px 0;
+  }
+
+  .post-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 20px;
+    align-items: center;
   }
 
   .post-actions button {
-    padding: 5px 10px;
+    background-color: #f0a9a9;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: white;
   }
-}
 
-/* 小屏幕样式 */
-@media (max-width: 768px) {
-  .main-content {
-    margin-top: 90px;
+  .post-actions button:hover {
+    background-color: #e09393;
   }
-}
+
+  .slider_container1 img {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  .comment-section {
+    display: none;
+    margin-top: 10px;
+  }
+
+  .comment-section textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+
+  .comment-section button {
+    margin-top: 10px;
+  }
+
+  .comment-section button {
+    background-color: #f0a9a9;
+    color: white; /* 白色文字 */
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .comment-section button:hover {
+    background-color: #e09393; /* 當鼠標懸停時，顏色變深 */
+  }
+
+  .custom-card {
+    height: 100%; /* 讓卡片撐滿父元素 */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .custom-img {
+    height: 200px; /* 固定圖片高度 */
+    object-fit: cover; /* 圖片自適應，保持比例 */
+  }
+
+  .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* 自定義按鈕樣式 */
+  .custom-button {
+    background-color: #e7d8c9; /* 更改按鈕顏色 */
+    color: white; /* 按鈕文字顏色 */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px; /* 圓角 */
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .custom-button:hover {
+    background-color: #d6c2b0; /* 懸停時的按鈕顏色 */
+  }
+
+  @media screen and (max-width: 800px) {
+    .slider {
+      margin: 20px auto;
+    }
+
+    .slide img {
+      border-radius: 20px;
+    }
+
+    .post {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 20px;
+    }
+
+    .post-actions button {
+      padding: 5px 10px;
+    }
+  }
+
+  /* 小屏幕样式 */
+  @media (max-width: 768px) {
+    .main-content {
+      margin-top: 90px;
+    }
+  }
 </style>

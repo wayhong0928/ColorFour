@@ -4,15 +4,11 @@ import uuid
 
 
 class User(AbstractUser):
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     email = models.EmailField(blank=True, null=True)
-    profile_picture = models.CharField(max_length=255, blank=True, null=True)
-    role = models.ForeignKey(
-        "Role", on_delete=models.SET_NULL, null=True
-    )  # member, merchant, admin
-    subscription_plan = models.ForeignKey(
-        "SubscriptionPlan", on_delete=models.SET_NULL, null=True
-    )
+    profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
+    role = models.ForeignKey("Role", on_delete=models.SET_NULL, null=True)  # member, merchant, admin
+    subscription_plan = models.ForeignKey("SubscriptionPlan", on_delete=models.SET_NULL, null=True)
+    gender = models.CharField(max_length=10, blank=True, null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     last_login = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -23,7 +19,8 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.username or self.email or str(self.uuid)
+        return self.email
+
 
 class Role(models.Model):
     role_name = models.CharField(max_length=50, unique=True)
@@ -68,7 +65,9 @@ class UserInteractionHistory(models.Model):
 
 
 class UserAuthProvider(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='auth_providers')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="auth_providers"
+    )
     provider = models.CharField(max_length=50)  # google, line
     provider_id = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -82,4 +81,4 @@ class UserAuthProvider(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.provider} account of {self.user.email or self.user.username or self.user.uuid}"
+        return f"{self.provider} account of {self.user.email}"

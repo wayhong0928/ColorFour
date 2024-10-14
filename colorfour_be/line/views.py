@@ -6,7 +6,8 @@ from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import MessageEvent, TextSendMessage, TextMessage, ImageMessage, PostbackEvent
 from urllib.parse import parse_qsl
-from line import insert_schedule, purchase, social, search_schedule, weatherApi
+from line import purchase, social, search_schedule, weatherApi
+# from line import insert_schedule, purchase, social, search_schedule, weatherApi
 
 line_bot_api = LineBotApi(os.getenv("LINE_MESSAGING_CHANNEL_ACCESS_TOKEN"))
 parser = WebhookParser(os.getenv("LINE_MESSAGING_CHANNEL_SECRET"))
@@ -48,7 +49,8 @@ def callback(request):
           elif mtext == '採購建議':
             purchase.sendBuy(event)
           elif conversation_state['step']:
-            insert_schedule.handleUserInput(event, conversation_state)
+            print('conversation_state')
+            # insert_schedule.handleUserInput(event, conversation_state)
           else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=mtext))
         
@@ -61,13 +63,16 @@ def callback(request):
         
         # 根據回傳的資料處理邏輯
         if action == 'date':
-          insert_schedule.sendBack_date(event, backdata)
+          print('date')
+          # insert_schedule.sendBack_date(event, backdata)
         # elif action == 'datetime':
         #   insert_schedule.sendBack_datetime(event, backdata)
         elif action == 'yes':
-          insert_schedule.sendStartTime(event)
+          print('yes')
+          # insert_schedule.sendStartTime(event)
         elif action == 'no':
-          insert_schedule.sendNo(event)
+          print('no')
+          # insert_schedule.sendNo(event)
         elif action == 'search_date':
           search_schedule.Back_search_date(event, backdata)
         elif action == 'no_insert':
@@ -97,7 +102,8 @@ def callback(request):
         elif action == 'upload':
           purchase.sendBack_upload(event)
         elif conversation_state['step']:
-          insert_schedule.handleUserInput(event, conversation_state)
+          print('conversation_state')
+          # insert_schedule.handleUserInput(event, conversation_state)
         else:
           line_bot_api.reply_message(event.reply_token, TextSendMessage(text=str(backdata)))
     
@@ -107,6 +113,7 @@ def callback(request):
 
 def handleUserMessage(event, mtext):
   if conversation_state['step']:
-    insert_schedule.handleUserInput(event, conversation_state)
+    print('conversation_state')
+    # insert_schedule.handleUserInput(event, conversation_state)
   else:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=mtext))

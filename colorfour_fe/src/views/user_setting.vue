@@ -79,10 +79,10 @@
       return {
         profile_image: null,
         nickname: "",
-        username:"",
+        username: "",
         birthday: "",
-        gender:"",
-        talk:"",
+        gender: "",
+        talk: "",
         email: "",
       };
     },
@@ -130,26 +130,26 @@
         }
       },
       async savePersonalInfo() {
-       console.log("開始儲存個人資料");
-       try {
-         await this.updateUserProfile({
-           profile_image: this.profile_image,
-           nickname: this.nickname,
-           username: this.username,
-           birthday: this.birthday,
-           gender: this.gender,
-           talk: this.talk,
-           email: this.email,
-         });
-         console.log("個人資料儲存成功");
-         alert("個人資料已成功更新");    
-         // 儲存成功後添加重定向邏輯
-         this.$router.push("/user_profile");
-       } catch (error) {
-         console.error("儲存個人資料失敗:", error);
-         alert("更新個人資料失敗，請稍後再試");
-       }
-     },
+        console.log("開始儲存個人資料");
+        try {
+          await this.updateUserProfile({
+            profile_image: this.profile_image,
+            nickname: this.nickname,
+            username: this.username,
+            birthday: this.birthday,
+            gender: this.gender,
+            talk: this.talk,
+            email: this.email,
+          });
+          console.log("個人資料儲存成功");
+          alert("個人資料已成功更新");
+          // 儲存成功後添加重定向邏輯
+          this.$router.push("/user_profile");
+        } catch (error) {
+          console.error("儲存個人資料失敗:", error);
+          alert("更新個人資料失敗，請稍後再試");
+        }
+      },
       async connectGoogle() {
         console.log("開始連結 Google 帳號");
         try {
@@ -171,17 +171,13 @@
         }
       },
       async unlinkGoogle() {
-        console.log("開始解除連結 Google 帳號");
-        if (!this.canUnlinkGoogle) {
-          alert("無法解除連結唯一的登入方式");
-          return;
-        }
         try {
-          await this.unlinkSocialAccount("google");
-          console.log("Google 帳號解除連結成功");
+          await axios.post(`${BACKEND_URL}/member/unlink-social-account/`, { provider: "google" });
+          this.isGoogleLinked = false;
+          this.$toast.success("Google帳號已解除連結");
         } catch (error) {
-          console.error("解除連結 Google 帳號失敗:", error);
-          alert("解除連結 Google 帳號失敗，請稍後再試");
+          console.error("解除連結失敗:", error);
+          this.$toast.error("解除連結失敗，請稍後再試。");
         }
       },
       async unlinkLine() {
@@ -229,7 +225,7 @@
   };
 </script>
 <style scoped>
-.preview-image {
+  .preview-image {
     width: 100px;
     height: 100px;
     border-radius: 50%;

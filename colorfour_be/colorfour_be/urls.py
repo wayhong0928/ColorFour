@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
@@ -21,4 +23,4 @@ urlpatterns = [
     path("line/", include("line.urls")),
 
     path('social_platform/', include('social_platform.urls')),  # 留言功能
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

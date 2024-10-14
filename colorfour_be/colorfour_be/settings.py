@@ -24,10 +24,6 @@ CORS_ALLOWED_ORIGINS = [
     "https://upward-gorgeous-bedbug.ngrok-free.app",
 ]
 
-# CORS_ALLOWED_ORIGINS = [
-#    url for url in [os.getenv("FRONTEND_URL"), os.getenv("NGROK_URL")] if url
-# ]
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -99,10 +95,11 @@ SOCIALACCOUNT_PROVIDERS = {
             "secret": os.getenv("GOOGLE_CLIENT_SECRET"),
             "key": "",
         },
-        "SCOPE": ["profile", "email"],
+        "SCOPE": ["profile", "email", "openid"],
         "AUTH_PARAMS": {
-            "access_type": "online",
+            "access_type": "offline",
         },
+        'VERIFICATION_LEEWAY': 60,
     },
 }
 
@@ -116,11 +113,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-
-    #新增服飾功能
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ], 
 }
 
 from datetime import timedelta
@@ -238,8 +230,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-# MEDIA_URL = 'media/'
-# MEDIA_ROOT = BASE_DIR / 'media/'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

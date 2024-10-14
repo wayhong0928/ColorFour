@@ -27,7 +27,7 @@ class ClothingRecognition(models.Model):
 
 class ClothingComparison(models.Model):
     recognition = models.ForeignKey(ClothingRecognition, on_delete=models.CASCADE)
-    wardrobe_item = models.ForeignKey('wardrobe_manager.WardrobeItem', on_delete=models.CASCADE)
+    wardrobe_item = models.ForeignKey('wardrobe_manager.Item', on_delete=models.CASCADE)
     similarity_score = models.DecimalField(max_digits=5, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
 

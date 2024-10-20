@@ -42,12 +42,12 @@ def Back_search_date(event, backdata): #回傳日期以及確認按鈕
           TextSendMessage(
             text = dt            
           ),
-          ImageSendMessage( #SE報告照片
+          ImageSendMessage( #報告照片
               original_content_url = "https://imgur.com/OXVtzRw.png", 
               preview_image_url = "https://imgur.com/OXVtzRw.png"
           ),
           TextSendMessage(
-            text = "日程名稱：SE期末報告\n開始時間：2024-11-02 10:00\n結束時間：2024-11-02 12:00\n地點：中原大學\n活動：SE期末報告\n穿搭名稱：期末報告服裝"            
+            text = "開始時間：2024-11-02 10:00\n結束時間：2024-11-02 12:00\n目的地：中原大學\n日程名稱：專題報告\n穿搭名稱：期末報告服裝"            
           ),
           TemplateSendMessage(
             alt_text='確認是否要新增穿搭日程安排',

@@ -88,6 +88,16 @@
     text-align: center;
   }
 
+  .card-title a {
+    color: black; 
+    text-decoration: none; /* 移除底線 */
+  }
+
+  .card-title a:hover {
+    color: black; 
+    text-decoration: none; /* 保持無底線 */
+  }
+
   .form-check {
     position: absolute;
     top: 10px;

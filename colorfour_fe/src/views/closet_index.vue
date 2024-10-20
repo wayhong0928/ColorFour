@@ -2,8 +2,9 @@
   <div>
     <WardrobeFilterAndSort :brands="brands" />
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
+      <div class="item-info-wrap ms-auto">
         <router-link to="/closet_new" class="btn btn-outline-secondary me-2">新增單品</router-link>
+        <router-link to="/suggest_index" class="btn btn-outline-secondary me-2">新增穿搭組合</router-link>
         <router-link to="/closet_trash" class="btn btn-outline-secondary">回收區</router-link>
       </div>
     </div>
@@ -43,6 +44,7 @@
       this.fetchItems("overview"); // 獲取非垃圾桶中的項目
     },
   };
+
 </script>
 
 <style scoped>

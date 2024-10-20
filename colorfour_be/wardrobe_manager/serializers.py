@@ -75,7 +75,7 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'item_name', 'main_category', 'sub_category', 'shoe_category',
             'shoe_sub_category', 'brand', 'color', 'price', 'content', 'photo_url',
-            'purchase_link', 'is_in_trash', 'add_date', 'edit_date', 'occasions'
+            'purchase_link', 'is_in_trash','is_in_love', 'add_date', 'edit_date', 'occasions'
         ]
     
     def create(self, validated_data):

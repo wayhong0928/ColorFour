@@ -217,27 +217,27 @@
         favoriteItems: [], // 儲存最愛單品的陣列
         savedPosts: [
           {
-            username: "嗡嗡嗡",
-            description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
-            hashtags: "#OOTD #帥氣 #甜美",
-            location: "中原大學",
-            time: "2024-04-18",
-            image: require("@/assets/img/post_01.jpg"),
-            likes: 12,
-            comments: 3,
-            newComment: "",
-          },
-          {
-            username: "哇哈哈",
-            description: "今天天氣真好，出門散步拍了些美照。",
-            hashtags: "#散步 #美照 #好心情",
-            location: "台北市",
-            time: "2024-04-17",
-            image: "https://picsum.photos/300/200?random=1",
-            likes: 8,
-            comments: 5,
-            newComment: "",
-          },
+          username: "嗡嗡嗡",
+          description: "今日OOTD，鄰家妹妹vs帥氣姐姐，更喜歡哪個~~😍",
+          hashtags: "#OOTD #帥氣 #甜美",
+          location: "中原大學",
+          time: "2024-04-18",
+          image: require("@/assets/img/post_01.jpg"),
+          likes: 12,
+          comments: 3,
+          newComment: "",
+        },
+        {
+          username: "哇哈哈",
+          description: "今天天氣真好，出門散步拍了些美照。",
+          hashtags: "#散步 #美照 #好心情",
+          location: "台北市",
+          time: "2024-04-17",
+          image: "https://picsum.photos/300/200?random=1",
+          likes: 8,
+          comments: 5,
+          newComment: "",
+        },
         ],
       };
     },
@@ -260,8 +260,37 @@
           this.loading = false;
         }
       },
+      async loadFavoriteItems() {
+        try {
+          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/favorites/`, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+            },
+          });
+          this.favoriteItems = response.data;
+        } catch (error) {
+          console.error("Error fetching favorite items:", error);
+        }
+      },
+      async fetchloveItems(endpoint) {
+  try {
+    const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${endpoint}/`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+      },
+    });
+    console.log("Items fetched successfully:", response.data);
+    this.favoriteItems = response.data; // 確保將獲取到的資料賦值給 favoriteItems
+  } catch (error) {
+    console.error("Error fetching favorite items:", error);
+  }
+},
+
       setActiveTab(tab) {
         this.activeTab = tab;
+        if (tab === "likes") {
+          this.loadFavoriteItems(); // 當點擊「最愛單品」頁籤時，載入最愛單品
+        }
       },
       shareProfile() {
         alert("分享功能尚未實現");
@@ -291,36 +320,11 @@
       removePost(post) {
         this.savedPosts = this.savedPosts.filter((p) => p !== post);
       },
-      setActiveTab(tab) {
-        this.activeTab = tab;
-        if (tab === "likes") {
-          this.loadFavoriteItems();
-        }
-      },
-      // 加載最愛單品數據
-      loadFavoriteItems() {
-        // 在這裡調用API或者Vuex Action來獲取最愛單品的數據
-        this.favoriteItems = [
-          {
-            id: 1,
-            name: "白T",
-            brand: "UNIQLO",
-            price: 150,
-            image: require("@/assets/img/Uniqlo_white_Tshirt.png"),
-          },
-          {
-            id: 2,
-            name: "連身裙",
-            brand: "GU",
-            price: 100,
-            image: require("@/assets/img/closet_02.png"),
-          },
-        ];
-      },
     },
     mounted() {
       if (this.isAuthenticated) {
         this.loadUserProfile();
+        this.fetchloveItems("move_to_love"); // 要加載最愛項目
       } else {
         this.$router.push("/login");
       }

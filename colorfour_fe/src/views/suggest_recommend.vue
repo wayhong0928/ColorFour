@@ -16,7 +16,7 @@
             </div>
             <div class="mb-3">
               <label for="occasion" class="form-label">場合/目的</label>
-              <div class="border p-3 mb-3">{{ formData.occasion.join(", ") }}</div>
+              <div class="border p-3 mb-3">{{ Array.isArray(formData.occasion) ? formData.occasion.join(", ") : formData.occasion }}</div>
               <div id="occasion" class="btn-group flex-wrap" role="group">
                 <button v-for="option in occasionOptions" :key="option" type="button"
                         class="btn btn-outline-secondary m-1"
@@ -76,14 +76,16 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name:"suggest_recommend",
+  name: "suggest_recommend",
   data() {
     return {
       formData: {
-        title: '',
+        recommendation_name: '', // 替換 title 為 recommendation_name 為了更後端對應
         location: '',
-        occasion: [],
+        occasion: '', //對應後端改成字串
         color: [],
         want: [],
         notWant: []
@@ -96,18 +98,41 @@ export default {
   },
   methods: {
     toggleSelection(type, option) {
-      const index = this.formData[type].indexOf(option);
-      if (index > -1) {
-        this.formData[type].splice(index, 1);
+      if (type === 'occasion') {
+        this.formData.occasion = option;  // 直接儲存為字串
       } else {
-        this.formData[type].push(option);
+        const index = this.formData[type].indexOf(option);
+        if (index > -1) {
+          this.formData[type].splice(index, 1);
+        } else {
+          this.formData[type].push(option);
+        }
       }
     },
-    submitForm() {
-      // 你可以在此處處理表單提交，這裡簡單地將數據記錄到控制台
-      console.log(this.formData);
-      alert('表單提交成功');
-      this.$router.push({ path: '/suggest_results' });
+    async submitForm() {
+      // 將 title 映射為 recommendation_name
+      this.formData.recommendation_name = this.formData.title;
+
+      // 將 occasion 轉為單一字串（只取第一個選擇的值）
+      if (Array.isArray(this.formData.occasion) && this.formData.occasion.length > 0) {
+        this.formData.occasion = this.formData.occasion[0];
+      }
+
+      try {
+        const response = await axios.post(
+          'http://localhost:8000/recommender/recommendations/recommend/',
+          this.formData
+        );
+        console.log('成功提交表單', response.data);
+        alert('推薦已提交成功');
+        this.$router.push({ path: '/suggest_results' });
+      } catch (error) {
+        console.error(
+          '提交推薦失敗',
+          error.response ? error.response.data : error  // 捕捉詳細錯誤
+        );
+        alert('提交失敗，請稍後再試');
+      }
     },
     goBack() {
       this.$router.go(-1);

@@ -83,9 +83,12 @@ def sendBack_upload(event): #選完次要種類後，機器人回傳上傳圖片
   except:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text = '發生錯誤!'))
 
+
+
 def sendBack_bottom(event): #回傳下身的次要種類
   try:
-    message = TextSendMessage(            
+    message = TextSendMessage(  
+        text="請選擇要上傳的次要服裝種類",          
         quick_reply = QuickReply(
             items =[
                 QuickReplyButton(
@@ -107,7 +110,7 @@ def sendBack_bottom(event): #回傳下身的次要種類
                     action = PostbackAction(label = "一般長褲", data='action=upload',display_text = "一般長褲")
                 ),
                 QuickReplyButton(
-                    action = PostbackAction(label = "短褲",  data='action=upload',display_text = "短褲")
+                    action = PostbackAction(label = "短褲",  data='action=upload_shortspants',display_text = "短褲")
                 ),                      
             ]
         )
@@ -118,7 +121,8 @@ def sendBack_bottom(event): #回傳下身的次要種類
 
 def sendBack_coat(event): #回傳外套的次要種類
   try:
-    message = TextSendMessage(            
+    message = TextSendMessage(
+        text="請選擇要上傳的次要服裝種類",             
         quick_reply = QuickReply(
             items =[
                 QuickReplyButton(
@@ -143,10 +147,10 @@ def sendBack_coat(event): #回傳外套的次要種類
   except:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text = '發生錯誤!'))
 
-
 def sendBack_dress(event): ##回傳洋裝的次要種類
   try:
-    message = TextSendMessage(            
+    message = TextSendMessage(
+        text="請選擇要上傳的次要服裝種類",             
         quick_reply = QuickReply(
             items =[
                 QuickReplyButton(
@@ -164,7 +168,8 @@ def sendBack_dress(event): ##回傳洋裝的次要種類
 
 def sendBack_suit(event): #回傳西裝的次要種類
   try:
-    message = TextSendMessage(            
+    message = TextSendMessage(
+        text="請選擇要上傳的次要服裝種類",             
         quick_reply = QuickReply(
             items =[
                 QuickReplyButton(
@@ -185,6 +190,7 @@ def sendBack_suit(event): #回傳西裝的次要種類
 
 
 def handle_image_message(event): #錯的採購建議樣板
+
     try:
         bubble = BubbleContainer(
             direction='ltr',  # 項目左至右
@@ -212,7 +218,7 @@ def handle_image_message(event): #錯的採購建議樣板
                                 layout='vertical',
                                 contents=[
                                     TextComponent(
-                                        text='米白色上衣，並有紅色GAP字樣。', size='sm', color='#666666', flex=2
+                                        text='米白色上衣，並有紫色GAP字樣。', size='sm', color='#666666', flex=2
                                     ),
                                     TextComponent(
                                         text='若沒問題請點選確定以進行採購建議演算法。', size='sm', color='#666666', flex=2
@@ -396,8 +402,6 @@ def sendBack_color(event): #採購建議修改描述_顏色
     except:
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text='發生錯誤!'))
 
-
-
 def sendBack_describe(event): #修改描述_描述
     try:
         message = TextSendMessage(
@@ -406,7 +410,6 @@ def sendBack_describe(event): #修改描述_描述
         line_bot_api.reply_message(event.reply_token, message)
     except:
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text = '發生錯誤!'))
-
 
 def sendBack_confirm(event): #採購建議的確認按鈕
     try:
@@ -423,6 +426,96 @@ def sendBack_cancel(event): #採購建議的取消
         message = TextSendMessage(
             text = text1
         )
+        line_bot_api.reply_message(event.reply_token, message)
+    except:
+        line_bot_api.reply_message(event.reply_token, TextSendMessage(text = '發生錯誤!'))
+        
+def sendBack_upload_shortspants(event): # 對的採購建議樣板(短褲)
+    try:
+        bubble = BubbleContainer(
+            direction='ltr',  # 項目左至右
+            header=BoxComponent(
+                layout='vertical',  # 垂直
+                contents=[
+                    TextComponent(text='採購建議', weight='bold', size='xl'),
+                ]
+            ),
+            hero=ImageComponent(
+                url='https://imgur.com/lggGuzR.png', # 已去背短褲照片
+                size='full',
+                aspect_ratio='650:650',  # 長寬比例
+                aspect_mode='cover',
+            ),
+            body=BoxComponent(
+                layout='vertical',
+                contents=[
+                    TextComponent(text='您上傳的服飾描述為：', size='md'),
+                    BoxComponent(
+                        layout='horizontal',
+                        margin='lg',
+                        contents=[
+                            BoxComponent(
+                                layout='vertical',
+                                contents=[
+                                    TextComponent(
+                                        text='深灰色短褲。', size='sm', color='#666666', flex=2
+                                    ),
+                                    TextComponent(
+                                        text='請點選確定進行比對。', size='sm', color='#666666', flex=2
+                                    ),
+                                ],
+                            ),
+                        ]
+                    ),
+                    BoxComponent(
+                        layout='horizontal',
+                        margin='xxl',
+                        spacing='md',
+                        contents=[
+                            ButtonComponent(
+                                style='secondary',
+                                height='sm',
+                                action=PostbackAction(
+                                    label='重新辨識', data='action=again', display_text='重新辨識'),
+
+                            ),
+                            ButtonComponent(
+                                style='primary',
+                                height='sm',
+                                action=PostbackAction(
+                                    label='修改描述', data='action=modify', display_text='修改描述'),
+                            )
+                        ]
+                    ),
+                    BoxComponent(
+                        layout='horizontal',
+                        margin='xxl',
+                        spacing='md',
+                        contents=[
+                            ButtonComponent(
+                                style='primary',
+                                height='sm',
+                                action=PostbackAction(
+                                    label='確定', data='action=confirm', display_text='確定'),
+                            ),
+                            ButtonComponent(
+                                style='secondary',
+                                height='sm',
+                                action=PostbackAction(
+                                    label='取消', data='action=cancel', display_text='取消'),
+                            )
+                        ]
+                    )
+                ],
+            ),
+            footer=BoxComponent(
+                layout='vertical',
+                contents=[
+                    TextComponent(text='Copyright@ColorFour 2024',size='sm', color='#888888', align='center'),
+                ]
+            ),
+        )
+        message = FlexSendMessage(alt_text="採購建議", contents=bubble)
         line_bot_api.reply_message(event.reply_token, message)
     except:
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text = '發生錯誤!'))

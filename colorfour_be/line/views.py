@@ -6,8 +6,12 @@ from linebot import LineBotApi, WebhookParser
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
 from linebot.models import MessageEvent, TextSendMessage, TextMessage, ImageMessage, PostbackEvent
 from urllib.parse import parse_qsl
-from line import purchase, social, search_schedule, weatherApi
+from line import purchase, social, search_schedule, weatherApi, insert_schedule
 # from line import insert_schedule, purchase, social, search_schedule, weatherApi
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from line.insert_schedule import create_calendar_event
+
 
 line_bot_api = LineBotApi(os.getenv("LINE_MESSAGING_CHANNEL_ACCESS_TOKEN"))
 parser = WebhookParser(os.getenv("LINE_MESSAGING_CHANNEL_SECRET"))
@@ -16,6 +20,7 @@ parser = WebhookParser(os.getenv("LINE_MESSAGING_CHANNEL_SECRET"))
 conversation_state = {'step': None, 'data': {}}
 
 @csrf_exempt
+
 def callback(request):
   if request.method == 'POST':
     signature = request.META['HTTP_X_LINE_SIGNATURE']
@@ -50,9 +55,10 @@ def callback(request):
             purchase.sendBuy(event)
           elif conversation_state['step']:
             print('conversation_state')
-            # insert_schedule.handleUserInput(event, conversation_state)
+            insert_schedule.handleUserInput(event, conversation_state)
           else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=mtext))
+        
         
         elif isinstance(event.message, ImageMessage):  # 如果使用者有上傳圖片
           purchase.handle_image_message(event)
@@ -64,15 +70,15 @@ def callback(request):
         # 根據回傳的資料處理邏輯
         if action == 'date':
           print('date')
-          # insert_schedule.sendBack_date(event, backdata)
-        # elif action == 'datetime':
-        #   insert_schedule.sendBack_datetime(event, backdata)
+          insert_schedule.sendBack_date(event, backdata)
+        elif action == 'datetime':
+           insert_schedule.sendBack_datetime(event, backdata)
         elif action == 'yes':
           print('yes')
-          # insert_schedule.sendStartTime(event)
+          insert_schedule.sendStartTime(event)
         elif action == 'no':
           print('no')
-          # insert_schedule.sendNo(event)
+          insert_schedule.sendNo(event)
         elif action == 'search_date':
           search_schedule.Back_search_date(event, backdata)
         elif action == 'no_insert':
@@ -101,9 +107,11 @@ def callback(request):
           purchase.sendBack_suit(event)
         elif action == 'upload':
           purchase.sendBack_upload(event)
+        elif action == 'upload_shortspants':
+          purchase.sendBack_upload_shortspants(event)
         elif conversation_state['step']:
           print('conversation_state')
-          # insert_schedule.handleUserInput(event, conversation_state)
+          insert_schedule.handleUserInput(event, conversation_state)
         else:
           line_bot_api.reply_message(event.reply_token, TextSendMessage(text=str(backdata)))
     
@@ -114,6 +122,23 @@ def callback(request):
 def handleUserMessage(event, mtext):
   if conversation_state['step']:
     print('conversation_state')
-    # insert_schedule.handleUserInput(event, conversation_state)
+    insert_schedule.handleUserInput(event, conversation_state)
   else:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=mtext))
+
+@api_view(['POST'])
+def schedule_event(request):
+    """處理使用者輸入並建立 Google 日曆活動"""
+    event_name = request.data.get('event_name')
+    location = request.data.get('location')
+    start_time = request.data.get('start_time')
+    end_time = request.data.get('end_time')
+    outfit_name = request.data.get('outfit_name')
+
+    create_calendar_event(event_name, location, start_time, end_time, outfit_name)
+
+    return Response({"message": "活動已建立"}, status=201)
+  
+def oauth2callback(request):
+    """Google OAuth 2.0 回呼處理"""
+    return HttpResponse("Google OAuth 授權成功！")

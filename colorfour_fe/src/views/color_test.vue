@@ -66,16 +66,16 @@
         <router-link to="/color_index" class="close-btn" id="close-questionnaire">x</router-link>
       </nav>
     </header>
-   <div class="image-upload-container">
-      <!-- 按鈕：開啟相機 -->
-      <button @click="openCamera">開啟相機</button>
-      <!-- 按鈕：上傳圖片 -->
-      <input type="file" @change="onImageUpload" accept="image/*" />
 
-      <!-- 顯示上傳的圖片 -->
+    <!-- 圖片上傳區 -->
+    <div class="image-upload-container">
+      <button @click="openCamera">開啟相機</button>
+      <input type="file" @change="onImageUpload" accept="image/*" />
       <img v-if="uploadedImage" :src="uploadedImage" alt="Uploaded Image" class="header-image" />
     </div>
-    <main>
+
+    <!-- 顯示測驗表單 -->
+    <main v-if="uploadedImage">
       <form @submit.prevent="handleSubmit">
         <div class="question-container">
           <div
@@ -84,19 +84,43 @@
             :key="question.title"
           >
             <h2 class="question-title">{{ question.title }}</h2>
+
+            <!-- 文字選項 -->
             <div class="options" v-if="question.options">
               <label v-for="(option, idx) in question.options" :key="option.value" class="option-label">
-                <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="answers[index]" class="option-input" />
-                <span v-if="option.color" class="color-block" :style="{ backgroundColor: option.color }"></span>
+                <input 
+                  type="radio" 
+                  :name="`q${index + 1}`" 
+                  :value="option.value" 
+                  v-model="answers[index]" 
+                  class="option-input" 
+                />
+                <span 
+                  v-if="option.color" 
+                  class="color-block" 
+                  :style="{ backgroundColor: option.color }"
+                ></span>
                 {{ option.text }}
               </label>
             </div>
-            <div v-else>
-              <label v-for="(option, idx) in question.colors" :key="option.value" class="option-label">
-                <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="answers[index]" class="option-input" />
+
+            <!-- 顏色塊選項 -->
+            <div class="color-options" v-else-if="question.colors">
+              <label 
+                v-for="(colorOption, idx) in question.colors" 
+                :key="colorOption.value" 
+                class="option-label"
+              >
+                <input 
+                  type="radio" 
+                  :name="`q${index + 1}`" 
+                  :value="colorOption.value" 
+                  v-model="answers[index]" 
+                  class="option-input" 
+                />
                 <div class="color-blocks">
                   <span
-                    v-for="color in option.colors"
+                    v-for="color in colorOption.colors"
                     :key="color"
                     class="color-block"
                     :style="{ backgroundColor: color }"
@@ -104,12 +128,21 @@
                 </div>
               </label>
             </div>
+
             <p v-if="error && !answers[index]" class="error-text">此問題為必填</p>
           </div>
         </div>
 
+        <!-- 上一題/下一題/提交按鈕 -->
         <div class="button-container">
-          <button v-if="currentQuestionIndex > 0" @click="prevQuestion" id="prev-button" type="button">上一題</button>
+          <button 
+            v-if="currentQuestionIndex > 0" 
+            @click="prevQuestion" 
+            id="prev-button" 
+            type="button"
+          >
+            上一題
+          </button>
           <button
             v-if="currentQuestionIndex < questions.length - 1"
             @click="nextQuestion"
@@ -119,7 +152,13 @@
           >
             下一題
           </button>
-          <router-link to="/color_result"><button v-if="currentQuestionIndex === questions.length - 1" type="submit" id="submit-button">提交</button></router-link>
+          <button 
+            v-if="currentQuestionIndex === questions.length - 1" 
+            type="submit" 
+            id="submit-button"
+          >
+            提交
+          </button>
         </div>
       </form>
     </main>
@@ -244,14 +283,15 @@
 <!-- 修改後的script  -->
 <script>
 import axios from 'axios';
+import { useToast } from 'vue-toastification';
 
 export default {
-  name: "ColorTest",
   data() {
     return {
-      uploadedImage: null, // 上傳圖片的 URL
+      uploadedImage: null,
+      uploadedImageFile: null,
       currentQuestionIndex: 0,
-      questions: [
+      questions:[
         {
           title: "問題 1 - 肌膚",
           options: [
@@ -333,16 +373,17 @@ export default {
     onImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        this.uploadedImage = URL.createObjectURL(file); // 將圖片文件轉換為 URL 並顯示
+        this.uploadedImageFile = file;
+        this.uploadedImage = URL.createObjectURL(file);
       }
     },
     openCamera() {
-      const fileInput = document.createElement("input");
-      fileInput.type = "file";
-      fileInput.accept = "image/*";
-      fileInput.capture = "user"; // 打開相機（對應前置攝像頭）
-      fileInput.onchange = (event) => this.onImageUpload(event); // 處理上傳
-      fileInput.click(); // 模擬點擊打開相機
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.capture = 'user';
+      fileInput.onchange = this.onImageUpload;
+      fileInput.click();
     },
     nextQuestion() {
       if (this.answers[this.currentQuestionIndex]) {
@@ -358,33 +399,40 @@ export default {
         this.error = false;
       }
     },
-    async handleSubmit() {
-      if (this.answers.includes(null)) {
-        this.error = true;
-      } else {
-        try {
-          const formData = {
-            skin_color: this.answers[0],
-            hair_color: this.answers[1],
-            eye_color: this.answers[2],
-            description: this.answers[3],
-            fitness_problem1: this.answers[4],
-            fitness_problem2: this.answers[5],
-            fitness_problem3: this.answers[6],
-            fitness_problem4: this.answers[7],
-          };
-          const response = await axios.post('http://127.0.0.1:8000/color/add/', formData);
-          console.log(response.data.message);
-          this.$router.push("/color_detail_1");
-        } catch (error) {
-          console.error('提交表單時出錯:', error);
-        }
-      }
+async handleSubmit() {
+  try {
+    const formData = new FormData();
+    formData.append('skin_color', this.answers[0]);
+    formData.append('hair_color', this.answers[1]);
+    formData.append('eye_color', this.answers[2]);
+    formData.append('description', this.answers[3]);
+    formData.append('fitness_problem1', this.answers[4]);
+    formData.append('fitness_problem2', this.answers[5]);
+    formData.append('fitness_problem3', this.answers[6]);
+    formData.append('fitness_problem4', this.answers[7]);
+    formData.append('uploaded_image', this.uploadedImageFile);
+    const token = sessionStorage.getItem('token');
+
+    const response = await axios.post('http://127.0.0.1:8000/color/add/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response && response.status === 201) {
+      console.log('提交成功:', response.data.message);
+      this.$router.push('/color_result');
+    }
+  } catch (error) {
+    console.error('提交錯誤:', error);
+    const toast = useToast();
+    toast.error('提交失敗，請稍後再試');
+  }
+},
     },
-  },
 };
 </script>
-
 
 
 <style scoped>
@@ -507,10 +555,11 @@ export default {
     background-color: #f9d9ca;
   }
 
-  .image-upload-container {
+.image-upload-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 2rem;
   gap: 1rem;
 }
 

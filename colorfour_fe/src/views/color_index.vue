@@ -3,11 +3,12 @@
     <main>
       <section class="container my-5">
         <div class="row mb-4">
+          <!-- 內容區塊 -->
           <div class="col-md-6 order-md-2 d-flex flex-column justify-content-center mx-auto" style="order: 2">
             <h2 class="mb-3 my-heading">我的氣色</h2>
             <p class="mb-4">
-              透過使用者在上傳自己的臉部色彩圖片後，系統會依照照片中的膚色、髮色與瞳色進行判別，以提供個人化四季型色彩分析建議，讓使用者了解自己適合的服飾顏色穿搭。
-              色彩分析結果為春、夏、秋、冬四個季節的色彩型。
+              透過使用者在上傳自己的臉部色彩圖片後，系統會依照照片中的膚色、髮色與瞳色進行判別，
+              以提供個人化四季型色彩分析建議，讓使用者了解自己適合的服飾顏色穿搭。色彩分析結果為春、夏、秋、冬四個季節的色彩型。
             </p>
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div>
@@ -24,7 +25,9 @@
                 <button class="btn btn-outline-secondary" @click="removeSelectedItems">刪除</button>
               </div>
             </div>
-            <div class="scroll-container mt-4">
+
+            <!-- 資料列表 -->
+            <div v-if="items.length > 0" class="scroll-container mt-4">
               <div class="result-item" v-for="(item, index) in sortedItems" :key="index">
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="date">{{ item.date }}</span>
@@ -40,7 +43,14 @@
                 </router-link>
               </div>
             </div>
+
+            <!-- 無資料提示 -->
+            <div v-else class="no-data">
+              尚無測驗資料，請進行測驗後再查看。
+            </div>
           </div>
+
+          <!-- 圖片展示區 -->
           <div class="col-md-6 order-md-1 position-relative">
             <div class="image-container">
               <img src="@/assets/img/makeup.png" class="img-fluid rounded" alt="線上衣櫃" />
@@ -54,75 +64,79 @@
 </template>
 
 <script>
-  import { useToast } from "vue-toastification";
+import axios from 'axios';
+import { useToast } from 'vue-toastification';
 
-  export default {
-    data() {
-      return {
-        sortBy: "newest",
-        selectedItems: [],
-        items: [
-          {
-            date: "2023/11/24",
-            type: "春季",
-            benefit1: "臉部變得明亮",
-            benefit2: "可呈現出血色感",
-            benefit3: "看起來彈力有光澤、生氣蓬勃",
-            link: "/color_detail_1",
-          },
-          {
-            date: "2023/12/25",
-            type: "夏季",
-            benefit1: "顯白、肌膚看起來變明亮",
-            benefit2: "呈現出透明感",
-            benefit3: "肌膚看起來光滑",
-            link: "/color_detail_2",
-          },
-          {
-            date: "2024/01/06",
-            type: "秋季",
-            benefit1: "讓血色感變好",
-            benefit2: "肌膚看起來像陶器般平滑",
-            benefit3: "輪廓看起來更俐落",
-            link: "/color_detail_3",
-          },
-          {
-            date: "2024/05/17",
-            type: "冬季",
-            benefit1: "看起來洗練俐落",
-            benefit2: "緊緻輪廓",
-            benefit3: "肌膚看起來有光澤",
-            link: "/color_detail_4",
-          },
-        ],
-      };
+export default {
+  data() {
+    return {
+      sortBy: 'newest',
+      selectedItems: [],
+      items: [],
+    };
+  },
+  computed: {
+    sortedItems() {
+      return this.sortBy === 'newest'
+        ? this.items.slice().sort((a, b) => new Date(b.test_date) - new Date(a.test_date))
+        : this.items.slice().sort((a, b) => new Date(a.test_date) - new Date(b.test_date));
     },
-    computed: {
-      sortedItems() {
-        if (this.sortBy === "newest") {
-          return this.items.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
-        } else {
-          return this.items.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
-        }
+  },
+  methods: {
+async fetchItems() {
+  try {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      throw new Error('無法取得 Token，請重新登入');
+    }
+
+    const response = await axios.get('http://127.0.0.1:8000/color/user-tests/', {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
+    });
+
+    // 確保 response 存在且具有 data 和 status
+    if (response && response.data && response.status === 200) {
+      this.items = response.data.length > 0 ? response.data : [];
+      console.log('資料取得成功', this.items);
+    } else {
+      console.warn('API 回應無資料或異常', response?.status);
+      this.items = []; // 設為空，避免渲染錯誤
+    }
+  } catch (error) {
+    const toast = useToast();
+    if (error.response) {
+      console.error('API 回應錯誤:', error.response);
+      toast.error(`錯誤：${error.response.data.detail || '無法取得測驗紀錄'}`);
+    } else if (error.request) {
+      console.error('無法連接至 API:', error.request);
+      toast.error('無法連接至伺服器，請稍後再試');
+    } else {
+      console.error('未知錯誤:', error.message);
+      toast.error('發生未知錯誤，請重新登入');
+    }
+  }
+},
+
+    removeSelectedItems() {
+      this.selectedItems.forEach(index => {
+        this.items.splice(index, 1);
+      });
+      this.selectedItems = [];
     },
-    methods: {
-      removeSelectedItems() {
-        const confirmDelete = confirm("確定要刪除紀錄嗎？");
+  },
+  mounted() {
+    const token = sessionStorage.getItem('token');
+    console.log('Token in color_index.vue:', token);
 
-        if (confirmDelete) {
-          this.selectedItems.forEach((index) => {
-            this.items.splice(index, 1);
-          });
-
-          this.selectedItems = [];
-
-          const toast = useToast();
-          toast.success("紀錄已成功删除");
-        }
-      },
-    },
-  };
+    if (!token) {
+      this.$router.push('/login');
+    } else {
+      this.fetchItems();
+    }
+  },
+};
 </script>
 
 <style scoped>

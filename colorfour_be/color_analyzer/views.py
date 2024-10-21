@@ -14,6 +14,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import UserColorTests, ColorTestQuestions
 from .serializers import UserColorTestsSerializer, ColorTestQuestionsSerializer
+from rest_framework.permissions import IsAuthenticated
+
 
 
 # 新增色彩分析資料
@@ -90,8 +92,11 @@ class DeleteColorAnalysisView(View):
 class UserColorTestsViewSet(viewsets.ModelViewSet):
   queryset = UserColorTests.objects.all()
   serializer_class = UserColorTestsSerializer
+  permission_classes = [IsAuthenticated]
 
   @action(detail=True, methods=['get'])
+  def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
   def result(self, request, pk=None):
     """顯示測驗結果"""
     user_test = self.get_object()

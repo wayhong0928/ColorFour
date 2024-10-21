@@ -83,6 +83,33 @@ class ItemViewSet(viewsets.ModelViewSet):
             return Response({"error": "你沒有權限刪除此項目"}, status=403)
         item.delete()
         return Response({"status": "permanently deleted"})
+    
+    @action(detail=True, methods=["post"])
+    def move_to_love(self, request, pk=None):
+        """將項目移到最愛單品"""
+        item = self.get_object()
+        if item.user != request.user:
+            return Response({"error": "你沒有權限移動此項目"}, status=403)
+        item.is_in_love = True
+        item.save()
+        return Response({"status": "moved to love"})
+
+    @action(detail=True, methods=["post"])
+    def restorelove(self, request, pk=None):
+        """移除最愛單品"""
+        item = self.get_object()
+        if item.user != request.user:
+            return Response({"error": "你沒有權限恢復此項目"}, status=403)
+        item.is_in_love = False
+        item.save()
+        return Response({"status": "restored from love"})
+    
+    @action(detail=False, methods=["get"])
+    def favorites(self, request):
+        """獲取所有最愛單品"""
+        items = Item.objects.filter(user=request.user, is_in_love=True)
+        serializer = self.get_serializer(items, many=True)
+        return Response(serializer.data)
 
 
 class ColorViewSet(viewsets.ModelViewSet):

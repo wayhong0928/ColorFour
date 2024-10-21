@@ -9,32 +9,6 @@
     </nav>
     <div id="header"></div>
     <main class="main-content container">
-      <div class="left-sidebar">
-        <div class="icon-search">
-          <img src="@/assets/img/search_icon.png" alt="Search Icon" />
-          <input type="text" placeholder="search" />
-        </div>
-        <div class="icon-link">
-          <router-link to="social_index">
-            <img src="@/assets/img/social_home_icon.png" alt="Home Icon" />
-            <span>社群平台首頁</span>
-          </router-link>
-        </div>
-
-        <div class="icon-link">
-          <router-link to="social_collect">
-            <img src="@/assets/img/like_icon.png" alt="Saved Posts Icon" />
-            <span>收藏貼文</span>
-          </router-link>
-        </div>
-
-        <div class="icon-link">
-          <router-link to="social_follow_list">
-            <img src="@/assets/img/followers_icon.png" alt="Overview Icon" />
-            <span>追蹤總覽</span>
-          </router-link>
-        </div>
-      </div>
 
       <!-- 這裡我們要顯示 followingList 中的資料 -->
       <div id="follow-list-container" class="content">

@@ -64,6 +64,7 @@ class Item(models.Model):
     photo_url = models.ImageField(upload_to="wardrobe_items/", blank=True, null=True)
     purchase_link = models.CharField(max_length=255, blank=True, null=True)
     is_in_trash = models.BooleanField(default=False)
+    is_in_love = models.BooleanField(default=False)
     add_date = models.DateTimeField(auto_now_add=True)
     edit_date = models.DateTimeField(auto_now=True)
 

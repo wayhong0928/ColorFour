@@ -11,6 +11,12 @@
         <button class="btn btn-outline-danger" @click="deleteItem" v-if="item && item.is_in_trash">永久刪除</button>
       </div>
       <section class="container" v-if="item">
+        <div class="favorite-icon" @click="toggleFavorite">
+          <transition name="zoom" mode="out-in">
+            <img v-if="isFavorite" :src="require('@/assets/img/愛了.png')" alt="已加入最愛" key="liked" />
+            <img v-else :src="require('@/assets/img/未愛.png')" alt="未加入最愛" key="unliked" />
+          </transition>
+        </div>
         <!-- 檢查 item 是否存在 -->
         <div class="item-img">
           <img :src="item.photo_url" alt="服飾圖片" />
@@ -129,6 +135,7 @@
       data() {
         return {
           item: null,
+          isFavorite: false,
           isEditing: false,
           editForm: {
             item_name: "",
@@ -279,7 +286,28 @@
           } catch (error) {
             console.error("移置垃圾桶失敗:", error);
           }
-        },
+        },      
+        async toggleFavorite() {
+        try {
+          if (this.isFavorite) {
+            await axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/restorelove/`, {}, {
+              headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+              },
+            });
+            this.isFavorite = false;
+          } else {
+            await axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/move_to_love/`, {}, {
+              headers: {
+                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+              },
+            });
+            this.isFavorite = true;
+          }
+        } catch (error) {
+          console.error("Error toggling favorite:", error);
+        }
+      },
         getBrandName(brandId) {
           const brand = this.brands.find((b) => b.id === brandId);
           return brand ? brand.name : "未知品牌";
@@ -319,6 +347,7 @@
       async created() {
         await this.fetchMetadata(); // 先抓取品牌、分類、顏色、場合等資料
         this.fetchItem(); // 再獲取具體 item
+        this.isFavorite = false;
       },
     };
 </script>

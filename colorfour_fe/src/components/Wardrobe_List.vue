@@ -25,7 +25,7 @@
     },
     data() {
       return {
-        localSelectedItems: [...this.selectedItems], // 本地的 selectedItems
+        localSelectedItems: [...this.selectedItems],
       };
     },
     methods: {
@@ -34,21 +34,20 @@
         let updatedSelectedItems = [...this.selectedItems];
 
         if (event.target.checked) {
-          // 確認是否已經選中該項目
           if (!updatedSelectedItems.includes(itemId)) {
-            updatedSelectedItems.push(itemId); // 新增項目
+            updatedSelectedItems.push(itemId);
           }
         } else {
-          updatedSelectedItems = updatedSelectedItems.filter((id) => id !== itemId); // 取消選擇
+          updatedSelectedItems = updatedSelectedItems.filter((id) => id !== itemId);
         }
 
-        console.log("更新 selectedItems:", updatedSelectedItems); // 用於偵錯
-        this.$emit("update:selectedItems", updatedSelectedItems); // 傳回選中的項目
+        console.log("更新 selectedItems:", updatedSelectedItems);
+        this.$emit("update:selectedItems", updatedSelectedItems);
       },
     },
     watch: {
       selectedItems(newItems) {
-        this.localSelectedItems = [...newItems]; // 當父組件的 selectedItems 改變時，更新本地的
+        this.localSelectedItems = [...newItems];
       },
     },
   };

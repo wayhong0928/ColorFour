@@ -5,30 +5,38 @@ export const closet_filterSortMixin = {
       selectedBrand: "all",
       sortBy: "newest",
       brands: [],
-      items: [], // Include items to make it self-contained
+      items: [], // 存放所有的 Item
+      filteredItems: [], // 存放篩選後的結果
     };
+  },
+  watch: {
+    // 當 items 資料變動時，自動執行篩選與排序
+    items() {
+      this.applyFiltersAndSorting();
+      this.extractBrands(); // 更新品牌列表
+    },
   },
   computed: {
     sortedAndFilteredItems() {
-      if (!this.items || this.items.length === 0) {
-        console.log("No items available to sort or filter");
-        return [];
-      }
+      return this.filteredItems;
+    },
+  },
+  methods: {
+    applyFiltersAndSorting() {
+      let filtered = [...this.items]; // 複製 items 進行篩選
 
-      let filtered = this.items;
-
-      // Filtering by category
+      // 依照類別篩選
       if (this.selectedCategory !== "all") {
-        filtered = filtered.filter((item) => item.category === this.selectedCategory);
+        filtered = filtered.filter((item) => item.main_category === parseInt(this.selectedCategory));
       }
 
-      // Filtering by brand
+      // 依照品牌篩選
       if (this.selectedBrand !== "all") {
-        filtered = filtered.filter((item) => item.brand === this.selectedBrand);
+        filtered = filtered.filter((item) => item.brand === parseInt(this.selectedBrand));
       }
 
-      // Sorting
-      return filtered.sort((a, b) => {
+      // 排序
+      filtered.sort((a, b) => {
         if (this.sortBy === "newest") {
           return new Date(b.add_date) - new Date(a.add_date);
         } else if (this.sortBy === "oldest") {
@@ -37,18 +45,12 @@ export const closet_filterSortMixin = {
           return a.price - b.price;
         } else if (this.sortBy === "price-high-low") {
           return b.price - a.price;
-        } else if (this.sortBy === "brand") {
-          return a.brand.localeCompare(b.brand);
         }
       });
+
+      this.filteredItems = filtered;
     },
-  },
-  methods: {
     extractBrands() {
-      if (!this.items || this.items.length === 0) {
-        console.log("No items available to extract brands");
-        return;
-      }
       const uniqueBrands = new Set(this.items.map((item) => item.brand));
       this.brands = Array.from(uniqueBrands);
     },

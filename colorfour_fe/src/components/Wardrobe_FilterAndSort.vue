@@ -1,68 +1,48 @@
 <template>
-<main>
-  <div class="filter-sort">
-    <h2 class="filter-title">篩選</h2>
-    <label for="category" class="form-label">分類:</label>
-    <select v-model="localSelectedCategory" @change="updateCategory" class="form-select">
-      <option value="all">全部</option>
-      <option value="clothing">服飾</option>
-      <option value="shoes">鞋子</option>
-    </select>
+  <main>
+    <div class="filter-sort">
+      <h2 class="filter-title">篩選</h2>
 
-    <label for="brand" class="form-label">品牌:</label>
-    <select v-model="localSelectedBrand" @change="updateBrand" class="form-select">
-      <option value="all">全部</option>
-      <option v-for="brand in brands" :key="brand" :value="brand">{{ brand }}</option>
-    </select>
+      <label for="category" class="form-label">分類:</label>
+      <select v-model="selectedCategory" @change="applyFiltersAndSorting" class="form-select">
+        <option value="all">全部</option>
+        <option value="clothing">服飾</option>
+        <option value="shoes">鞋子</option>
+      </select>
 
-    <label for="sort-by" class="form-label">排序方式:</label>
-    <select v-model="localSortBy" @change="updateSortBy" class="form-select">
-      <option value="newest">新增時間 (先到後)</option>
-      <option value="oldest">新增時間 (後到先)</option>
-      <option value="brand">品牌名稱</option>
-      <option value="price-low-high">價格 (低到高)</option>
-      <option value="price-high-low">價格 (高到低)</option>
-    </select>
-  </div>
+      <label for="brand" class="form-label">品牌:</label>
+      <select v-model="selectedBrand" @change="applyFiltersAndSorting" class="form-select">
+        <option value="all">全部</option>
+        <option v-for="brand in brands" :key="brand.id" :value="brand.id">
+          {{ brand.name }}
+        </option>
+      </select>
+
+      <label for="sort-by" class="form-label">排序方式:</label>
+      <select v-model="sortBy" @change="applyFiltersAndSorting" class="form-select">
+        <option value="newest">新增時間 (先到後)</option>
+        <option value="oldest">新增時間 (後到先)</option>
+        <option value="brand">品牌名稱</option>
+        <option value="price-low-high">價格 (低到高)</option>
+        <option value="price-high-low">價格 (高到低)</option>
+      </select>
+
+      <label for="favorites" class="form-label">我的最愛:</label>
+      <select v-model="filteredItems" @change="updateFavorites" class="form-select">
+        <option value="all">無</option>
+        <option value="favorites">我的最愛</option>
+      </select>
+    </div>
   </main>
 </template>
 
 <script>
+  import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
+
   export default {
-    props: {
-      brands: Array,
-      selectedCategory: String,
-      selectedBrand: String,
-      sortBy: String,
-    },
-    data() {
-      return {
-        localSelectedCategory: this.selectedCategory || "all",
-        localSelectedBrand: this.selectedBrand || "all",
-        localSortBy: this.sortBy || "newest",
-      };
-    },
-    methods: {
-      updateCategory() {
-        this.$emit("update:selectedCategory", this.localSelectedCategory);
-      },
-      updateBrand() {
-        this.$emit("update:selectedBrand", this.localSelectedBrand);
-      },
-      updateSortBy() {
-        this.$emit("update:sortBy", this.localSortBy);
-      },
-    },
-    watch: {
-      selectedCategory(newVal) {
-        this.localSelectedCategory = newVal;
-      },
-      selectedBrand(newVal) {
-        this.localSelectedBrand = newVal;
-      },
-      sortBy(newVal) {
-        this.localSortBy = newVal;
-      },
+    mixins: [closet_filterSortMixin],
+    mounted() {
+      this.applyFiltersAndSorting(); // 頁面載入後執行一次篩選
     },
   };
 </script>

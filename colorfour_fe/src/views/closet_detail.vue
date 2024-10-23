@@ -125,231 +125,225 @@
 </template>
 
 <script>
-    import axios from "axios";
-    import { closetApiMixin } from "../mixins/closet_ApiMixin.js";
-    import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
+  import axios from "axios";
+  import { closetApiMixin } from "../mixins/closet_ApiMixin.js";
+  import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
 
-    export default {
-      mixins: [closetApiMixin, closet_filterSortMixin],
-      props: ["id"],
-      data() {
-        return {
-          item: null,
-          isFavorite: false,
-          isEditing: false,
-          editForm: {
-            item_name: "",
-            brand: "",
-            price: 0,
-            main_category: "",
-            sub_category: "",
-            shoe_category: "",
-            shoe_sub_category: "",
-            color: "",
-            occasions: [], // 用於存放選中的場合標籤
-          },
-          brands: [],
-          categories: [],
-          subCategories: [],
-          shoeCategories: [],
-          shoeSubCategories: [],
-          colors: [],
-          occasions: [], // 所有場合標籤選項
-          newOccasion: "", // 用於存放新增的場合標籤
-        };
+  export default {
+    mixins: [closetApiMixin, closet_filterSortMixin],
+    props: ["id"],
+    data() {
+      return {
+        item: null,
+        isFavorite: false,
+        isEditing: false,
+        editForm: {
+          item_name: "",
+          brand: "",
+          price: 0,
+          main_category: "",
+          sub_category: "",
+          shoe_category: "",
+          shoe_sub_category: "",
+          color: "",
+          occasions: [], // 用於存放選中的場合標籤
+        },
+        brands: [],
+        categories: [],
+        subCategories: [],
+        shoeCategories: [],
+        shoeSubCategories: [],
+        colors: [],
+        occasions: [], // 所有場合標籤選項
+        newOccasion: "", // 用於存放新增的場合標籤
+      };
+    },
+    computed: {
+      // 判斷是否為服飾類別
+      isClothing() {
+        return this.item && this.item.main_category != 1;
       },
-      computed: {
-        // 判斷是否為服飾類別
-        isClothing() {
-          return this.item && this.item.main_category != 1;
-        },
-        // 判斷是否為鞋子類別
-        isShoe() {
-          return this.item && this.item.shoe_category != 1;
-        },
+      // 判斷是否為鞋子類別
+      isShoe() {
+        return this.item && this.item.shoe_category != 1;
       },
-      methods: {
-   
-        async fetchItem() {
-          try {
-            const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`, {
-              headers: {
-                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-              },
-            });
-            this.item = response.data;
-          } catch (error) {
-            console.error("Error fetching item:", error);
-          }
-        },
-        async fetchMetadata() {
-          // 獲取品牌、分類、顏色、場合等資料
-          try {
-            const [
-              brandsResponse,
-              categoriesResponse,
-              subCategoriesResponse,
-              shoeCategoriesResponse,
-              shoeSubCategoriesResponse,
-              colorsResponse,
-              occasionsResponse,
-            ] = await Promise.all([
-              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/brands/`),
-              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/categories/`),
-              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/subcategories/`),
-              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/shoes_categories/`),
-              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/shoes_subcategories/`),
-              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/colors/`),
-              axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/occasions/`),
-            ]);
-            this.brands = brandsResponse.data;
-            this.categories = categoriesResponse.data;
-            this.subCategories = subCategoriesResponse.data;
-            this.shoeCategories = shoeCategoriesResponse.data;
-            this.shoeSubCategories = shoeSubCategoriesResponse.data;
-            this.colors = colorsResponse.data;
-            this.occasions = occasionsResponse.data;
-          } catch (error) {
-            console.error("Error fetching metadata:", error);
-          }
-        },
-        toggleEdit() {
-          this.isEditing = !this.isEditing;
-          if (this.isEditing) {
-            this.populateEditForm(); // 進入編輯模式時，填充 editForm
-          }
-        },
-        populateEditForm() {
-          this.editForm = {
-            item_name: this.item.item_name,
-            brand: this.item.brand,
-            price: this.item.price,
-            main_category: this.item.main_category,
-            sub_category: this.item.sub_category,
-            shoe_category: this.item.shoe_category,
-            shoe_sub_category: this.item.shoe_sub_category,
-            color: this.item.color,
-            occasions: [...this.item.occasions],
-          };
-        },
-        addOccasion() {
-          if (this.newOccasion && !this.editForm.occasions.includes(this.newOccasion)) {
-            this.editForm.occasions.push(this.newOccasion);
-            this.newOccasion = "";
-          }
-        },
-        removeOccasion(index) {
-          this.editForm.occasions.splice(index, 1);
-        },
-        async saveEdit() {
-          try {
-            await axios.put(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`, this.editForm, {
-              headers: {
-                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-              },
-            });
-            // 更新 item 資料
-            this.item = { ...this.item, ...this.editForm };
-            this.isEditing = false;
-          } catch (error) {
-            console.error("Error saving item:", error);
-          }
-        },
-        async restoreItem() {
-          try {
-            await this.modifyItem("restore", this.id);
-            alert("項目已成功復原！");
-            this.$router.push("/closet_trash");
-          } catch (error) {
-            console.error("復原失敗:", error);
-            alert("復原失敗，請稍後再試。");
-          }
-        },
-        async deleteItem() {
-          try {
-            const confirmed = confirm("永久刪除無法復原，確定要刪除嗎？");
-            if (confirmed) {
-              await this.modifyItem("delete", this.id);
-              alert("項目已成功永久刪除！");
-              this.$router.push("/closet_trash");
-            }
-          } catch (error) {
-            console.error("永久刪除失敗:", error);
-            alert("永久刪除失敗，請稍後再試。");
-          }
-        },
-        async moveToTrash() {
-          try {
-            await this.modifyItem("move_to_trash", this.id);
-            alert(`成功將 ${this.item.item_name} 移至垃圾桶`);
-            this.$router.push("/closet_trash");
-          } catch (error) {
-            console.error("移置垃圾桶失敗:", error);
-          }
-        },      
-        async toggleFavorite() {
+    },
+    methods: {
+      async fetchItem() {
         try {
-          if (this.isFavorite) {
-            await axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/restorelove/`, {}, {
-              headers: {
-                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-              },
-            });
-            this.isFavorite = false;
-          } else {
-            await axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/move_to_love/`, {}, {
-              headers: {
-                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-              },
-            });
-            this.isFavorite = true;
-          }
+          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+            },
+          });
+          this.item = response.data;
         } catch (error) {
-          console.error("Error toggling favorite:", error);
+          console.error("Error fetching item:", error);
         }
       },
-        getBrandName(brandId) {
-          const brand = this.brands.find((b) => b.id === brandId);
-          return brand ? brand.name : "未知品牌";
-        },
-        getCategoryName(categoryId) {
-          const category = this.categories.find((c) => c.id === categoryId);
-          return category ? category.name : "未知分類";
-        },
-        getSubCategoryName(subCategoryId) {
-          const subCategory = this.subCategories.find((sc) => sc.id === subCategoryId);
-          return subCategory ? subCategory.name : "未知次分類";
-        },
-        getShoeCategoryName(shoeCategoryId) {
-          const shoeCategory = this.shoeCategories.find((sc) => sc.id === shoeCategoryId);
-          return shoeCategory ? shoeCategory.name : "未知鞋子分類";
-        },
-        getShoeSubCategoryName(shoeSubCategoryId) {
-          const shoeSubCategory = this.shoeSubCategories.find((ssc) => ssc.id === shoeSubCategoryId);
-          return shoeSubCategory ? shoeSubCategory.name : "未知鞋子次分類";
-        },
-        getOccasionName(occasionId) {
-          const occasion = this.occasions.find((o) => o.id === occasionId);
-          return occasion ? occasion.occasion_name : "未知場合";
-        },
-        getColorName(colorId) {
-          const color = this.colors.find((c) => c.id === colorId);
-          return color ? color.name : "未知顏色";
-        },
-        formatDate(dateString) {
-          const date = new Date(dateString);
-          return date.toLocaleString(); // 格式化為日期+時間
-        },
-        goBack() {
-          this.$router.go(-1);
-        },
+      async fetchMetadata() {
+        // 獲取品牌、分類、顏色、場合等資料
+        try {
+          const [
+            brandsResponse,
+            categoriesResponse,
+            subCategoriesResponse,
+            shoeCategoriesResponse,
+            shoeSubCategoriesResponse,
+            colorsResponse,
+            occasionsResponse,
+          ] = await Promise.all([
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/brands/`),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/categories/`),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/subcategories/`),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/shoes_categories/`),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/shoes_subcategories/`),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/colors/`),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/occasions/`),
+          ]);
+          this.brands = brandsResponse.data;
+          this.categories = categoriesResponse.data;
+          this.subCategories = subCategoriesResponse.data;
+          this.shoeCategories = shoeCategoriesResponse.data;
+          this.shoeSubCategories = shoeSubCategoriesResponse.data;
+          this.colors = colorsResponse.data;
+          this.occasions = occasionsResponse.data;
+        } catch (error) {
+          console.error("Error fetching metadata:", error);
+        }
       },
-      async created() {
-        await this.fetchMetadata(); // 先抓取品牌、分類、顏色、場合等資料
-        this.fetchItem(); // 再獲取具體 item
-        this.isFavorite = false;
+      toggleEdit() {
+        this.isEditing = !this.isEditing;
+        if (this.isEditing) {
+          this.populateEditForm(); // 進入編輯模式時，填充 editForm
+        }
       },
-    };
+      populateEditForm() {
+        this.editForm = {
+          item_name: this.item.item_name,
+          brand: this.item.brand,
+          price: this.item.price,
+          main_category: this.item.main_category,
+          sub_category: this.item.sub_category,
+          shoe_category: this.item.shoe_category,
+          shoe_sub_category: this.item.shoe_sub_category,
+          color: this.item.color,
+          occasions: [...this.item.occasions],
+        };
+      },
+      addOccasion() {
+        if (this.newOccasion && !this.editForm.occasions.includes(this.newOccasion)) {
+          this.editForm.occasions.push(this.newOccasion);
+          this.newOccasion = "";
+        }
+      },
+      removeOccasion(index) {
+        this.editForm.occasions.splice(index, 1);
+      },
+      async saveEdit() {
+        try {
+          await axios.put(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${this.id}/`, this.editForm, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+            },
+          });
+          // 更新 item 資料
+          this.item = { ...this.item, ...this.editForm };
+          this.isEditing = false;
+        } catch (error) {
+          console.error("Error saving item:", error);
+        }
+      },
+      async restoreItem() {
+        try {
+          await this.modifyItem("restore", this.id);
+          alert("項目已成功復原！");
+          this.$router.push("/closet_trash");
+        } catch (error) {
+          console.error("復原失敗:", error);
+          alert("復原失敗，請稍後再試。");
+        }
+      },
+      async deleteItem() {
+        try {
+          const confirmed = confirm("永久刪除無法復原，確定要刪除嗎？");
+          if (confirmed) {
+            await this.modifyItem("delete", this.id);
+            alert("項目已成功永久刪除！");
+            this.$router.push("/closet_trash");
+          }
+        } catch (error) {
+          console.error("永久刪除失敗:", error);
+          alert("永久刪除失敗，請稍後再試。");
+        }
+      },
+      async moveToTrash() {
+        try {
+          await this.modifyItem("move_to_trash", this.id);
+          alert(`成功將 ${this.item.item_name} 移至垃圾桶`);
+          this.$router.push("/closet_trash");
+        } catch (error) {
+          console.error("移置垃圾桶失敗:", error);
+        }
+      },
+      async toggleFavorite() {
+        try {
+          if (this.isFavorite) {
+            await this.modifyItem("remove_from_favorites", this.id);
+            this.isFavorite = false;
+            alert(`成功移除 ${this.item.item_name} 的最愛`);
+          } else {
+            await this.modifyItem("add_to_favorites", this.id);
+            this.isFavorite = true;
+            alert(`成功將 ${this.item.item_name} 加入最愛`);
+          }
+        } catch (error) {
+          console.error("操作最愛狀態失敗:", error);
+        }
+      },
+
+      getBrandName(brandId) {
+        const brand = this.brands.find((b) => b.id === brandId);
+        return brand ? brand.name : "未知品牌";
+      },
+      getCategoryName(categoryId) {
+        const category = this.categories.find((c) => c.id === categoryId);
+        return category ? category.name : "未知分類";
+      },
+      getSubCategoryName(subCategoryId) {
+        const subCategory = this.subCategories.find((sc) => sc.id === subCategoryId);
+        return subCategory ? subCategory.name : "未知次分類";
+      },
+      getShoeCategoryName(shoeCategoryId) {
+        const shoeCategory = this.shoeCategories.find((sc) => sc.id === shoeCategoryId);
+        return shoeCategory ? shoeCategory.name : "未知鞋子分類";
+      },
+      getShoeSubCategoryName(shoeSubCategoryId) {
+        const shoeSubCategory = this.shoeSubCategories.find((ssc) => ssc.id === shoeSubCategoryId);
+        return shoeSubCategory ? shoeSubCategory.name : "未知鞋子次分類";
+      },
+      getOccasionName(occasionId) {
+        const occasion = this.occasions.find((o) => o.id === occasionId);
+        return occasion ? occasion.occasion_name : "未知場合";
+      },
+      getColorName(colorId) {
+        const color = this.colors.find((c) => c.id === colorId);
+        return color ? color.name : "未知顏色";
+      },
+      formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString(); // 格式化為日期+時間
+      },
+      goBack() {
+        this.$router.go(-1);
+      },
+    },
+    async created() {
+      await this.fetchMetadata(); // 先抓取品牌、分類、顏色、場合等資料
+      this.fetchItem(); // 再獲取具體 item
+      this.isFavorite = false;
+    },
+  };
 </script>
 
 <style scoped>

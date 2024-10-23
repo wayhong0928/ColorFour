@@ -8,7 +8,7 @@
         <router-link to="/suggest_index">
           <img src="@/assets/img/clothing_icon.png" class="zoom" style="width: 45px; height: 50px" />
         </router-link>
-        <router-link to="/post_new">
+        <router-link to="/social_new">
           <img src="@/assets/img/new_post_icon.png" class="zoom" style="width: 50px; height: 50px" />
         </router-link>
         <router-link to="/closet_index">

@@ -11,6 +11,7 @@ export const closetApiMixin = {
         });
         console.log("Items fetched successfully:", response.data);
         this.items = response.data;
+        this.extractBrands();
       } catch (error) {
         console.error("Error fetching items:", error);
       }
@@ -27,7 +28,6 @@ export const closetApiMixin = {
             let endpoint = `${id}/`;
             let requestMethod = axios.post;
 
-            
             if (action === "restore") {
               endpoint += "restore/";
             } else if (action === "delete") {
@@ -35,6 +35,10 @@ export const closetApiMixin = {
               endpoint += "permanent_delete/";
             } else if (action === "move_to_trash") {
               endpoint += "move_to_trash/";
+            } else if (action === "add_to_favorites") {
+              endpoint += "add_to_favorites/";
+            } else if (action === "remove_from_favorites") {
+              endpoint += "remove_from_favorites/";
             }
 
             // Send the request

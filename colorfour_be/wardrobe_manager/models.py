@@ -90,6 +90,7 @@ class ItemOccasion(models.Model):
 class Outfit(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     outfit_name = models.CharField(max_length=50, default="未命名")
+    outfit_image = models.ImageField(upload_to="wardrobe_outfits/", blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     latest_edit = models.DateTimeField(auto_now=True)

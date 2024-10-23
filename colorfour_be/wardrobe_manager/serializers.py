@@ -62,30 +62,58 @@ class ColorSerializer(serializers.ModelSerializer):
 
 # 服裝單品
 class ItemSerializer(serializers.ModelSerializer):
-    main_category = serializers.PrimaryKeyRelatedField(queryset=ClothMainCategory.objects.all(), allow_null=True)
-    sub_category = serializers.PrimaryKeyRelatedField(queryset=ClothSubCategory.objects.all(), allow_null=True)
-    shoe_category = serializers.PrimaryKeyRelatedField(queryset=ShoeCategory.objects.all(), allow_null=True)
-    shoe_sub_category = serializers.PrimaryKeyRelatedField(queryset=ShoeSubCategory.objects.all(), allow_null=True)
-    brand = serializers.PrimaryKeyRelatedField(queryset=Brand.objects.all(), required=True)
-    color = serializers.PrimaryKeyRelatedField(queryset=Color.objects.all(), required=True)
-    occasions = serializers.PrimaryKeyRelatedField(many=True, queryset=Occasion.objects.all(), required=False)
+    main_category = serializers.PrimaryKeyRelatedField(
+        queryset=ClothMainCategory.objects.all(), allow_null=True
+    )
+    sub_category = serializers.PrimaryKeyRelatedField(
+        queryset=ClothSubCategory.objects.all(), allow_null=True
+    )
+    shoe_category = serializers.PrimaryKeyRelatedField(
+        queryset=ShoeCategory.objects.all(), allow_null=True
+    )
+    shoe_sub_category = serializers.PrimaryKeyRelatedField(
+        queryset=ShoeSubCategory.objects.all(), allow_null=True
+    )
+    brand = serializers.PrimaryKeyRelatedField(
+        queryset=Brand.objects.all(), required=True
+    )
+    color = serializers.PrimaryKeyRelatedField(
+        queryset=Color.objects.all(), required=True
+    )
+    occasions = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Occasion.objects.all(), required=False
+    )
 
     class Meta:
         model = Item
         fields = [
-            'id', 'item_name', 'main_category', 'sub_category', 'shoe_category',
-            'shoe_sub_category', 'brand', 'color', 'price', 'content', 'photo_url',
-            'purchase_link', 'is_in_trash','is_in_love', 'add_date', 'edit_date', 'occasions'
+            "id",
+            "item_name",
+            "main_category",
+            "sub_category",
+            "shoe_category",
+            "shoe_sub_category",
+            "brand",
+            "color",
+            "price",
+            "content",
+            "photo_url",
+            "purchase_link",
+            "is_in_trash",
+            "is_in_love",
+            "add_date",
+            "edit_date",
+            "occasions",
         ]
-    
+
     def create(self, validated_data):
-        occasions_data = validated_data.pop('occasions', [])
+        occasions_data = validated_data.pop("occasions", [])
         item = Item.objects.create(**validated_data)
         item.occasions.set(occasions_data)
         return item
 
     def update(self, instance, validated_data):
-        occasions_data = validated_data.pop('occasions', None)
+        occasions_data = validated_data.pop("occasions", None)
         if occasions_data is not None:
             instance.occasions.set(occasions_data)
         return super().update(instance, validated_data)
@@ -110,17 +138,31 @@ class ItemOccasionSerializer(serializers.ModelSerializer):
 
 # 最愛穿搭
 class OutfitSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
+    items = serializers.SerializerMethodField()
 
     class Meta:
         model = Outfit
-        fields = "__all__"
+        fields = [
+            "id",
+            "outfit_name",
+            "description",
+            "outfit_image",
+            "items",
+            "created_at",
+            "latest_edit",
+        ]
+
+    def get_items(self, obj):
+        outfit_items = OutfitItem.objects.filter(outfit=obj)
+        return ItemSerializer(
+            [outfit_item.item for outfit_item in outfit_items], many=True
+        ).data
 
 
 # 最愛穿搭與服裝單品關聯
 class OutfitItemSerializer(serializers.ModelSerializer):
-    outfit = OutfitSerializer()
-    item = ItemSerializer()
+    outfit = OutfitSerializer(read_only=True)
+    item = ItemSerializer(read_only=True)
 
     class Meta:
         model = OutfitItem
@@ -129,8 +171,8 @@ class OutfitItemSerializer(serializers.ModelSerializer):
 
 # 最愛穿搭與場合標籤關聯
 class OutfitOccasionSerializer(serializers.ModelSerializer):
-    outfit = OutfitSerializer()
-    occasion = OccasionSerializer()
+    outfit = OutfitSerializer(read_only=True)
+    occasion = OccasionSerializer(read_only=True)
 
     class Meta:
         model = OutfitOccasion

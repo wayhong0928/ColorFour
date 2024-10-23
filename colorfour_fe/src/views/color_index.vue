@@ -45,9 +45,7 @@
             </div>
 
             <!-- 無資料提示 -->
-            <div v-else class="no-data">
-              尚無測驗資料，請進行測驗後再查看。
-            </div>
+            <div v-else class="no-data">尚無測驗資料，請進行測驗後再查看。</div>
           </div>
 
           <!-- 圖片展示區 -->
@@ -64,79 +62,81 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { useToast } from 'vue-toastification';
+  import axios from "axios";
+  import { useToast } from "vue-toastification";
 
-export default {
-  data() {
-    return {
-      sortBy: 'newest',
-      selectedItems: [],
-      items: [],
-    };
-  },
-  computed: {
-    sortedItems() {
-      return this.sortBy === 'newest'
-        ? this.items.slice().sort((a, b) => new Date(b.test_date) - new Date(a.test_date))
-        : this.items.slice().sort((a, b) => new Date(a.test_date) - new Date(b.test_date));
+  export default {
+    data() {
+      return {
+        sortBy: "newest",
+        selectedItems: [],
+        items: [],
+      };
     },
-  },
-  methods: {
-async fetchItems() {
-  try {
-    const token = sessionStorage.getItem('token');
-    if (!token) {
-      throw new Error('無法取得 Token，請重新登入');
-    }
-
-    const response = await axios.get('http://127.0.0.1:8000/color/user-tests/', {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    computed: {
+      sortedItems() {
+        return this.sortBy === "newest"
+          ? this.items.slice().sort((a, b) => new Date(b.test_date) - new Date(a.test_date))
+          : this.items.slice().sort((a, b) => new Date(a.test_date) - new Date(b.test_date));
       },
-    });
-
-    // 確保 response 存在且具有 data 和 status
-    if (response && response.data && response.status === 200) {
-      this.items = response.data.length > 0 ? response.data : [];
-      console.log('資料取得成功', this.items);
-    } else {
-      console.warn('API 回應無資料或異常', response?.status);
-      this.items = []; // 設為空，避免渲染錯誤
-    }
-  } catch (error) {
-    const toast = useToast();
-    if (error.response) {
-      console.error('API 回應錯誤:', error.response);
-      toast.error(`錯誤：${error.response.data.detail || '無法取得測驗紀錄'}`);
-    } else if (error.request) {
-      console.error('無法連接至 API:', error.request);
-      toast.error('無法連接至伺服器，請稍後再試');
-    } else {
-      console.error('未知錯誤:', error.message);
-      toast.error('發生未知錯誤，請重新登入');
-    }
-  }
-},
-
-    removeSelectedItems() {
-      this.selectedItems.forEach(index => {
-        this.items.splice(index, 1);
-      });
-      this.selectedItems = [];
     },
-  },
-  mounted() {
-    const token = sessionStorage.getItem('token');
-    console.log('Token in color_index.vue:', token);
+    methods: {
+      async fetchItems() {
+        try {
+          // const token = sessionStorage.getItem("my-app-auth");
+          // if (!token) {
+          //   throw new Error("無法取得 Token，請重新登入");
+          // }
 
-    if (!token) {
-      this.$router.push('/login');
-    } else {
-      this.fetchItems();
-    }
-  },
-};
+          // # 透過 API 取得測驗紀錄，待修正
+
+          // const response = await axios.get("http://127.0.0.1:8000/color/user-tests/", {
+          //   headers: {
+          //     Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+          //   },
+          // });
+
+          // 確保 response 存在且具有 data 和 status
+          if (response && response.data && response.status === 200) {
+            this.items = response.data.length > 0 ? response.data : [];
+            console.log("資料取得成功", this.items);
+          } else {
+            console.warn("API 回應無資料或異常", response?.status);
+            this.items = []; // 設為空，避免渲染錯誤
+          }
+        } catch (error) {
+          const toast = useToast();
+          if (error.response) {
+            console.error("API 回應錯誤:", error.response);
+            toast.error(`錯誤：${error.response.data.detail || "無法取得測驗紀錄"}`);
+          } else if (error.request) {
+            console.error("無法連接至 API:", error.request);
+            toast.error("無法連接至伺服器，請稍後再試");
+          } else {
+            console.error("未知錯誤:", error.message);
+            toast.error("發生未知錯誤，請重新登入");
+          }
+        }
+      },
+
+      removeSelectedItems() {
+        this.selectedItems.forEach((index) => {
+          this.items.splice(index, 1);
+        });
+        this.selectedItems = [];
+      },
+    },
+    mounted() {
+      const token = sessionStorage.getItem("my-app-auth");
+      console.log("Token in color_index.vue:", token);
+
+      if (!token) {
+        this.$router.push("/login");
+      } else {
+        this.fetchItems();
+      }
+    },
+  };
 </script>
 
 <style scoped>
@@ -171,7 +171,7 @@ async fetchItems() {
 
   .result-item {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     margin-bottom: 10px;
     padding: 10px;
     font-size: 16px;

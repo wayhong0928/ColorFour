@@ -25,12 +25,14 @@ import closet_index from "@/views/closet_index.vue";
 import closet_detail from "@/views/closet_detail.vue";
 import closet_new from "@/views/closet_new.vue";
 import closet_trash from "@/views/closet_trash.vue";
+import closet_outfit from "@/views/closet_outfit_index.vue";
+import closet_outfit_detail from "@/views/closet_outfit_detail.vue";
 
 // Social
 import social_index from "@/views/social_index.vue";
 import social_collect from "@/views/social_collect.vue";
-import post_new from "@/views/post_new.vue";
-import post_edit from "@/views/post_edit.vue";
+import social_new from "@/views/social_new.vue";
+import social_edit from "@/views/social_edit.vue";
 import social_follow_list from "@/views/social_follow_list.vue";
 
 // suggest
@@ -47,6 +49,7 @@ import buy_index from "@/views/buy_index.vue";
 
 // todo
 import todo_index from "@/views/todo_index.vue";
+import Closet_outfit_index from "@/views/closet_outfit_index.vue";
 
 const routes = [
   {
@@ -90,6 +93,7 @@ const routes = [
     path: "/color_index",
     name: "color_index",
     component: color_index,
+    meta: { requiresAuth: true },
   },
   {
     path: "/color_detail_1",
@@ -152,6 +156,19 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/closet_outfit_index",
+    name: "closet_outfit_index",
+    component: Closet_outfit_index,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/closet_outfit_detail/:id",
+    name: "closet_outfit_detail",
+    component: closet_outfit_detail,
+    props: true,
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/social_index",
     name: "social_index",
     component: social_index,
@@ -162,15 +179,15 @@ const routes = [
     component: social_collect,
   },
   {
-    path: "/post_new",
-    name: "post_new",
-    component: post_new,
+    path: "/social_new",
+    name: "social_new",
+    component: social_new,
     meta: { requiresAuth: true },
   },
   {
-    path: "/post_edit/:id",
-    name: "post_edit",
-    component: post_edit,
+    path: "/social_edit/:id",
+    name: "social_edit",
+    component: social_edit,
     props: true,
     //meta: { requiresAuth: true },
   },

@@ -22,7 +22,7 @@ class Tag(models.Model):
 class Post(models.Model):
   user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   content = models.TextField(blank=True, null=True)
-  media_url = models.CharField(max_length=255, blank=True, null=True)
+  media_url = models.ImageField(upload_to='post_media', blank=True, null=True)
   media_type = models.CharField(max_length=20, blank=True, null=True)
   link_url = models.CharField(max_length=255, blank=True, null=True)
   location = models.CharField(max_length=255, blank=True, null=True)

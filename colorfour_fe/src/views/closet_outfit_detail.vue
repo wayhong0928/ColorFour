@@ -53,7 +53,7 @@
     props: ["id"],
     data() {
       return {
-        outfit: null, // 存放穿搭資料
+        outfit: [],// 存放穿搭資料
         isEditing: false, // 編輯模式切換
         editForm: {
           outfit_name: "",
@@ -149,6 +149,28 @@
   .bread a {
     text-decoration: none;
     color: #333;
+  }
+
+  .item-info-wrap {
+    width: 90%;
+    display: flex;
+    align-items: end;
+    justify-content: end;
+    margin-bottom: 20px;
+  }
+
+  .item-info-wrap .edit-button {
+    margin-right: 20px; /* 增加按鈕之間的距離 */
+  }
+
+  main button {
+    width: auto; /* 讓按鈕的寬度自適應內容 */
+    text-align: center; /* 讓按鈕內的字置中 */
+    padding: 10px 20px; /* 添加適當的內邊距讓按鈕看起來更大 */
+    display: inline-flex;
+    align-items: center; /* 水平置中 */
+    justify-content: center; /* 垂直置中 */
+    margin-top: 20px;
   }
 
   .container {

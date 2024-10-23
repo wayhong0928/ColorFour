@@ -40,14 +40,23 @@
         <input type="text" id="username" v-model="username" placeholder="輸入英文、符號" />
       </div>
 
-      <!-- 性别选择下拉菜单 -->
+      <!-- 性别选择 -->
       <div class="form-group">
-        <label for="gender">性別</label>
-        <select id="gender" v-model="gender">
-          <option value="male">男性</option>
-          <option value="female">女性</option>
-          <option value="other">不方便回答</option>
-        </select>
+       <label for="gender">性別</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="male" value="male" v-model="gender">
+            <label for="male">男性</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="female" value="female" v-model="gender">
+            <label for="female">女性</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="other" value="other" v-model="gender">
+            <label for="other">不方便回答</label>
+          </div>
+        </div>
       </div>
 
       <!-- 个性签名（个人简介） -->
@@ -316,6 +325,22 @@
     color: #333;
     box-sizing: border-box;
   }
+
+  .radio-group {
+    display: flex; /* 讓所有選項在同一行排列 */
+    flex-wrap: nowrap;
+  }
+
+  .radio-option {
+    display: inline-flex; /* 讓按鈕和文字水平排列 */
+    align-items: center; /* 使按鈕與文字垂直居中對齊 */
+    margin-right: 20px; /* 每個選項之間的間距 */
+  }
+
+  .radio-option input {
+    margin-right: 5px; /* 按鈕和文字之間的間距 */
+  }
+
 
   button {
     width: 100%;

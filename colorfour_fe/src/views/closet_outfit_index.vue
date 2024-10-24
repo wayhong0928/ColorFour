@@ -62,8 +62,39 @@
       goBack() {
         this.$router.go(-1);
       },
-      deleteItems() {
-        // 實作刪除邏輯
+      async deleteItems() {
+        if (this.selectedItems.length === 0) {
+          alert("請選擇要刪除的項目");
+          return;
+        }
+
+        const confirmed = confirm("確定要刪除選中的穿搭組合嗎？");
+
+        if (!confirmed) return;
+
+        try {
+          // 使用 Promise.all 同時發送多個刪除請求
+          await Promise.all(
+            this.selectedItems.map((id) =>
+              axios.delete(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/outfits/${id}/`, {
+                headers: {
+                  Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+                },
+              })
+            )
+          );
+
+          alert("穿搭組合刪除成功");
+
+          // 將已刪除的項目從畫面上移除
+          this.outfits = this.outfits.filter((outfit) => !this.selectedItems.includes(outfit.id));
+
+          // 清空選中的項目
+          this.selectedItems = [];
+        } catch (error) {
+          console.error("Error deleting items:", error);
+          alert("刪除失敗，請稍後再試。");
+        }
       },
       formatDate(dateString) {
         const date = new Date(dateString);

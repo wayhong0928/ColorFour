@@ -152,8 +152,21 @@ class OutfitSerializer(serializers.ModelSerializer):
             "latest_edit",
         ]
 
+    def create(self, validated_data):
+        # 取出 selected_items，剩餘資料用於建立 Outfit
+        selected_items = validated_data.pop("selected_items", [])
+        outfit = Outfit.objects.create(**validated_data)
+
+        # 為每個選中的 Item 建立 OutfitItem 關聯
+        outfit_items = [
+            OutfitItem(outfit=outfit, item_id=item_id) for item_id in selected_items
+        ]
+        OutfitItem.objects.bulk_create(outfit_items)  # 批量建立關聯
+
+        return outfit
+
     def get_items(self, obj):
-        outfit_items = OutfitItem.objects.filter(outfit=obj)
+        outfit_items = OutfitItem.objects.filter(outfit=obj).select_related("item")
         return ItemSerializer(
             [outfit_item.item for outfit_item in outfit_items], many=True
         ).data

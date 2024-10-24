@@ -137,13 +137,15 @@ class ItemOccasionViewSet(viewsets.ModelViewSet):
 
 
 class OutfitViewSet(viewsets.ModelViewSet):
-    queryset = Outfit.objects.prefetch_related('outfititem_set__item').all()
+    queryset = Outfit.objects.prefetch_related("outfititem_set__item").all()
     serializer_class = OutfitSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        return self.queryset.filter(user=user)
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class OutfitItemViewSet(viewsets.ModelViewSet):

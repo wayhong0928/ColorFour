@@ -14,7 +14,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="item-info-wrap ms-auto">
         <router-link to="/closet_new" class="btn btn-outline-secondary me-2">新增單品</router-link>
-        <button @click="addToCombination" class="btn btn-outline-secondary me-2">新增穿搭組合</button>
+        <router-link to="/closet_new_outfit" class="btn btn-outline-secondary me-2">新增穿搭組合</router-link>
         <router-link to="/closet_outfit_index" class="btn btn-outline-secondary me-2">穿搭組合區</router-link>
         <router-link to="/closet_trash" class="btn btn-outline-danger me-2">回收區</router-link>
       </div>
@@ -57,16 +57,6 @@
       },
       updateFavorites(newFavorites) {
         this.favorites = newFavorites;
-      },
-      addToCombination() {
-        // 確保選擇超過兩個單品
-        if (this.selectedItems.length >= 2) {
-          this.storedCombination = [...this.selectedItems]; // 更新存儲的穿搭組合
-          sessionStorage.setItem("outfitCombination", JSON.stringify(this.storedCombination)); // 存入 sessionStorage
-          alert("穿搭組合已加入！"); // 可以更改為使用提示框或通知
-        } else {
-          alert("請選擇至少兩個單品！"); // 提示用戶需要選擇兩個以上的單品
-        }
       },
       goBack() {
         this.$router.go(-1);

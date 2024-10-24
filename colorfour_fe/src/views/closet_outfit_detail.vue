@@ -4,8 +4,8 @@
       <nav aria-label="breadcrumb">
         <ol class="bread">
           <li><router-link to="/">首頁</router-link></li>
-          <li><router-link to="/closet_index">穿搭總覽</router-link></li>
-          <li aria-current="page">穿搭詳情</li>
+          <li><router-link to="/closet_index">穿搭組合總覽</router-link></li>
+          <li aria-current="page">穿搭組合詳情</li>
         </ol>
       </nav>
 
@@ -16,7 +16,8 @@
 
       <section class="container" v-if="outfit">
         <div class="item-img">
-          <img :src="outfit.outfit_image || 'https://via.placeholder.com/150'" alt="穿搭圖片" />
+          <!-- 找一張預設的圖片擺上去 -->
+          <img :src="outfit.outfit_image || 'https://picsum.photos/300/200?random=1'" alt="穿搭圖片" />
         </div>
         <div class="item-info" v-if="!isEditing">
           <h1>{{ outfit.outfit_name }}</h1>
@@ -25,7 +26,9 @@
 
           <h5>包含的物品：</h5>
           <ul>
-            <li v-for="item in outfit.items" :key="item.id">{{ item.item_name }} - {{ item.brand }} - {{ item.color }}</li>
+            <li v-for="item in outfit.items" :key="item.id">
+              {{ item.item_name }} - {{ getBrandName(item.brand) }} - {{ getColorName(item.color) }}
+            </li>
           </ul>
         </div>
 
@@ -53,7 +56,9 @@
     props: ["id"],
     data() {
       return {
-        outfit: [],// 存放穿搭資料
+        outfit: null, // 存放穿搭資料
+        brands: [], // 儲存品牌資料
+        colors: [], // 儲存顏色資料
         isEditing: false, // 編輯模式切換
         editForm: {
           outfit_name: "",
@@ -70,10 +75,31 @@
             },
           });
           this.outfit = response.data;
-          this.editForm = { ...this.outfit }; // 初始化編輯表單
+          console.log("Outfit fetched successfully:", this.outfit);
+          this.editForm = { ...this.outfit };
         } catch (error) {
           console.error("Error fetching outfit:", error);
         }
+      },
+      async fetchMetadata() {
+        try {
+          const [brandsResponse, colorsResponse] = await Promise.all([
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/brands/`),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/colors/`),
+          ]);
+          this.brands = brandsResponse.data;
+          this.colors = colorsResponse.data;
+        } catch (error) {
+          console.error("Error fetching metadata:", error);
+        }
+      },
+      getBrandName(brandId) {
+        const brand = this.brands.find((b) => b.id === brandId);
+        return brand ? brand.name : "未知品牌";
+      },
+      getColorName(colorId) {
+        const color = this.colors.find((c) => c.id === colorId);
+        return color ? color.name : "未知顏色";
       },
       toggleEdit() {
         this.isEditing = !this.isEditing;
@@ -118,7 +144,8 @@
       },
     },
     async mounted() {
-      await this.fetchOutfit(); // 載入穿搭詳細資料
+      await this.fetchMetadata(); // 先抓取品牌和顏色資料
+      await this.fetchOutfit(); // 再載入穿搭詳細資料
     },
   };
 </script>

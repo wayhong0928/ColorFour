@@ -25,7 +25,8 @@ import closet_index from "@/views/closet_index.vue";
 import closet_detail from "@/views/closet_detail.vue";
 import closet_new from "@/views/closet_new.vue";
 import closet_trash from "@/views/closet_trash.vue";
-import closet_outfit from "@/views/closet_outfit_index.vue";
+import closet_new_outfit from "@/views/closet_new_outfit.vue";
+import closet_outfit_index from "@/views/closet_outfit_index.vue";
 import closet_outfit_detail from "@/views/closet_outfit_detail.vue";
 
 // Social
@@ -49,7 +50,6 @@ import buy_index from "@/views/buy_index.vue";
 
 // todo
 import todo_index from "@/views/todo_index.vue";
-import Closet_outfit_index from "@/views/closet_outfit_index.vue";
 
 const routes = [
   {
@@ -156,9 +156,15 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/closet_new_outfit",
+    name: "closet_new_outfit",
+    component: closet_new_outfit,
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/closet_outfit_index",
     name: "closet_outfit_index",
-    component: Closet_outfit_index,
+    component: closet_outfit_index,
     meta: { requiresAuth: true },
   },
   {

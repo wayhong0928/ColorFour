@@ -1,6 +1,6 @@
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-import uuid
 
 
 class User(AbstractUser):
@@ -65,20 +65,26 @@ class UserInteractionHistory(models.Model):
 
 
 class UserAuthProvider(models.Model):
+    """
+    模型描述：記錄用戶與第三方提供者（如 Google、Line）之間的綁定關係
+    """
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="auth_providers"
     )
     provider = models.CharField(max_length=50)  # google, line
-    provider_id = models.CharField(max_length=255)
+    provider_id = models.CharField(max_length=255, unique=True)  # 確保唯一性
     created_at = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(auto_now=True)
+    last_login = models.DateTimeField(default=timezone.now)
 
     class Meta:
+        # 設置 user 和 provider 的唯一約束，確保同一用戶不會重複綁定同一提供者
         constraints = [
             models.UniqueConstraint(
                 fields=["user", "provider"], name="unique_user_provider"
             )
         ]
+        verbose_name = "User Authentication Provider"
+        verbose_name_plural = "User Authentication Providers"
 
     def __str__(self):
-        return f"{self.provider} account of {self.user.email}"
+        return f"{self.provider.capitalize()} account of {self.user.email}"

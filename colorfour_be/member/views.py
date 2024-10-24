@@ -1,73 +1,71 @@
 import logging
 from django.db import transaction
+from django.contrib.auth import get_user_model
 from django.utils.timezone import now
+from dj_rest_auth.registration.views import SocialLoginView
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from dj_rest_auth.registration.views import SocialLoginView
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.line.views import LineOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from .models import UserAuthProvider
 
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+User = get_user_model()
 
 class CustomSocialLoginView(SocialLoginView):
     def get_response(self):
         try:
-            # 調用父類別的回應
+            # 呼叫父類別的處理邏輯
             response = super().get_response()
 
-            # 檢查用戶是否正確綁定
-            if self.user and hasattr(self, "serializer"):
-                provider = self.serializer.context.get("view").adapter_class.provider_id
-                provider_id = self.serializer.validated_data.get("id")
-
-                # 建立或更新 UserAuthProvider 紀錄
-                if provider and provider_id:
-                    auth_provider, created = UserAuthProvider.objects.get_or_create(
-                        user=self.user,
-                        provider=provider,
-                        defaults={"provider_id": provider_id},
-                    )
-                    if not created:
-                        auth_provider.last_login = now()
-                        auth_provider.save()
-
-                # 生成新的 JWT Token 並回傳
-                tokens = self.generate_tokens(self.user)
-
-                # 回應包含完整的使用者資料與 token
-                return Response(
-                    {
-                        "access": tokens["access"],
-                        "refresh": tokens["refresh"],
-                        "user": {
-                            "pk": self.user.pk,
-                            "email": self.user.email,
-                            "first_name": self.user.first_name,
-                            "last_name": self.user.last_name,
-                            "role": (
-                                self.user.role.role_name if self.user.role else "user"
-                            ),
-                        },
-                    }
+            if self.user:
+                # 如果用戶不存在，則自動創建
+                user, created = User.objects.get_or_create(
+                    email=self.user.email,
+                    defaults={
+                        "first_name": self.user.first_name,
+                        "last_name": self.user.last_name,
+                    },
                 )
-        except Exception as e:
-            logger.error(f"Error in CustomSocialLoginView: {str(e)}")
-            return Response({"detail": "social login error"}, status=500)
+                if created:
+                    logger.info(f"New user created: {user.email}")
 
-    def generate_tokens(self, user):
-        """生成新的 access 和 refresh token"""
-        refresh = RefreshToken.for_user(user)
-        access = AccessToken.for_user(user)
-        return {
-            "refresh": str(refresh),
-            "access": str(access),
-        }
+                # 更新第三方登入紀錄
+                self._update_auth_provider(user)
+            else:
+                raise ValueError("User is None")
+            if created:
+                logger.info(f"New user created: {user.email}")
+
+            # 更新第三方登入紀錄
+            self._update_auth_provider(user)
+
+            return response
+
+        except Exception as e:
+            logger.error(f"Social login error: {str(e)}")
+            return Response(
+                {"detail": "Social login error"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def _update_auth_provider(self, user):
+        """建立或更新第三方登入紀錄"""
+        provider = self.serializer.context.get("view").adapter_class.provider_id
+        provider_id = self.serializer.validated_data.get("id")
+
+        if provider and provider_id:
+            UserAuthProvider.objects.update_or_create(
+                user=user,
+                provider=provider,
+                defaults={"provider_id": provider_id, "last_login": now()},
+            )
+            logger.info(f"Auth provider updated for user: {user.email}")
 
 
 class CustomGoogleLogin(CustomSocialLoginView):
@@ -80,6 +78,7 @@ class CustomLineLogin(CustomSocialLoginView):
     adapter_class = LineOAuth2Adapter
     callback_url = "http://localhost:8080/callback"
     client_class = OAuth2Client
+
 
 class UserAuthProviderView(APIView):
     permission_classes = [IsAuthenticated]

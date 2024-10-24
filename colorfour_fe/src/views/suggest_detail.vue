@@ -11,23 +11,32 @@
       </nav>
       <div class="wrap">
         <button class="btn btn-outline-secondary edit-button" @click="toggleEdit">編輯推薦</button>
+        <button class="btn btn-outline-danger delete-button" @click="deleteRecommendation">刪除推薦</button>
       </div>
       <section class="container">
         <div class="item-img">
-          <img :src="item.image" alt="推薦圖片" id="itemImage" />
+          <img :src="item.image || defaultImage" alt="推薦圖片" id="itemImage" />
         </div>
         <div class="item-info" v-if="!isEditing">
-          <h1 id="itemName">{{ item.title }}</h1>
-          <p id="itemDescription">{{ item.description }}</p>
-          <p class="added-date" id="itemDate">推薦日期: {{ item.date }}</p>
+          <h1>{{ item.recommendation_name }}</h1>
+          <p>位置: {{ item.location }}</p>
+          <p>場合: {{ item.occasion }}</p>
+          <p>氣色: {{ item.skin_tone }}</p>
+          <p>推薦日期: {{ formatDate(item.created_at) }}</p>
         </div>
         <!-- 編輯模式 -->
         <div class="edit-form" v-else>
           <label>名稱:</label>
-          <input v-model="editForm.title" />
+          <input v-model="editForm.recommendation_name" />
 
-          <label>標籤:</label>
-          <input v-model="editForm.description" placeholder="用逗號分隔" />
+          <label>位置:</label>
+          <input v-model="editForm.location" />
+
+          <label>場合:</label>
+          <input v-model="editForm.occasion" />
+
+          <label>氣色:</label>
+          <input v-model="editForm.skin_tone" />
 
           <button class="btn btn-outline-secondary" @click="saveEdit">儲存</button>
         </div>
@@ -40,13 +49,15 @@
 </template>
 
 <script>
+  import axios from "axios";
+  import defaultProfileImage from "@/assets/img/user_profile_default.jpg";
+
   export default {
     name: "suggest_detail",
     data() {
       return {
         isEditing: false, // 是否進入編輯模式
         editForm: {
-          // 編輯表單資料
           title: "",
           description: "",
         },
@@ -56,32 +67,6 @@
           description: "查無資料",
           date: "查無資料",
         },
-        recommendations: [
-          {
-            id: 1,
-            title: "表演服",
-            image: require("@/assets/img/suggest_01.png"),
-            link: "/suggest_detail/1",
-            description: "夏天、百搭、休閒、全妝",
-            date: "2023-06-01",
-          },
-          {
-            id: 2,
-            title: "期末報告穿搭",
-            image: require("@/assets/img/suggest_03.png"),
-            link: "/suggest_detail/2",
-            description: "夏天、正式、報告",
-            date: "2023-06-02",
-          },
-          {
-            id: 3,
-            title: "推薦穿搭3",
-            image: "https://picsum.photos/300/200?random=3",
-            link: "/suggest_detail/3",
-            description: "這是推薦穿搭3的描述。",
-            date: "2023-06-03",
-          },
-        ],
       };
     },
     created() {
@@ -91,28 +76,46 @@
       toggleEdit() {
         this.isEditing = !this.isEditing;
         if (this.isEditing) {
-          // 將原始資料填入編輯表單中
           this.editForm = { ...this.item };
         }
       },
-      saveEdit() {
-        // 儲存編輯後的資料
-        this.item.title = this.editForm.title;
-        this.item.description = this.editForm.description;
-        this.isEditing = false; // 結束編輯模式
-      },
-      fetchItemDetails() {
+      async saveEdit() {
         const itemId = this.$route.params.id;
-        const item = this.recommendations.find((i) => i.id === Number(itemId));
-        if (item) {
-          this.item = item;
+        try {
+          const response = await axios.put(`http://localhost:8000/recommender/recommendations/${itemId}/`, this.editForm, {
+            headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
+          });
+          this.item = response.data;
+          this.isEditing = false;
+          alert("推薦已成功更新！");
+        } catch (error) {
+          console.error("更新失敗：", error.response ? error.response.data : error);
+          alert("更新失敗，請稍後再試。");
         }
       },
-      editRecommendation() {
-        // 執行編輯推薦的邏輯
+      async fetchItemDetails() {
+        const itemId = this.$route.params.id;
+        try {
+          const response = await axios.get(`http://localhost:8000/recommender/recommendations/${itemId}/`, {
+            headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
+          });
+          this.item = response.data;
+        } catch (error) {
+          console.error("無法取得推薦詳情：", error.response ? error.response.data : error);
+          alert("無法取得推薦詳情，請稍後再試。");
+        }
+      },
+      formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString(); // 格式化為日期+時間
       },
       goBack() {
-        this.$router.go(-1); // 返回上一頁
+        this.$router.go(-1);
+      },
+    },
+    computed: {
+      defaultImage() {
+        return defaultProfileImage;
       },
     },
   };

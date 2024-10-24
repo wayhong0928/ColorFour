@@ -125,7 +125,7 @@
 </template>
 
 <script>
-  import axios from "axios";
+    import axios from "axios";
   import { closetApiMixin } from "../mixins/closet_ApiMixin.js";
   import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
 
@@ -387,21 +387,6 @@
     margin-top: 20px;
   }
 
-  .back-button {
-    padding: 10px 20px;
-    background-color: #d4b7a1;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-    margin-top: 20px;
-  }
-
-  .back-button:hover {
-    background-color: #b3957e;
-  }
-
   .favorite-icon {
     cursor: pointer;
     width: 90px;
@@ -456,6 +441,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    padding:40px;
   }
 
   .item-img img {
@@ -508,6 +494,11 @@
     width: 100%;
     padding: 5px;
     margin-top: 5px;
+    border-radius: 10px;
+  }
+
+  .edit-form select{
+    border-radius: 10px; /* 加大圓角 */
   }
 
   @media screen and (max-width: 768px) {

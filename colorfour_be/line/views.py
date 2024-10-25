@@ -70,15 +70,10 @@ def callback(request):
         # 根據回傳的資料處理邏輯
         if action == 'date':
           print('date')
-          insert_schedule.sendBack_date(event, backdata)
-        elif action == 'datetime':
-           insert_schedule.sendBack_datetime(event, backdata)
+          search_schedule.Back_search_date(event, backdata)
         elif action == 'yes':
           print('yes')
           insert_schedule.sendStartTime(event)
-        elif action == 'no':
-          print('no')
-          insert_schedule.sendNo(event)
         elif action == 'search_date':
           search_schedule.Back_search_date(event, backdata)
         elif action == 'no_insert':
@@ -106,9 +101,9 @@ def callback(request):
         elif action == 'suit':
           purchase.sendBack_suit(event)
         elif action == 'upload':
-          purchase.sendBack_upload(event)
-        elif action == 'upload_shortspants':
-          purchase.sendBack_upload_shortspants(event)
+          purchase.sendBack_upload(event) #上傳圖片
+        #elif action == 'upload_shortspants':
+        #  purchase.sendBack_upload_shortspants(event)
         elif conversation_state['step']:
           print('conversation_state')
           insert_schedule.handleUserInput(event, conversation_state)

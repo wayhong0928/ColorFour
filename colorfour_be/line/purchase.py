@@ -110,7 +110,7 @@ def sendBack_bottom(event): #回傳下身的次要種類
                     action = PostbackAction(label = "一般長褲", data='action=upload',display_text = "一般長褲")
                 ),
                 QuickReplyButton(
-                    action = PostbackAction(label = "短褲",  data='action=upload_shortspants',display_text = "短褲")
+                    action = PostbackAction(label = "短褲",  data='action=upload',display_text = "短褲")
                 ),                      
             ]
         )
@@ -461,7 +461,7 @@ def sendBack_upload_shortspants(event): # 對的採購建議樣板(短褲)
                                         text='深灰色短褲。', size='sm', color='#666666', flex=2
                                     ),
                                     TextComponent(
-                                        text='請點選確定進行比對。', size='sm', color='#666666', flex=2
+                                        text='若沒問題請點選確定以進行採購建議演算法。', size='sm', color='#666666', flex=2
                                     ),
                                 ],
                             ),

@@ -11,6 +11,9 @@ from line import purchase, social, search_schedule, weatherApi, insert_schedule
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from line.insert_schedule import create_calendar_event
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
 
 line_bot_api = LineBotApi(os.getenv("LINE_MESSAGING_CHANNEL_ACCESS_TOKEN"))
@@ -136,4 +139,28 @@ def schedule_event(request):
   
 def oauth2callback(request):
     """Google OAuth 2.0 回呼處理"""
+    code = request.GET.get('code')  # 從 query 參數中取得授權碼
+    if not code:
+        return HttpResponse("授權失敗", status=400)
+
+    # 使用授權碼換取憑證
+    flow = InstalledAppFlow.from_client_secrets_file(
+        'client_secret.json', scopes=SCOPES
+    )
+    flow.fetch_token(code=code)  # 換取 OAuth token
     return HttpResponse("Google OAuth 授權成功！")
+SCOPES = ['https://www.googleapis.com/auth/calendar.events']  
+def send_auth_url(event):
+    """透過 Line Bot 發送 Google OAuth 授權 URL"""
+    flow = InstalledAppFlow.from_client_secrets_file(
+        'client_secret.json', 
+        scopes=SCOPES,
+        redirect_uri='https://your-ngrok-url.ngrok-free.app/oauth2callback'
+    )
+
+    auth_url, _ = flow.authorization_url(prompt='consent')
+    
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=f'請點選以下連結進行授權：\n{auth_url}')
+    )

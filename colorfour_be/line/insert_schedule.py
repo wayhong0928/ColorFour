@@ -295,7 +295,9 @@ def get_google_credentials():
     """取得使用者的 Google OAuth 憑證"""
     flow = InstalledAppFlow.from_client_secrets_file(
         'client_secret.json', scopes=SCOPES, redirect_uri='https://upward-gorgeous-bedbug.ngrok-free.app/oauth2callback')
-    credentials = flow.run_local_server(port=8080) # 每登入一次google，須重跑一次server!!!
+    credentials = flow.run_local_server(port=8080,authorization_prompt_message='請授權應用程式訪問您的 Google 日曆。',
+        success_message='授權成功！您可以關閉此頁面。',
+        open_browser=True) # 每登入一次google，須重跑一次server!!!
     return credentials
   
 def convert_line_datetime_to_google_format(line_datetime):

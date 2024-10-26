@@ -30,7 +30,7 @@
     <main v-if="selectedSeason !== null">
       <form @submit.prevent="handleSubmit">
         <div class="mb-4">
-          <label for="analysis-name" class="form-label">請選擇分析名稱</label>
+          <label for="analysis-name" class="form-label">請選擇分析妝容</label>
           <select id="analysis-name" v-model="selectedName" class="form-select" required>
             <option v-for="name in nameOptions" :key="name" :value="name">{{ name }}</option>
           </select>

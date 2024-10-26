@@ -5,7 +5,6 @@ from .models import (
     SubscriptionPlan,
     UserPreferences,
     UserInteractionHistory,
-    UserAuthProvider,
 )
 
 
@@ -46,12 +45,6 @@ class UserInteractionHistorySerializer(serializers.ModelSerializer):
             "timestamp",
             "details",
         ]
-
-
-class UserAuthProviderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserAuthProvider
-        fields = ["id", "user", "provider", "provider_id", "created_at"]
 
 
 class UserSerializer(serializers.ModelSerializer):

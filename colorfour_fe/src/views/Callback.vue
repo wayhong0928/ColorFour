@@ -18,41 +18,33 @@
     methods: {
       ...mapActions("auth", ["login"]),
       async handleCallback() {
-        const code = new URL(window.location.href).searchParams.get("code");
-        const state = new URL(window.location.href).searchParams.get("state");
-        const currentTime = Math.floor(Date.now() / 1000);
-
-        console.log("OAuth Code:", code);
-        console.log("OAuth State:", state);
-        console.log("Current Time:", currentTime);
+        const code = new URLSearchParams(window.location.search).get("code");
+        const state = new URLSearchParams(window.location.search).get("state");
+        console.log("code:", code, "state:", state);
 
         if (!code) {
-          this.errorMessage = "請重新嘗試登入。";
+          this.errorMessage = "無法取得驗證資訊，請重新嘗試。";
           this.loading = false;
           return;
         }
 
         try {
-          if (state === "google" || state === "line") {
-            await this.login({ code, provider: state });
-            this.$router.push({ name: "home" });
-          } else {
-            throw new Error("unknown login provider");
-          }
+          await this.login({ code, provider: state });
+          this.$router.push({ name: "home" });
         } catch (error) {
           console.error("登入失敗:", error);
-          this.errorMessage = this.getErrorMessage(error);
+          if (error.response && error.response.status === 500) {
+            this.errorMessage = "服務器內部錯誤，請稍後再試。";
+          } else if (error.message === "unknown login provider") {
+            this.errorMessage = "無效的登入提供者，請重新嘗試。";
+          } else {
+            this.errorMessage = "登入失敗，請重新嘗試。";
+          }
+          if (error.response) {
+            console.error("服務器回應:", error.response.data);
+          }
         } finally {
           this.loading = false;
-        }
-      },
-      getErrorMessage(error) {
-        if (error.response && error.response.status === 500) {
-          return "服務器內部錯誤，請稍後再試。";
-        } else if (error.message === "unknown login provider") {
-          return "無效的登入提供者，請重新嘗試。";
-        } else {
-          return "登入失敗，請重新嘗試。";
         }
       },
     },

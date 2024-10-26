@@ -37,9 +37,10 @@
         const params = {
           response_type: "code",
           client_id: process.env.VUE_APP_GOOGLE_CLIENT_ID,
-          redirect_uri: process.env.VUE_APP_GOOGLE_LOGIN_CALLBACK,
+          redirect_uri: process.env.VUE_APP_LOGIN_CALLBACK,
           scope: "openid email profile",
-          access_type: "online",
+          access_type: "offline",
+          prompt: "consent",
           state: "google",
         };
         const urlParams = new URLSearchParams(params).toString();
@@ -47,11 +48,10 @@
       },
       loginWithLine() {
         const lineAuthUrl = "https://access.line.me/oauth2/v2.1/authorize";
-        const redirectUri = "http://localhost:8080/callback";
         const params = {
           response_type: "code",
           client_id: process.env.VUE_APP_LINE_LOGIN_CHANNEL_ID,
-          redirect_uri: redirectUri,
+          redirect_uri: process.env.VUE_APP_LOGIN_CALLBACK,
           scope: "profile openid email",
           state: "line",
         };

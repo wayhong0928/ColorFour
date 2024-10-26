@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Role, SubscriptionPlan, UserPreferences, UserAuthProvider, UserInteractionHistory
+from .models import User, Role, SubscriptionPlan, UserPreferences, UserInteractionHistory
 
 class UserAdmin(admin.ModelAdmin):
 	list_display = ("email", "username", "role", "subscription_plan", "date_joined", "last_login", "is_active")
@@ -31,9 +31,4 @@ class UserInteractionHistoryAdmin(admin.ModelAdmin):
 	list_filter = ("actions", "target_type", "timestamp")
 
 
-class UserAuthProviderAdmin(admin.ModelAdmin):
-	list_display = ("user", "provider", "provider_id", "created_at")
-	search_fields = ("user__email", "provider")
-	list_filter = ("provider",)
-
-admin.site.register((User, Role, SubscriptionPlan, UserPreferences,	UserAuthProvider,	UserInteractionHistory))
+admin.site.register((User, Role, SubscriptionPlan, UserPreferences,	UserInteractionHistory))

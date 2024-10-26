@@ -1,64 +1,3 @@
-<!-- 原來的template 
-<template>
-  <div class="container">
-    <header>
-      <nav>
-        <router-link to="/color_index" class="close-btn" id="close-questionnaire">x</router-link>
-      </nav>
-    </header>
-    <img src="@/assets/img/face.png" alt="Header Image" class="header-image" />
-    <main>
-      <form @submit.prevent="handleSubmit">
-        <div class="question-container">
-          <div
-            :class="['question', { active: currentQuestionIndex === index }]"
-            v-for="(question, index) in questions"
-            :key="question.title"
-          >
-            <h2 class="question-title">{{ question.title }}</h2>
-            <div class="options" v-if="question.options">
-              <label v-for="(option, idx) in question.options" :key="option.value" class="option-label">
-                <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="answers[index]" class="option-input" />
-                <span v-if="option.color" class="color-block" :style="{ backgroundColor: option.color }"></span>
-                {{ option.text }}
-              </label>
-            </div>
-            <div v-else>
-              <label v-for="(option, idx) in question.colors" :key="option.value" class="option-label">
-                <input type="radio" :name="`q${index + 1}`" :value="option.value" v-model="answers[index]" class="option-input" />
-                <div class="color-blocks">
-                  <span
-                    v-for="color in option.colors"
-                    :key="color"
-                    class="color-block"
-                    :style="{ backgroundColor: color }"
-                  ></span>
-                </div>
-              </label>
-            </div>
-            <p v-if="error && !answers[index]" class="error-text">此問題為必填</p>
-          </div>
-        </div>
-
-        <div class="button-container">
-          <button v-if="currentQuestionIndex > 0" @click="prevQuestion" id="prev-button" type="button">上一題</button>
-          <button
-            v-if="currentQuestionIndex < questions.length - 1"
-            @click="nextQuestion"
-            id="next-button"
-            type="button"
-            :disabled="!answers[currentQuestionIndex]"
-          >
-            下一題
-          </button>
-          <button v-if="currentQuestionIndex === questions.length - 1" type="submit" id="submit-button">提交</button>
-        </div>
-      </form>
-    </main>
-  </div>
-</template>
--->
-<!-- 修改後的template  -->
 <template>
   <div class="container">
     <header>
@@ -69,442 +8,322 @@
 
     <!-- 圖片上傳區 -->
     <div class="image-upload-container">
-      <button @click="openCamera">開啟相機</button>
       <input type="file" @change="onImageUpload" accept="image/*" />
-      <img v-if="uploadedImage" :src="uploadedImage" alt="Uploaded Image" class="header-image" />
     </div>
 
-    <!-- 顯示測驗表單 -->
-    <main v-if="uploadedImage">
-      <form @submit.prevent="handleSubmit">
-        <div class="question-container">
-          <div
-            :class="['question', { active: currentQuestionIndex === index }]"
-            v-for="(question, index) in questions"
-            :key="question.title"
-          >
-            <h2 class="question-title">{{ question.title }}</h2>
-
-            <!-- 文字選項 -->
-            <div class="options" v-if="question.options">
-              <label v-for="(option, idx) in question.options" :key="option.value" class="option-label">
-                <input 
-                  type="radio" 
-                  :name="`q${index + 1}`" 
-                  :value="option.value" 
-                  v-model="answers[index]" 
-                  class="option-input" 
-                />
-                <span 
-                  v-if="option.color" 
-                  class="color-block" 
-                  :style="{ backgroundColor: option.color }"
-                ></span>
-                {{ option.text }}
-              </label>
-            </div>
-
-            <!-- 顏色塊選項 -->
-            <div class="color-options" v-else-if="question.colors">
-              <label 
-                v-for="(colorOption, idx) in question.colors" 
-                :key="colorOption.value" 
-                class="option-label"
-              >
-                <input 
-                  type="radio" 
-                  :name="`q${index + 1}`" 
-                  :value="colorOption.value" 
-                  v-model="answers[index]" 
-                  class="option-input" 
-                />
-                <div class="color-blocks">
-                  <span
-                    v-for="color in colorOption.colors"
-                    :key="color"
-                    class="color-block"
-                    :style="{ backgroundColor: color }"
-                  ></span>
-                </div>
-              </label>
-            </div>
-
-            <p v-if="error && !answers[index]" class="error-text">此問題為必填</p>
+    <!-- 四季圖片與上傳圖片 -->
+    <div v-if="uploadedImage" class="seasons">
+      <div v-for="(season, index) in seasons" :key="season.name" class="season col-6">
+        <div class="card" :class="{ selected: selectedSeason === season.name }">
+          <img :src="season.image" class="card-img-top season-image" :alt="season.name" />
+          <div class="uploaded-image-container">
+            <img :src="uploadedImage" alt="Uploaded Image" class="uploaded-image" />
+          </div>
+          <div class="card-body text-center">
+            <button class="btn btn-primary" @click="selectSeason(season.name)">選擇</button>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- 上一題/下一題/提交按鈕 -->
-        <div class="button-container">
-          <button 
-            v-if="currentQuestionIndex > 0" 
-            @click="prevQuestion" 
-            id="prev-button" 
-            type="button"
-          >
-            上一題
-          </button>
-          <button
-            v-if="currentQuestionIndex < questions.length - 1"
-            @click="nextQuestion"
-            id="next-button"
-            type="button"
-            :disabled="!answers[currentQuestionIndex]"
-          >
-            下一題
-          </button>
-          <button 
-            v-if="currentQuestionIndex === questions.length - 1" 
-            type="submit" 
-            id="submit-button"
-          >
-            提交
-          </button>
+    <!-- 題目表單 -->
+    <main v-if="selectedSeason !== null">
+      <form @submit.prevent="handleSubmit">
+        <div class="mb-4">
+          <label for="analysis-name" class="form-label">請選擇分析妝容</label>
+          <select id="analysis-name" v-model="selectedName" class="form-select" required>
+            <option v-for="name in nameOptions" :key="name" :value="name">{{ name }}</option>
+          </select>
         </div>
+        <div v-for="(question, index) in questions" :key="index" class="question-container">
+          <h2 class="question-title">{{ question.title }}</h2>
+          <div class="options">
+            <label v-for="option in question.options" :key="option.value" class="option-label">
+              <input
+                type="radio"
+                :name="'q' + index"
+                :value="option.value"
+                v-model="answers[index].selected_option"
+                class="option-input"
+              />
+              {{ option.text }}
+            </label>
+          </div>
+        </div>
+        <button type="submit" id="submit-button">提交</button>
       </form>
     </main>
   </div>
 </template>
 
-
-<!-- 原來的script
 <script>
+  import axios from "axios";
+
   export default {
-    name: "ColorTest",
     data() {
       return {
-        currentQuestionIndex: 0,
+        uploadedImage: null,
+        uploadedImageFile: null,
+        selectedSeason: null,
+        selectedName: "",
+        nameOptions: ["素顏", "全妝", "簡單淡妝", "派對妝", "日常妝", "晚宴妝", "戶外妝", "正式場合妝", "專業妝"],
+        answers: [
+          { question_index: 1, selected_option: null },
+          { question_index: 2, selected_option: null },
+          { question_index: 3, selected_option: null },
+          { question_index: 4, selected_option: null },
+        ],
+        submitting: false,
+        seasons: [
+          { name: "Spring", image: require("@/assets/img/color_season_1.jpeg") },
+          { name: "Summer", image: require("@/assets/img/color_season_2.jpeg") },
+          { name: "Autumn", image: require("@/assets/img/color_season_3.jpeg") },
+          { name: "Winter", image: require("@/assets/img/color_season_4.jpeg") },
+        ],
         questions: [
           {
-            title: "問題 1 - 肌膚",
+            title: "嘴唇較無血色",
             options: [
-              { text: "容易曬紅或是曬傷", value: "A", color: "" },
-              { text: "容易曬黑，曬後立刻暗沈", value: "B", color: "" },
-              { text: "先曬紅後轉黑", value: "C", color: "" },
+              { text: "是", value: "yes" },
+              { text: "否", value: "no" },
             ],
           },
           {
-            title: "問題 2 - 瞳色",
+            title: "比起黑髮更適合棕色或是淺髮",
             options: [
-              { text: "茶棕色", value: "brown", color: "#654321" },
-              { text: "古銅色", value: "brown2", color: "#8B4513" },
-              { text: "焦棕色", value: "brown3", color: "#5C4033" },
-              { text: "黑棕色", value: "brown4", color: "#3D2B1F" },
+              { text: "是", value: "yes" },
+              { text: "否", value: "no" },
             ],
           },
           {
-            title: "問題 3 - 髮色",
+            title: "臉部有紅潤感",
             options: [
-              { text: "淺茶色", value: "tea", color: "#D2B48C" },
-              { text: "灰黑色", value: "gray", color: "#708090" },
-              { text: "黑茶色", value: "btea", color: "#3B2F2F" },
-              { text: "黑色", value: "black", color: "#000000" },
+              { text: "是", value: "yes" },
+              { text: "否", value: "no" },
             ],
           },
           {
-            title: "問題 4 - 彩度（哪種顏色在您身上看起來最亮？）",
-            colors: [
-              { value: "A", colors: ["#fef8ca", "#cce6cf", "#efdbd9", "#cae4ec"] },
-              { value: "B", colors: ["#fdef87", "#a2d193", "#e7a6a1", "#8fccdf"] },
-              { value: "C", colors: ["#f4ea62", "#7fba4a", "#e16565", "#45b0e1"] },
-              { value: "D", colors: ["#fdec4d", "#26aa39", "#e72828", "#282aff"] },
-              { value: "E", colors: ["#fce610", "#10681d", "#dc0000", "#0000ea"] },
-            ],
-          },
-          {
-            title: "問題 5 - 選擇一個適合自己的顏色，讓氣色更好，更白",
+            title: "眼珠偏淺棕色，眼神柔和",
             options: [
-              { text: "", value: "purple", color: "#800080" },
-              { text: "", value: "purple2", color: "#9370DB" },
-              { text: "", value: "purple3", color: "#DDA0DD" },
-              { text: "", value: "purple4", color: "#EE82EE" },
-            ],
-          },
-          {
-            title: "問題 6 - 選擇一個適合自己的顏色，讓氣色更好，更白",
-            options: [
-              { text: "", value: "yellow", color: "#FFFF00" },
-              { text: "", value: "yellow2", color: "#FFD700" },
-              { text: "", value: "yellow3", color: "#FFA500" },
-              { text: "", value: "yellow4", color: "#FF8C00" },
-            ],
-          },
-          {
-            title: "問題 7 - 選擇一個適合自己的顏色，讓氣色更好，更白",
-            options: [
-              { text: "", value: "orange", color: "#FFA07A" },
-              { text: "", value: "orange2", color: "#FF7F50" },
-              { text: "", value: "orange3", color: "#FF6347" },
-              { text: "", value: "orange4", color: "#FF4500" },
-            ],
-          },
-          {
-            title: "問題 8 - 選擇一個適合自己的顏色，讓氣色更好，更白",
-            options: [
-              { text: "", value: "red", color: "#FF0000" },
-              { text: "", value: "red2", color: "#DC143C" },
-              { text: "", value: "red3", color: "#B22222" },
-              { text: "", value: "red4", color: "#8B0000" },
+              { text: "是", value: "yes" },
+              { text: "否", value: "no" },
             ],
           },
         ],
-        answers: Array(8).fill(null),
-        error: false,
       };
     },
     methods: {
-      nextQuestion() {
-        if (this.answers[this.currentQuestionIndex]) {
-          this.currentQuestionIndex++;
-          this.error = false;
-        } else {
-          this.error = true;
+      onImageUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+          this.uploadedImageFile = file;
+          this.uploadedImage = URL.createObjectURL(file);
         }
       },
-      prevQuestion() {
-        if (this.currentQuestionIndex > 0) {
-          this.currentQuestionIndex--;
-          this.error = false;
-        }
+      selectSeason(seasonName) {
+        this.selectedSeason = seasonName;
       },
-      handleSubmit() {
-        if (this.answers.includes(null)) {
-          this.error = true;
-        } else {
-          console.log(this.answers);
-          this.$router.push("/color_detail_1"); // 提交後進行路由導航
+      async handleSubmit() {
+        if (!this.selectedSeason || !this.uploadedImageFile || !this.selectedName) {
+          alert("請填寫所有欄位！");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("test_name", this.selectedName);
+        formData.append("result_type", this.selectedSeason);
+        formData.append("uploaded_image", this.uploadedImageFile);
+
+        try {
+          const backendUrl = `${process.env.VUE_APP_BACKEND_URL}/color/user-tests/`;
+          const response = await axios.post(backendUrl, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+            },
+          });
+
+          const testId = response.data.id; // 確保後端返回 ID
+          alert("測驗成功提交！");
+          this.$router.push({ name: "color_result", params: { id: testId } });
+        } catch (error) {
+          console.error("提交失敗:", error.response);
+          alert(error.response?.data?.message || "提交失敗，請重試！");
         }
       },
     },
   };
 </script>
-*/
--->
-
-<!-- 修改後的script  -->
-<script>
-import axios from 'axios';
-import { useToast } from 'vue-toastification';
-
-export default {
-  data() {
-    return {
-      uploadedImage: null,
-      uploadedImageFile: null,
-      currentQuestionIndex: 0,
-      questions:[
-        {
-          title: "問題 1 - 肌膚",
-          options: [
-            { text: "容易曬紅或是曬傷", value: "A", color: "" },
-            { text: "容易曬黑，曬後立刻暗沈", value: "B", color: "" },
-            { text: "先曬紅後轉黑", value: "C", color: "" },
-          ],
-        },
-        {
-          title: "問題 2 - 瞳色",
-          options: [
-            { text: "茶棕色", value: "brown", color: "#654321" },
-            { text: "古銅色", value: "brown2", color: "#8B4513" },
-            { text: "焦棕色", value: "brown3", color: "#5C4033" },
-            { text: "黑棕色", value: "brown4", color: "#3D2B1F" },
-          ],
-        },
-        {
-          title: "問題 3 - 髮色",
-          options: [
-            { text: "淺茶色", value: "tea", color: "#D2B48C" },
-            { text: "灰黑色", value: "gray", color: "#708090" },
-            { text: "黑茶色", value: "btea", color: "#3B2F2F" },
-            { text: "黑色", value: "black", color: "#000000" },
-          ],
-        },
-        {
-          title: "問題 4 - 彩度（哪種顏色在您身上看起來最亮？）",
-          colors: [
-            { value: "A", colors: ["#fef8ca", "#cce6cf", "#efdbd9", "#cae4ec"] },
-            { value: "B", colors: ["#fdef87", "#a2d193", "#e7a6a1", "#8fccdf"] },
-            { value: "C", colors: ["#f4ea62", "#7fba4a", "#e16565", "#45b0e1"] },
-            { value: "D", colors: ["#fdec4d", "#26aa39", "#e72828", "#282aff"] },
-            { value: "E", colors: ["#fce610", "#10681d", "#dc0000", "#0000ea"] },
-          ],
-        },
-        {
-          title: "問題 5 - 選擇一個適合自己的顏色，讓氣色更好，更白",
-          options: [
-            { text: "", value: "purple", color: "#800080" },
-            { text: "", value: "purple2", color: "#9370DB" },
-            { text: "", value: "purple3", color: "#DDA0DD" },
-            { text: "", value: "purple4", color: "#EE82EE" },
-          ],
-        },
-        {
-          title: "問題 6 - 選擇一個適合自己的顏色，讓氣色更好，更白",
-          options: [
-            { text: "", value: "yellow", color: "#FFFF00" },
-            { text: "", value: "yellow2", color: "#FFD700" },
-            { text: "", value: "yellow3", color: "#FFA500" },
-            { text: "", value: "yellow4", color: "#FF8C00" },
-          ],
-        },
-        {
-          title: "問題 7 - 選擇一個適合自己的顏色，讓氣色更好，更白",
-          options: [
-            { text: "", value: "orange", color: "#FFA07A" },
-            { text: "", value: "orange2", color: "#FF7F50" },
-            { text: "", value: "orange3", color: "#FF6347" },
-            { text: "", value: "orange4", color: "#FF4500" },
-          ],
-        },
-        {
-          title: "問題 8 - 選擇一個適合自己的顏色，讓氣色更好，更白",
-          options: [
-            { text: "", value: "red", color: "#FF0000" },
-            { text: "", value: "red2", color: "#DC143C" },
-            { text: "", value: "red3", color: "#B22222" },
-            { text: "", value: "red4", color: "#8B0000" },
-          ],
-        },
-      ],
-      answers: Array(8).fill(null),
-      error: false,
-    };
-  },
-  methods: {
-    onImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.uploadedImageFile = file;
-        this.uploadedImage = URL.createObjectURL(file);
-      }
-    },
-    openCamera() {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-      fileInput.capture = 'user';
-      fileInput.onchange = this.onImageUpload;
-      fileInput.click();
-    },
-    nextQuestion() {
-      if (this.answers[this.currentQuestionIndex]) {
-        this.currentQuestionIndex++;
-        this.error = false;
-      } else {
-        this.error = true;
-      }
-    },
-    prevQuestion() {
-      if (this.currentQuestionIndex > 0) {
-        this.currentQuestionIndex--;
-        this.error = false;
-      }
-    },
-async handleSubmit() {
-  try {
-    const formData = new FormData();
-    formData.append('skin_color', this.answers[0]);
-    formData.append('hair_color', this.answers[1]);
-    formData.append('eye_color', this.answers[2]);
-    formData.append('description', this.answers[3]);
-    formData.append('fitness_problem1', this.answers[4]);
-    formData.append('fitness_problem2', this.answers[5]);
-    formData.append('fitness_problem3', this.answers[6]);
-    formData.append('fitness_problem4', this.answers[7]);
-    formData.append('uploaded_image', this.uploadedImageFile);
-    const token = sessionStorage.getItem('token');
-
-    const response = await axios.post('http://127.0.0.1:8000/color/add/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response && response.status === 201) {
-      console.log('提交成功:', response.data.message);
-      this.$router.push('/color_result');
-    }
-  } catch (error) {
-    console.error('提交錯誤:', error);
-    const toast = useToast();
-    toast.error('提交失敗，請稍後再試');
-  }
-},
-    },
-};
-</script>
-
 
 <style scoped>
+  /* 容器樣式 */
   .container {
-    width: 95%;
+    width: 100%;
+    max-width: 900px;
     margin: 0 auto;
+    padding: 1.5rem;
     background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
   }
 
+  /* Header 樣式 */
   header {
     display: flex;
     justify-content: flex-end;
     padding-bottom: 1rem;
+    width: 100%;
   }
 
   .close-btn {
     font-size: 1.5rem;
     text-decoration: none;
     color: #333;
+    font-weight: bold;
   }
 
-  .header-image {
-    display: block;
-    margin: 0 auto 1.5rem;
-    width: 300px;
-    height: auto;
-  }
-
-  main {
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-  }
-
-  .question-container {
+  /* 圖片上傳區 */
+  .image-upload-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    min-height: 300px;
-  }
-
-  .question {
-    display: none;
+    gap: 1rem;
+    margin-bottom: 2rem;
     width: 100%;
   }
 
-  .question.active {
-    display: block;
+  .image-upload-container input[type="file"] {
+    max-width: 300px;
+    width: 95%;
+    box-sizing: border-box;
+  }
+
+  .image-upload-container button,
+  .image-upload-container input[type="file"] {
+    background-color: #f1f1f1;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .image-upload-container button:hover,
+  .image-upload-container input[type="file"]:hover {
+    background-color: #7b838a;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* 四季圖片區 */
+  .seasons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  .season {
+    position: relative;
+    width: 45%;
+  }
+
+  /* 卡片樣式 */
+  .card {
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    height: 100%; /* 卡片占滿父容器高度 */
+  }
+
+  .card.selected {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  /* 圖片樣式 */
+  .season-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 上傳圖片容器 */
+  .uploaded-image-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* 上傳圖片 */
+  .uploaded-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  /* 卡片內容 */
+  .card-body {
+    padding: 10px;
+    text-align: center;
+  }
+
+  /* 按鈕樣式 */
+  .btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+
+  /* 題目表單 */
+  .question-container {
+    margin-bottom: 1.5rem;
   }
 
   .question-title {
-    font-size: 1.75rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
     color: #444;
+    text-align: left;
   }
 
   .options {
-    display: block; /* 选项一行显示 */
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .option-label {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
-    background: #f1f3f5;
+    background-color: #e9ecef;
     border-radius: 8px;
+    padding: 0.75rem 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-bottom: 1rem; /* 增加选项之间的间距 */
   }
 
   .option-label:hover {
@@ -516,87 +335,38 @@ async handleSubmit() {
     margin-right: 0.75rem;
   }
 
-  .color-block {
-    display: inline-block;
-    width: 35px;
-    height: 35px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    margin-right: 1rem;
-  }
-
-  .color-blocks {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .button-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-  }
-
-  #prev-button,
-  #next-button,
+  /* 提交按鈕 */
   #submit-button {
-    background-color: #e6b5ae;
-    color: #fff;
+    background-color: #007bff;
+    color: white;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1.5rem;
     font-size: 1.25rem;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: block;
+    margin: 1rem auto;
   }
 
-  #prev-button:hover,
-  #next-button:hover,
   #submit-button:hover {
-    background-color: #f9d9ca;
+    background-color: #0056b3;
+    transform: translateY(-2px);
   }
 
-.image-upload-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  gap: 1rem;
-}
+  /* 響應式調整 */
+  @media (max-width: 320px) {
+    .seasons {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
 
-.image-upload-container button,
-.image-upload-container input[type="file"] {
-  background-color: #f1f1f1;
-  color: #333;
-  border: 1px solid #ccc;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
+    .season {
+      width: 90%;
+    }
 
-.image-upload-container button:hover,
-.image-upload-container input[type="file"]:hover {
-  background-color: #7b838a;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.image-upload-container input[type="file"] {
-  padding: 0.75rem;
-  width: 230px;
-  text-align: center;
-  appearance: none;
-  display: block;
-  -webkit-appearance: none;
-  text-align: center;
-}
-
-.image-upload-container img {
-  margin-top: 1rem;
-  max-width: 100%;
-  height: auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
+    .image-upload-container input[type="file"] {
+      max-width: 90%;
+    }
+  }
 </style>

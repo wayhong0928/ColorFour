@@ -12,13 +12,11 @@ import user_notice from "@/views/user_notice.vue";
 
 // Color
 import color_index from "@/views/color_index.vue";
-import color_detail_1 from "@/views/color_detail_1.vue";
-import color_detail_2 from "@/views/color_detail_2.vue";
-import color_detail_3 from "@/views/color_detail_3.vue";
-import color_detail_4 from "@/views/color_detail_4.vue";
+import color_detail from "@/views/color_detail.vue";
 import color_test from "@/views/color_test.vue";
 import color_result from "@/views/color_result.vue";
 import color_retest from "@/views/color_retest.vue";
+import color_test_auto from "@/views/color_test_auto.vue";
 
 // Closet
 import closet_index from "@/views/closet_index.vue";
@@ -96,39 +94,36 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/color_detail_1",
-    name: "color_detail_1",
-    component: color_detail_1,
-  },
-  {
-    path: "/color_detail_2",
-    name: "color_detail_2",
-    component: color_detail_2,
-  },
-  {
-    path: "/color_detail_3",
-    name: "color_detail_3",
-    component: color_detail_3,
-  },
-  {
-    path: "/color_detail_4",
-    name: "color_detail_4",
-    component: color_detail_4,
+    path: "/color_detail/:id",
+    name: "color_detail",
+    component: color_detail,
+    props: true,
+    meta: { requiresAuth: true },
   },
   {
     path: "/color_test",
     name: "color_test",
     component: color_test,
+    meta: { requiresAuth: true },
   },
   {
-    path: "/color_result",
+    path: "/color_result/:id",
     name: "color_result",
     component: color_result,
+    props: true,
+    meta: { requiresAuth: true },
   },
   {
     path: "/color_retest",
     name: "color_retest",
     component: color_retest,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/color_test_auto",
+    name: "color_test_auto",
+    component: color_test_auto,
+    meta: { requiresAuth: true },
   },
   {
     path: "/closet_index",

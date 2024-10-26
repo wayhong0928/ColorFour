@@ -191,7 +191,7 @@
   }
 
   /* Responsive styles */
-  @media (max-width: 768px) {
+  @media (max-width: 1020px) {
     .left-sidebar {
       width: 100%;
       position: fixed;

@@ -98,8 +98,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "SCOPE": ["profile", "email", "openid"],
         "AUTH_PARAMS": {
             "access_type": "offline",
-        },
-        'VERIFICATION_LEEWAY': 60,
+        }
     },
 }
 
@@ -129,22 +128,21 @@ REST_AUTH = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),  # 短時間的 access token 有助於安全性
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),     # refresh token 有效期更長
+    "ROTATE_REFRESH_TOKENS": True,                   # 每次刷新產生新 refresh token
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": None,
-    "AUDIENCE": None,
-    "ISSUER": None,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
+    "JWT_LEEWAY": 60,
 }
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

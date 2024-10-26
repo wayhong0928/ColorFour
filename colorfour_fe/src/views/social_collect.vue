@@ -334,7 +334,7 @@
     }
   }
 
-  /* 确保左侧边栏在大屏幕时显示 */
+ /* 確保左側邊欄在大屏幕時顯示 */
   .left-sidebar {
     width: 200px;
     background-color: #f0f0f0;
@@ -374,8 +374,8 @@
     transition: all 0.3s ease;
   }
 
-  /* 小屏幕样式 */
-  @media (max-width: 768px) {
+  /* 小屏幕樣式 */
+  @media (max-width: 1020px) {
     .left-sidebar {
       width: 100%;
       position: fixed;
@@ -393,7 +393,7 @@
     }
 
     .left-sidebar .icon-search {
-      display: none; /* 隐藏搜索栏位 */
+      display: none; /* 隱藏搜索欄位 */
     }
 
     .left-sidebar .icon-link {
@@ -403,7 +403,7 @@
     }
 
     .left-sidebar .icon-link span {
-      display: none; /* 隐藏文字 */
+      display: none; /* 隱藏文字 */
     }
 
     .left-sidebar .icon-link img {
@@ -414,20 +414,20 @@
   }
 
   .left-sidebar .icon-search input {
-    width: 100px; /* 设置搜索框的宽度 */
-    height: 30px; /* 设置搜索框的高度 */
-    padding: 5px; /* 调整内边距 */
-    font-size: 14px; /* 调整字体大小 */
-    border-radius: 10px; /* 调整圆角 */
-    border: 1px solid #ccc; /* 设置边框 */
+    width: 100px; /* 設置搜索框的寬度 */
+    height: 30px; /* 設置搜索框的高度 */
+    padding: 5px; /* 調整內邊距 */
+    font-size: 14px; /* 調整字體大小 */
+    border-radius: 10px; /* 調整圓角 */
+    border: 1px solid #ccc; /* 設置邊框 */
   }
 
-  /* 在小屏幕时也可以相应调整搜索框大小 */
+  /* 在小屏幕時也可以相應調整搜索框大小 */
   @media (max-width: 768px) {
     .left-sidebar .icon-search input {
-      width: 100px; /* 调整小屏幕时的宽度 */
-      height: 25px; /* 调整小屏幕时的高度 */
-      font-size: 12px; /* 调整小屏幕时的字体大小 */
+      width: 100px; /* 調整小屏幕時的寬度 */
+      height: 25px; /* 調整小屏幕時的高度 */
+      font-size: 12px; /* 調整小屏幕時的字體大小 */
     }
   }
 </style>

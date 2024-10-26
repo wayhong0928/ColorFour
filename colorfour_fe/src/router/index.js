@@ -19,6 +19,7 @@ import color_detail_4 from "@/views/color_detail_4.vue";
 import color_test from "@/views/color_test.vue";
 import color_result from "@/views/color_result.vue";
 import color_retest from "@/views/color_retest.vue";
+import color_test_1 from "@/views/color_test_1.vue";
 
 // Closet
 import closet_index from "@/views/closet_index.vue";
@@ -129,6 +130,11 @@ const routes = [
     path: "/color_retest",
     name: "color_retest",
     component: color_retest,
+  },
+  {
+    path: "/color_test_1",
+    name: "color_test_1",
+    component: color_test_1,
   },
   {
     path: "/closet_index",

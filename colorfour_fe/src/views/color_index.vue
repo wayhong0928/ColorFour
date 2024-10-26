@@ -19,11 +19,17 @@
                 </select>
               </div>
               <div class="item-info-wrap">
-                <router-link to="/color_test">
-                  <button class="btn btn-outline-secondary">新增</button>
-                </router-link>
-                <button class="btn btn-outline-secondary" @click="removeSelectedItems">刪除</button>
-              </div>
+              <router-link to="/color_test">
+                <button class="btn btn-outline-secondary">一般分析</button>
+              </router-link>
+              <router-link to="/color_test_1">
+              <button class="btn btn-outline-secondary" @click="handleAutomatedAnalysis">
+                自動分析
+              </button>
+              </router-link>
+              <button class="btn btn-outline-secondary" @click="removeSelectedItems">刪除</button>
+            </div>
+
             </div>
 
             <!-- 資料列表 -->
@@ -82,42 +88,34 @@
     },
     methods: {
       async fetchItems() {
-        try {
-          // const token = sessionStorage.getItem("my-app-auth");
-          // if (!token) {
-          //   throw new Error("無法取得 Token，請重新登入");
-          // }
-
-          // # 透過 API 取得測驗紀錄，待修正
-
-          // const response = await axios.get("http://127.0.0.1:8000/color/user-tests/", {
-          //   headers: {
-          //     Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-          //   },
-          // });
-
-          // 確保 response 存在且具有 data 和 status
-          if (response && response.data && response.status === 200) {
-            this.items = response.data.length > 0 ? response.data : [];
-            console.log("資料取得成功", this.items);
-          } else {
-            console.warn("API 回應無資料或異常", response?.status);
-            this.items = []; // 設為空，避免渲染錯誤
-          }
-        } catch (error) {
-          const toast = useToast();
-          if (error.response) {
-            console.error("API 回應錯誤:", error.response);
-            toast.error(`錯誤：${error.response.data.detail || "無法取得測驗紀錄"}`);
-          } else if (error.request) {
-            console.error("無法連接至 API:", error.request);
-            toast.error("無法連接至伺服器，請稍後再試");
-          } else {
-            console.error("未知錯誤:", error.message);
-            toast.error("發生未知錯誤，請重新登入");
-          }
-        }
+  try {
+    const response = await axios.get("http://127.0.0.1:8000/color/user-tests/", {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
       },
+    });
+
+    if (response && response.data && response.status === 200) {
+      this.items = response.data.length > 0 ? response.data : [];
+      console.log("資料取得成功", this.items);
+    } else {
+      console.warn("API 回應無資料或異常", response?.status);
+      this.items = []; // 設為空，避免渲染錯誤
+    }
+  } catch (error) {
+    const toast = useToast();
+    if (error.response) {
+      console.error("API 回應錯誤:", error.response);
+      toast.error(`錯誤：${error.response.data.detail || "無法取得測驗紀錄"}`);
+    } else if (error.request) {
+      console.error("無法連接至 API:", error.request);
+      toast.error("無法連接至伺服器，請稍後再試");
+    } else {
+      console.error("未知錯誤:", error.message);
+      toast.error("發生未知錯誤，請重新登入");
+    }
+  }
+},
 
       removeSelectedItems() {
         this.selectedItems.forEach((index) => {
@@ -205,7 +203,7 @@
 
   /* 按鈕之間的間距 */
   .item-info-wrap .btn {
-    margin-right: 10px;
+    margin: 5px;
   }
 
   .btn-secondary {

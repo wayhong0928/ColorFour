@@ -3,12 +3,11 @@
     <main>
       <section class="container my-5">
         <div class="row mb-4">
-          <!-- 內容區塊 -->
           <div class="col-md-6 order-md-2 d-flex flex-column justify-content-center mx-auto" style="order: 2">
             <h2 class="mb-3 my-heading">我的氣色</h2>
             <p class="mb-4">
               透過使用者在上傳自己的臉部色彩圖片後，系統會依照照片中的膚色、髮色與瞳色進行判別，
-              以提供個人化四季型色彩分析建議，讓使用者了解自己適合的服飾顏色穿搭。色彩分析結果為春、夏、秋、冬四個季節的色彩型。
+              提供個人化四季型色彩分析建議，讓使用者了解自己適合的服飾顏色穿搭。色彩分析結果為春、夏、秋、冬四個季節的色彩型。
             </p>
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div>
@@ -19,42 +18,33 @@
                 </select>
               </div>
               <div class="item-info-wrap">
-              <router-link to="/color_test">
-                <button class="btn btn-outline-secondary">一般分析</button>
-              </router-link>
-              <router-link to="/color_test_1">
-              <button class="btn btn-outline-secondary" @click="handleAutomatedAnalysis">
-                自動分析
-              </button>
-              </router-link>
-              <button class="btn btn-outline-secondary" @click="removeSelectedItems">刪除</button>
+                <router-link to="/color_test">
+                  <button class="btn btn-outline-secondary">一般分析</button>
+                </router-link>
+                <router-link to="/color_test_auto">
+                  <button class="btn btn-outline-secondary" @click="handleAutomatedAnalysis">自動分析</button>
+                </router-link>
+                <button class="btn btn-outline-secondary" @click="removeSelectedItems">刪除</button>
+              </div>
             </div>
 
-            </div>
-
-            <!-- 資料列表 -->
             <div v-if="items.length > 0" class="scroll-container mt-4">
-              <div class="result-item" v-for="(item, index) in sortedItems" :key="index">
+              <div class="result-item" v-for="(item, index) in sortedItems" :key="item.id">
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="date">{{ item.date }}</span>
-                  <input type="checkbox" class="form-check-input" v-model="selectedItems" :value="index" />
+                  <span class="date">測驗時間：{{ formatDate(item.test_date) }}</span>
+                  <input type="checkbox" class="form-check-input" v-model="selectedItems" :value="item.id" />
                 </div>
-                {{ item.type }}型人<br />
-                ☆ 若搭配了適合的顏色<br />
-                ✓ {{ item.benefit1 }}<br />
-                ✓ {{ item.benefit2 }}<br />
-                ✓ {{ item.benefit3 }}<br />
-                <router-link :to="item.link">
+                {{ item.test_name }} 的測驗結果：{{ item.result_type }}
+                <br />
+                <router-link :to="{ path: `color_detail/${item.id}/` }">
                   <img src="@/assets/img/next_icon.png" class="icon" />
                 </router-link>
               </div>
             </div>
 
-            <!-- 無資料提示 -->
             <div v-else class="no-data">尚無測驗資料，請進行測驗後再查看。</div>
           </div>
 
-          <!-- 圖片展示區 -->
           <div class="col-md-6 order-md-1 position-relative">
             <div class="image-container">
               <img src="@/assets/img/makeup.png" class="img-fluid rounded" alt="線上衣櫃" />
@@ -69,14 +59,13 @@
 
 <script>
   import axios from "axios";
-  import { useToast } from "vue-toastification";
 
   export default {
     data() {
       return {
-        sortBy: "newest",
-        selectedItems: [],
         items: [],
+        selectedItems: [],
+        sortBy: "newest",
       };
     },
     computed: {
@@ -88,51 +77,41 @@
     },
     methods: {
       async fetchItems() {
-  try {
-    const response = await axios.get("http://127.0.0.1:8000/color/user-tests/", {
-      headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+        try {
+          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/color/user-tests/`, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+            },
+          });
+          this.items = response.data;
+          console.log("測驗結果載入成功:", this.items);
+        } catch (error) {
+          console.error("無法載入測驗結果:", error.response);
+        }
       },
-    });
-
-    if (response && response.data && response.status === 200) {
-      this.items = response.data.length > 0 ? response.data : [];
-      console.log("資料取得成功", this.items);
-    } else {
-      console.warn("API 回應無資料或異常", response?.status);
-      this.items = []; // 設為空，避免渲染錯誤
-    }
-  } catch (error) {
-    const toast = useToast();
-    if (error.response) {
-      console.error("API 回應錯誤:", error.response);
-      toast.error(`錯誤：${error.response.data.detail || "無法取得測驗紀錄"}`);
-    } else if (error.request) {
-      console.error("無法連接至 API:", error.request);
-      toast.error("無法連接至伺服器，請稍後再試");
-    } else {
-      console.error("未知錯誤:", error.message);
-      toast.error("發生未知錯誤，請重新登入");
-    }
-  }
-},
-
+      async deleteTest(id) {
+        try {
+          await axios.delete(`${process.env.VUE_APP_BACKEND_URL}/color/user-tests/${id}/`, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+            },
+          });
+          this.fetchItems();
+        } catch (error) {
+          console.error("無法刪除測驗:", error.response);
+        }
+      },
       removeSelectedItems() {
-        this.selectedItems.forEach((index) => {
-          this.items.splice(index, 1);
-        });
+        this.selectedItems.forEach((id) => this.deleteTest(id));
         this.selectedItems = [];
+      },
+      formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleString();
       },
     },
     mounted() {
-      const token = sessionStorage.getItem("my-app-auth");
-      console.log("Token in color_index.vue:", token);
-
-      if (!token) {
-        this.$router.push("/login");
-      } else {
-        this.fetchItems();
-      }
+      this.fetchItems();
     },
   };
 </script>

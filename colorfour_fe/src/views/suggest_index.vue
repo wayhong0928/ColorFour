@@ -9,8 +9,8 @@
     <div id="header"></div>
     <main class="container">
       <div class="row my-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-          <div class="item-info-wrap">
+        <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+          <div class="item-info-wrap ms-auto">
             <router-link to="/suggest_recommend" class="btn btn-outline-secondary mx-2">新增推薦</router-link>
             <button @click="deleteItems" class="btn btn-outline-secondary mx-2">刪除推薦</button>
           </div>

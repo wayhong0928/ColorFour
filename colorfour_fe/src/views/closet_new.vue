@@ -123,7 +123,7 @@
           <button type="button" class="btn btn-outline-primary mt-2" @click="openCamera">開啟相機</button>
         </div>
         <div class="submit-section">
-          <button type="submit" class="btn btn-primary" :disabled="submitting">新增單品</button>
+          <button type="submit" class="btn btn-primary mb-1" :disabled="submitting">新增單品</button>
           <button class="back-button" @click="goBack">返回</button>
         </div>
       </form>

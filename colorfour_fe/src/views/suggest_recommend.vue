@@ -99,12 +99,12 @@
     data() {
       return {
         formData: {
-          title: "",
-          location: "",
-          occasion: [],
-          color: "",
-          want: [],
-          notWant: [],
+          title: '上課裝',
+          location: "中原大學",
+          occasion: ["秋天","休閒"],
+          color: "淡妝",
+          want: ["長袖T恤","一般長褲"],
+          notWant: ["羽絨外套"],
         },
         occasionOptions: ["春天", "夏天", "秋天", "冬天", "百搭", "休閒", "正式", "報告", "商務", "旅行", "海邊", "山上", "露營"],
         colorOptions: ["素顏", "淡妝", "全妝"],
@@ -193,6 +193,10 @@
       },
       goBack() {
         this.$router.go(-1);
+      },
+      mounted() {
+        this.formData.title = '展覽裝';
+
       },
     },
   };

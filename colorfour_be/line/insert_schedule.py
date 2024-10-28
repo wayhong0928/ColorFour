@@ -170,17 +170,17 @@ def choose_dress(event):
             template=ImageCarouselTemplate(
                 columns=[
                     ImageCarouselColumn(
-                        image_url='https://imgur.com/OXVtzRw.png',
+                        image_url='https://imgur.com/4vo9zUC.png',
                         action=MessageTemplateAction(
-                            label='期末報告服裝',
-                            text='期末報告服裝'
+                            label='上課裝',
+                            text='上課裝'
                         )
                     ),
                     ImageCarouselColumn(
-                        image_url='https://imgur.com/5UY0qLU.png',
+                        image_url='https://imgur.com/68jUT8F.png',
                         action=MessageTemplateAction(
-                            label='表演服',
-                            text='表演服'
+                            label='展覽裝',
+                            text='展覽裝'
                         )
                     ),
                     ImageCarouselColumn(
@@ -188,6 +188,13 @@ def choose_dress(event):
                         action=MessageTemplateAction(
                             label='約會服裝',
                             text='約會服裝'
+                        )
+                    ),
+                    ImageCarouselColumn(
+                        image_url='https://imgur.com/OXVtzRw.png',
+                        action=MessageTemplateAction(
+                            label='期末報告服裝',
+                            text='期末報告服裝'
                         )
                     )
                 ]

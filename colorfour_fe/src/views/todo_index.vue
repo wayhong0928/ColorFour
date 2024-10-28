@@ -66,7 +66,7 @@ export default {
       recommendations: [
         { id: 1, title: "表演服" },
         { id: 2, title: "期末報告穿搭" },
-        { id: 3, title: "推薦穿搭3" },
+        { id: 3, title: "上課裝" },
       ],
     };
   },

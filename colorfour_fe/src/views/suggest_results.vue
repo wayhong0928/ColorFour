@@ -31,9 +31,9 @@
     data() {
       return {
         recommendations: [
-          { id: 1, imgSrc: new URL("@/assets/img/suggest_01.png", import.meta.url).href, altText: "推薦1" },
+          { id: 1, imgSrc: new URL("@/assets/img/suggest_05.png", import.meta.url).href, altText: "推薦1" },
           { id: 2, imgSrc: new URL("@/assets/img/suggest_02.png", import.meta.url).href, altText: "推薦2" },
-          { id: 3, imgSrc: "https://picsum.photos/300/200?random=1", altText: "推薦3" },
+          { id: 3, imgSrc: new URL("@/assets/img/suggest_04.png", import.meta.url).href, altText: "推薦3" },
         ],
         selectedIndex: null,
       };
@@ -49,8 +49,8 @@
           const payload = {
             recommendation_name: selectedRecommendation.altText,
             recommendation_image: selectedRecommendation.imgSrc, // 使用正確的圖片 URL
-            location: "台北",
-            occasion: "正式",
+            location: "中原大學",
+            occasion: "休閒",
             skin_tone: "淡妝",
           };
 

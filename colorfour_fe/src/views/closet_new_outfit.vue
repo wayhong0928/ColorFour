@@ -47,7 +47,7 @@
     methods: {
       async fetchItems() {
         try {
-          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/`, {
+          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/overview/`, {
             headers: {
               Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
             },

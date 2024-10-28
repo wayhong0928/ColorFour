@@ -23,18 +23,31 @@ class UserFollowerSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = "__all__"
+        fields = ["id", "tag_name"]
 
 
 class PostSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Tag.objects.all(), required=False
+    )
+
     class Meta:
         model = Post
-        fields = ["id", "content", "media_url", "location", "created_at"]
-        extra_kwargs = {"user": {"read_only": True}}
+        fields = ["id", "content", "media_url", "location", "tags", "created_at"]
 
     def create(self, validated_data):
-        validated_data["user"] = self.context["request"].user  # 自動設置 user
-        return super().create(validated_data)
+        tags_data = validated_data.pop("tags", [])
+        post = Post.objects.create(**validated_data)
+        post.tags.set(tags_data)
+        return post
+    
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop("tags", [])
+        instance = super().update(instance, validated_data)
+
+        # 更新標籤關聯
+        instance.tags.set(tags_data)
+        return instance
 
 
 class PostTagSerializer(serializers.ModelSerializer):
@@ -50,7 +63,7 @@ class CommentSerializer(serializers.ModelSerializer):
             "post",
             "content",
             "created_at",
-        ]  # 不包含 user，因為 user 是後端自動填入的
+        ]
 
 
 class PostLikeSerializer(serializers.ModelSerializer):

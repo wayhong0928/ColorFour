@@ -21,7 +21,7 @@
                 height="100"
               />
               <div>
-                <h2>{{ user.nickname || "ColorFour User" }}</h2>
+                <h2>{{ user.first_name || "ColorFour User" }}</h2>
                 <p>@{{ user.username || "ColorFourUser" }}</p>
                 <p>{{ user.bio || "讓你的專屬穿搭造型師，給你點顏色瞧瞧！" }}</p>
               </div>
@@ -181,8 +181,8 @@
                   <div class="card-body">
                     <h5 class="card-title">{{ item.name }}</h5>
                     <p class="card-text">品牌: {{ item.brand }}</p>
+                    <img :src="item.photo_url || ''" alt="item image" />
                     <p class="card-text">價格: ${{ item.price }}</p>
-                    <!-- router-link 跳轉到 closet_detail.vue -->
                     <router-link :to="{ name: 'closet_detail', params: { id: item.id } }" class="btn custom-button"
                       >查看詳細</router-link
                     >
@@ -203,6 +203,7 @@
 </template>
 
 <script>
+  import axios from "axios";
   import { mapGetters, mapActions } from "vuex";
   import defaultProfileImage from "@/assets/img/user_profile_default.jpg";
 
@@ -260,18 +261,6 @@
           this.loading = false;
         }
       },
-      async loadFavoriteItems() {
-        try {
-          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/favorites/`, {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-            },
-          });
-          this.favoriteItems = response.data;
-        } catch (error) {
-          console.error("Error fetching favorite items:", error);
-        }
-      },
       async fetchloveItems(endpoint) {
         try {
           const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${endpoint}/`, {
@@ -280,7 +269,7 @@
             },
           });
           console.log("Items fetched successfully:", response.data);
-          this.favoriteItems = response.data; // 確保將獲取到的資料賦值給 favoriteItems
+          this.favoriteItems = response.data;
         } catch (error) {
           console.error("Error fetching favorite items:", error);
         }
@@ -289,7 +278,7 @@
       setActiveTab(tab) {
         this.activeTab = tab;
         if (tab === "likes") {
-          this.loadFavoriteItems(); // 當點擊「最愛單品」頁籤時，載入最愛單品
+          this.fetchloveItems("favorites"); // 當點擊「最愛單品」頁籤時，載入最愛單品
         }
       },
       shareProfile() {
@@ -324,7 +313,7 @@
     mounted() {
       if (this.isAuthenticated) {
         this.loadUserProfile();
-        this.fetchloveItems("move_to_love"); // 要加載最愛項目
+        this.fetchloveItems("favorites");
       } else {
         this.$router.push("/login");
       }

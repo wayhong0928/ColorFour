@@ -38,8 +38,20 @@
           </div>
 
           <div class="form-group mt-3">
-            <label for="postHashtags">標籤</label>
-            <input v-model="post.hashtags" id="postHashtags" type="text" class="form-control" placeholder="#標籤1 #標籤2" />
+            <label for="tags" class="form-label">選擇標籤</label>
+            <div class="tag-options">
+              <button
+                v-for="tag in availableTags"
+                :key="tag.id"
+                type="button"
+                class="btn btn-outline-secondary m-1"
+                :class="{ selected: selectedTags.includes(tag.id) }"
+                @click="toggleTag(tag.id)"
+              >
+                {{ tag.tag_name }}
+              </button>
+              <input v-model="newTag" placeholder="新增其他標籤" class="form-control mt-2" @keyup.enter="addNewTag" />
+            </div>
           </div>
 
           <div class="form-group mt-3">
@@ -67,19 +79,51 @@
       return {
         post: {
           description: "",
-          hashtags: "",
           location: "",
           image: null,
         },
+        availableTags: [],
+        selectedTags: [],
+        newTag: "",
         submitting: false,
       };
     },
     methods: {
+      async fetchTags() {
+        try {
+          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/social/tags/`);
+          this.availableTags = response.data;
+          console.log("標籤列表：", this.availableTags);
+        } catch (error) {
+          console.error("無法取得標籤:", error);
+        }
+      },
+      toggleTag(tagId) {
+        const index = this.selectedTags.indexOf(tagId);
+        if (index > -1) {
+          this.selectedTags.splice(index, 1);
+        } else {
+          this.selectedTags.push(tagId);
+        }
+      },
+      async addNewTag() {
+        if (this.newTag.trim() === "") return;
+
+        try {
+          const response = await axios.post(`${process.env.VUE_APP_BACKEND_URL}/social/tags/`, {
+            tag_name: this.newTag,
+          });
+          this.availableTags.push(response.data);
+          this.selectedTags.push(response.data.id);
+          this.newTag = "";
+        } catch (error) {
+          console.error("無法新增標籤:", error);
+        }
+      },
       handleImageUpload(event) {
         const file = event.target.files[0];
         if (file) {
           this.post.image = file;
-          console.log("圖片已上傳：", file.name);
         }
       },
       async submitPost() {
@@ -87,16 +131,19 @@
         this.submitting = true;
 
         try {
-          console.log("準備傳送資料", this.post);
-
           const formData = new FormData();
-          formData.append("content", this.post.description || "");
-          formData.append("location", this.post.location || "");
+          formData.append("content", this.post.description);
+          formData.append("location", this.post.location);
 
           if (this.post.image) {
             formData.append("media_url", this.post.image);
-            console.log("圖片已上傳：", this.post.image.name);
           }
+
+          this.selectedTags.forEach((tagId) => {
+            formData.append("tags", tagId);
+          });
+
+          console.log("提交的表單數據：", Array.from(formData.entries()));
 
           const response = await axios.post(`${process.env.VUE_APP_BACKEND_URL}/social/posts/`, formData, {
             headers: {
@@ -105,24 +152,22 @@
             },
           });
 
-          console.log("傳送成功：", response.data);
           alert("貼文新增成功！");
           this.$router.push({ name: "social_index" });
         } catch (error) {
           console.error("新增失敗：", error);
-
-          if (error.response) {
-            alert(error.response.data.message || "無法新增貼文，請稍後再試。");
-          } else {
-            alert("提交時發生未知錯誤，請稍後再試。");
-          }
+          alert("提交失敗，請稍後再試。");
         } finally {
           this.submitting = false;
         }
       },
     },
+    mounted() {
+      this.fetchTags();
+    },
   };
 </script>
+
 <style scoped>
   .main-content {
     width: 90%;

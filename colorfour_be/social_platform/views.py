@@ -3,10 +3,11 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from .models import Post, PostBookmark, UserFollower, Comment
+from .models import Post, PostBookmark, UserFollower, Comment, Tag
 from django.shortcuts import get_object_or_404
 from .serializers import (
     PostSerializer,
+    TagSerializer,
     PostBookmarkSerializer,
     UserFollowerSerializer,
     CommentSerializer,
@@ -14,23 +15,25 @@ from .serializers import (
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]  # 確保使用者已登入
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save()
 
 
-    @action(detail=False, methods=['get'], url_path='bookmarked')
-    def bookmarked_posts(self, request):
-        """取得使用者收藏的貼文"""
-        bookmarks = PostBookmark.objects.filter(user=request.user).select_related('post')
-        serializer = PostSerializer([bookmark.post for bookmark in bookmarks], many=True)
-        return Response(serializer.data)
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
 
-    # 自訂的首頁貼文，根據建立時間排序
-    @action(detail=False, methods=['get'])
-    def homepage(self, request):
-        posts = self.get_queryset().order_by('-created_at')
-        serializer = self.get_serializer(posts, many=True)
+    def create(self, request, *args, **kwargs):
+        tag_name = request.data.get("tag_name")
+        tag, created = Tag.objects.get_or_create(tag_name=tag_name)
+        serializer = self.get_serializer(tag)
         return Response(serializer.data)
 
 

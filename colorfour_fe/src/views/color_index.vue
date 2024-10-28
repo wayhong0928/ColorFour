@@ -31,10 +31,10 @@
             <div v-if="items.length > 0" class="scroll-container mt-4">
               <div class="result-item" v-for="(item, index) in sortedItems" :key="item.id">
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="date">測驗時間：{{ formatDate(item.test_date) }}</span>
+                  <span class="date"> {{ item.test_name }} 的測驗結果：{{ item.result_type }}</span>
                   <input type="checkbox" class="form-check-input" v-model="selectedItems" :value="item.id" />
                 </div>
-                {{ item.test_name }} 的測驗結果：{{ item.result_type }}
+                測驗時間：{{ formatDate(item.test_date) }}
                 <br />
                 <router-link :to="{ path: `color_detail/${item.id}/` }">
                   <img src="@/assets/img/next_icon.png" class="icon" />

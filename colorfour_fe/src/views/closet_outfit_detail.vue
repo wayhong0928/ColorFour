@@ -25,8 +25,12 @@
           <p class="added-date">建立日期: {{ formatDate(outfit.created_at) }}</p>
 
           <h5>包含的物品：</h5>
-          <ul>
-            <li v-for="item in outfit.items" :key="item.id">
+          <ul v-if="outfit && outfit.items.length > 0">
+            <li
+              v-for="item in outfit.items"
+              :key="item.id"
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
               {{ item.item_name }} - {{ getBrandName(item.brand) }} - {{ getColorName(item.color) }}
             </li>
           </ul>
@@ -76,7 +80,6 @@
           });
           this.outfit = response.data;
           console.log("Outfit fetched successfully:", this.outfit);
-          this.editForm = { ...this.outfit };
         } catch (error) {
           console.error("Error fetching outfit:", error);
         }
@@ -87,8 +90,12 @@
             axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/brands/`),
             axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/colors/`),
           ]);
+
           this.brands = brandsResponse.data;
           this.colors = colorsResponse.data;
+
+          console.log("Brands:", this.brands);
+          console.log("Colors:", this.colors);
         } catch (error) {
           console.error("Error fetching metadata:", error);
         }

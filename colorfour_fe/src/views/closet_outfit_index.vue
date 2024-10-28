@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="item-info-wrap ms-auto">
         <button @click="goBack" class="btn btn-outline-secondary me-2">回前頁</button>
-        <router-link to="/closet_index" class="btn btn-outline-secondary me-2"> 新增穿搭組合 </router-link>
+        <router-link to="/closet_new_outfit" class="btn btn-outline-secondary me-2"> 新增穿搭組合 </router-link>
         <button @click="deleteItems" class="btn btn-outline-danger">刪除穿搭組合</button>
       </div>
     </div>
@@ -41,8 +41,8 @@
     },
     data() {
       return {
-        outfits: [], // 儲存穿搭組合資料
-        selectedItems: [], // 存放選中的項目
+        outfits: [],
+        selectedItems: [],
       };
     },
     methods: {
@@ -54,7 +54,7 @@
             },
           });
           console.log("Outfits fetched successfully:", response.data);
-          this.outfits = response.data; // 確保正確地存入 outfits 陣列
+          this.outfits = response.data;
         } catch (error) {
           console.error("Error fetching outfits:", error);
         }
@@ -73,7 +73,6 @@
         if (!confirmed) return;
 
         try {
-          // 使用 Promise.all 同時發送多個刪除請求
           await Promise.all(
             this.selectedItems.map((id) =>
               axios.delete(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/outfits/${id}/`, {

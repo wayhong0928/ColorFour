@@ -47,7 +47,7 @@
     methods: {
       async fetchItems() {
         try {
-          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/`, {
+          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/overview/`, {
             headers: {
               Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
             },
@@ -82,21 +82,21 @@
           alert("請選擇至少兩個單品！");
           return;
         }
-        // TODO 把腳本預設的圖片丟上去
+
         try {
-          const response = await axios.post(
-            `${process.env.VUE_APP_BACKEND_URL}/wardrobe/outfits/`,
-            {
-              outfit_name: this.outfitForm.outfit_name,
-              description: this.outfitForm.description,
-              selected_items: this.selectedItems,
+          const payload = {
+            outfit_name: this.outfitForm.outfit_name,
+            description: this.outfitForm.description,
+            selected_items: this.selectedItems,
+          };
+          console.log("Creating outfit with payload:", payload);
+
+          const response = await axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/outfits/`, payload, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
             },
-            {
-              headers: {
-                Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-              },
-            }
-          );
+          });
 
           alert("穿搭組合新增成功！");
           this.$router.push("/closet_outfit_index");
@@ -110,8 +110,8 @@
       },
     },
     async mounted() {
-      await this.fetchItems(); // 載入所有單品資料
-      await this.fetchMetadata(); // 載入品牌和顏色資料
+      await this.fetchItems();
+      await this.fetchMetadata();
     },
   };
 </script>

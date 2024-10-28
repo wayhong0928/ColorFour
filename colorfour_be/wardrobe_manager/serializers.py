@@ -136,9 +136,12 @@ class ItemOccasionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# 最愛穿搭
+# 穿搭組合
 class OutfitSerializer(serializers.ModelSerializer):
     items = serializers.SerializerMethodField()
+    selected_items = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True
+    )
 
     class Meta:
         model = Outfit
@@ -148,31 +151,38 @@ class OutfitSerializer(serializers.ModelSerializer):
             "description",
             "outfit_image",
             "items",
+            "selected_items",
             "created_at",
             "latest_edit",
         ]
 
     def create(self, validated_data):
-        # 取出 selected_items，剩餘資料用於建立 Outfit
         selected_items = validated_data.pop("selected_items", [])
         outfit = Outfit.objects.create(**validated_data)
 
-        # 為每個選中的 Item 建立 OutfitItem 關聯
+        # 確認 selected_items 是否有內容
+        if not selected_items:
+            raise serializers.ValidationError("未選擇任何單品。")
+
+        outfit = Outfit.objects.create(**validated_data)
+
+        # 建立 OutfitItem 關聯
         outfit_items = [
             OutfitItem(outfit=outfit, item_id=item_id) for item_id in selected_items
         ]
-        OutfitItem.objects.bulk_create(outfit_items)  # 批量建立關聯
+        OutfitItem.objects.bulk_create(outfit_items)
+        print(f"Outfit created with items: {selected_items}")
 
         return outfit
 
     def get_items(self, obj):
-        outfit_items = OutfitItem.objects.filter(outfit=obj).select_related("item")
+        outfit_items = obj.outfititem_set.all()
         return ItemSerializer(
             [outfit_item.item for outfit_item in outfit_items], many=True
         ).data
 
 
-# 最愛穿搭與服裝單品關聯
+# 穿搭組合與服裝單品關聯
 class OutfitItemSerializer(serializers.ModelSerializer):
     outfit = OutfitSerializer(read_only=True)
     item = ItemSerializer(read_only=True)
@@ -182,7 +192,7 @@ class OutfitItemSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# 最愛穿搭與場合標籤關聯
+# 穿搭組合與場合標籤關聯
 class OutfitOccasionSerializer(serializers.ModelSerializer):
     outfit = OutfitSerializer(read_only=True)
     occasion = OccasionSerializer(read_only=True)

@@ -79,7 +79,7 @@
               </div>
             </div>
             <div class="submit-section">
-              <button type="submit" class="btn btn-primary">送出</button>
+              <button type="submit" class="btn btn-primary mb-1">送出</button>
               <button class="back-button" @click="goBack">返回</button>
             </div>
           </form>

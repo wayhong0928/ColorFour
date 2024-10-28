@@ -75,10 +75,10 @@
         ],
         submitting: false,
         seasons: [
-          { name: "Spring", image: require("@/assets/img/color_season_1.jpeg") },
-          { name: "Summer", image: require("@/assets/img/color_season_2.jpeg") },
-          { name: "Autumn", image: require("@/assets/img/color_season_3.jpeg") },
-          { name: "Winter", image: require("@/assets/img/color_season_4.jpeg") },
+          { name: "Spring", image: require("@/assets/img/color_season_1.png") },
+          { name: "Summer", image: require("@/assets/img/color_season_2.png") },
+          { name: "Autumn", image: require("@/assets/img/color_season_3.png") },
+          { name: "Winter", image: require("@/assets/img/color_season_4.png") },
         ],
         questions: [
           {

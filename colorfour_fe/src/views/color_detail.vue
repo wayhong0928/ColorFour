@@ -8,8 +8,8 @@
           <p v-for="paragraph in description" :key="paragraph">{{ paragraph }}</p>
         </div>
         <div class="text-center retest-button">
-          <button class="btn btn-outline-secondary" @click="goBack">返回</button>
-          <button @click="goToRetest" class="btn btn-primary mt-3">重新測驗</button>
+          <button class="btn btn-outline-secondary me-2" @click="goBack">返回</button>
+          <button @click="goToRetest" class="btn btn-primary me-2">重新測驗</button>
         </div>
       </div>
       <div class="col-md-6 order-md-1">
@@ -216,7 +216,7 @@
   }
 
   .retest-button {
-    margin-top: -40px; /* 调整此值以控制按钮与上方元素之间的距离 */
+    margin-top: 10px; 
   }
 
   /* 小屏幕下调整图片样式 */

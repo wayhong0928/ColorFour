@@ -2,7 +2,7 @@
   <div class="container">
     <header>
       <nav>
-        <router-link to="/color_index" class="close-btn" id="close-result">x</router-link>
+        <router-link to="/color_index" class="close-btn" id="close-result">X</router-link>
       </nav>
     </header>
     <main>
@@ -146,7 +146,7 @@
   }
 
   .result-description {
-    text-align: left;
+    text-align: center;
     font-size: 16px;
     line-height: 1.6;
     color: #333;
@@ -168,12 +168,17 @@
   }
 
   .confirm-btn {
-    background-color: #4caf50;
+    background-color: #d4b7a1;
     color: white;
   }
 
   .delete-btn {
-    background-color: #f44336;
+    background-color: #bebebe;
     color: white;
+  }
+
+  .close-btn {
+    color: #333;
+    text-decoration: none
   }
 </style>

@@ -8,11 +8,13 @@
 
     <!-- 圖片上傳區 -->
     <div class="image-upload-container">
+      <p class="upload-instructions">✧ 請上傳素顏的照片 ✧</p>
       <input type="file" @change="onImageUpload" accept="image/*" />
     </div>
 
     <!-- 四季圖片與上傳圖片 -->
     <div v-if="uploadedImage" class="seasons">
+      <p class="season-selection-instructions">✧ 請選擇讓自己的膚色看起來更加明亮乾淨的選項 ～</p>
       <div v-for="(season, index) in seasons" :key="season.name" class="season col-6">
         <div class="card" :class="{ selected: selectedSeason === season.name }">
           <img :src="season.image" class="card-img-top season-image" :alt="season.name" />
@@ -28,6 +30,7 @@
 
     <!-- 題目表單 -->
     <main v-if="selectedSeason !== null">
+      <p class="question-instructions">✧ 請依據真實情況填寫，結果才會更準確哦！</p>
       <form @submit.prevent="handleSubmit">
         <div class="mb-4">
           <label for="analysis-name" class="form-label">請選擇分析妝容</label>
@@ -267,13 +270,13 @@
     height: 70%;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    /*box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);*/
   }
 
   /* 上傳圖片 */
   .uploaded-image {
     width: 100%;
-    height: 100%;
+    height: 90%;
     object-fit: cover;
     border-radius: 50%;
   }
@@ -369,4 +372,21 @@
       max-width: 90%;
     }
   }
+
+  /* Upload instructions */
+  .upload-instructions {
+    font-size: 1.25rem;
+    color: #917b56;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .season-selection-instructions,
+  .question-instructions {
+    font-size: 1.25rem;
+    color: #917b56;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
 </style>

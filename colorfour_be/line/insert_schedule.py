@@ -7,6 +7,7 @@ from linebot.models import TextSendMessage, TemplateSendMessage, ButtonsTemplate
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
 from datetime import datetime
 
 load_dotenv()
@@ -16,14 +17,37 @@ parser = WebhookParser(os.getenv("LINE_MESSAGING_CHANNEL_SECRET"))
 # Google Calendar API 的範圍
 SCOPES = ['https://www.googleapis.com/auth/calendar.events']
 
-def get_google_credentials():
+'''def get_google_credentials():
     """取得使用者的 Google OAuth 憑證"""
     flow = InstalledAppFlow.from_client_secrets_file(
-        'client_secret.json', scopes=SCOPES, redirect_uri='https://upward-gorgeous-bedbug.ngrok-free.app/oauth2callback')
+        'credentials.json', scopes=SCOPES, redirect_uri='https://upward-gorgeous-bedbug.ngrok-free.app/oauth2callback')
     credentials = flow.run_local_server(port=8080,authorization_prompt_message='請授權應用程式訪問您的 Google 日曆。',
         success_message='授權成功！您可以關閉此頁面。',
         open_browser=True) # 每登入一次google，須重跑一次server!!!
-    return credentials
+    return credentials'''
+
+def get_google_credentials():
+    """取得 Google OAuth 憑證，並自動刷新 Token"""
+    creds = None
+
+    # 檢查 token.json 是否存在（已授權過）
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+
+    # 如果沒有憑證或 Token 已失效，進行重新授權
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())  # 使用 Refresh Token 自動刷新
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=8080)
+
+        # 將新的 Token 保存到檔案
+        with open('token.json', 'w') as token_file:
+            token_file.write(creds.to_json())
+
+    return creds
   
 def convert_line_datetime_to_google_format(line_datetime):
   return datetime.strptime(line_datetime, '%Y-%m-%dT%H:%M').strftime('%Y-%m-%dT%H:%M:%S')
@@ -53,7 +77,7 @@ def create_calendar_event(event_data):
         'reminders': {
             'useDefault': False,
             'overrides': [
-                {'method': 'popup', 'minutes': 30},  # 提醒設置
+                {'method': 'popup', 'minutes': 60},  # 提醒設置
             ],
         },
     }
@@ -63,7 +87,7 @@ def create_calendar_event(event_data):
         event_result = service.events().insert(calendarId='primary', body=event).execute()
         print(f"Event created: {event_result.get('htmlLink')}")
 
-        return event_result.get('htmlLink')  # 回傳活動的連結
+        return event_result.get('htmlLink')  # 回傳日曆連結
 
     except Exception as e:
         print(f"無法建立活動: {e}")

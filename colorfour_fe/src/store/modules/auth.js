@@ -2,6 +2,17 @@ import axios from "axios";
 
 const BACKEND_URL = process.env.VUE_APP_BACKEND_URL;
 
+async function retryRequest(requestFunc, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await requestFunc();
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      console.warn(`重試第 ${i + 1} 次請求...`);
+    }
+  }
+}
+
 export default {
   namespaced: true,
   state: {
@@ -18,6 +29,7 @@ export default {
       state.token = token;
       state.isAuthenticated = true;
       sessionStorage.setItem("my-app-auth", token);
+      console.log("Token:", token);
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     },
     setRefreshToken(state, refreshToken) {
@@ -51,6 +63,7 @@ export default {
   },
   actions: {
     async initializeAuth({ commit, dispatch }) {
+      sessionStorage.clear();
       const token = sessionStorage.getItem("my-app-auth");
       if (token) {
         commit("setToken", token);
@@ -59,7 +72,10 @@ export default {
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
           if (error.response?.status === 401) {
-            await dispatch("refreshToken");
+            const newToken = await dispatch("refreshToken");
+            if (!newToken) {
+              commit("clearAuthData");
+            }
           } else {
             commit("clearAuthData");
           }
@@ -68,12 +84,14 @@ export default {
         commit("clearAuthData");
       }
     },
+
     async login({ commit }, { code, provider }) {
       try {
-        const response = await axios.post(
-          `${BACKEND_URL}/member/login/${provider}/`,
-          { code },
-          { headers: { "Content-Type": "application/json" } }
+        sessionStorage.removeItem("my-app-auth");
+        sessionStorage.removeItem("my-refresh-token");
+
+        const response = await retryRequest(() =>
+          axios.post(`${BACKEND_URL}/member/login/${provider}/`, { code }, { headers: { "Content-Type": "application/json" } })
         );
         const { access, refresh } = response.data;
         commit("setToken", access);
@@ -89,9 +107,11 @@ export default {
         return null;
       }
       try {
-        const response = await axios.post(`${BACKEND_URL}/api/token/refresh/`, {
-          refresh: state.refreshToken,
-        });
+        const response = await retryRequest(() =>
+          axios.post(`${BACKEND_URL}/api/token/refresh/`, {
+            refresh: state.refreshToken,
+          })
+        );
         const newToken = response.data.access;
         commit("setToken", newToken);
         return newToken;
@@ -104,21 +124,34 @@ export default {
     },
     logout({ commit }) {
       commit("clearAuthData");
+      sessionStorage.clear();
       axios.defaults.headers.common["Cache-Control"] = "no-store";
       axios.defaults.headers.common["Pragma"] = "no-cache";
+
+      // 清除快取與 Cookies
+      document.cookie.split(";").forEach((cookie) => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      });
+
+      // 解除 Service Workers 註冊
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
           registrations.forEach((registration) => registration.unregister());
         });
       }
 
+      // 強制刷新頁面
       window.location.reload(true);
     },
     async fetchUserProfile({ commit }) {
       try {
-        const response = await axios.get(`${BACKEND_URL}/dj-rest-auth/user/`, {
-          headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
-        });
+        const response = await retryRequest(() =>
+          axios.get(`${BACKEND_URL}/dj-rest-auth/user/`, {
+            headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
+          })
+        );
         const userData = response.data;
         commit("setUser", userData);
         commit("setIsGoogleLinked", userData.is_google_linked || false);

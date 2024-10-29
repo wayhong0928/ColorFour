@@ -15,7 +15,7 @@
 
 <script>
   import { mapActions } from "vuex";
-
+  let isLoggingIn = false;
   export default {
     data() {
       return {
@@ -33,30 +33,42 @@
     methods: {
       ...mapActions("auth", ["loginWithGoogleCode", "loginWithLineCode"]),
       loginWithGoogle() {
-        const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-        const params = {
-          response_type: "code",
-          client_id: process.env.VUE_APP_GOOGLE_CLIENT_ID,
-          redirect_uri: process.env.VUE_APP_LOGIN_CALLBACK,
-          scope: "openid email profile",
-          access_type: "offline",
-          prompt: "consent",
-          state: "google",
-        };
-        const urlParams = new URLSearchParams(params).toString();
-        window.location.href = `${googleAuthUrl}?${urlParams}`;
+        if (isLoggingIn) return; // 避免多次點擊
+        isLoggingIn = true;
+        try {
+          const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+          const params = {
+            response_type: "code",
+            client_id: process.env.VUE_APP_GOOGLE_CLIENT_ID,
+            redirect_uri: process.env.VUE_APP_LOGIN_CALLBACK,
+            scope: "openid email profile",
+            access_type: "offline",
+            prompt: "consent",
+            state: "google",
+          };
+          const urlParams = new URLSearchParams(params).toString();
+          window.location.href = `${googleAuthUrl}?${urlParams}`;
+        } finally {
+          isLoggingIn = false;
+        }
       },
       loginWithLine() {
-        const lineAuthUrl = "https://access.line.me/oauth2/v2.1/authorize";
-        const params = {
-          response_type: "code",
-          client_id: process.env.VUE_APP_LINE_LOGIN_CHANNEL_ID,
-          redirect_uri: process.env.VUE_APP_LOGIN_CALLBACK,
-          scope: "profile openid email",
-          state: "line",
-        };
-        const urlParams = new URLSearchParams(params).toString();
-        window.location.href = `${lineAuthUrl}?${urlParams}`;
+        if (isLoggingIn) return; // 避免多次點擊
+        isLoggingIn = true;
+        try {
+          const lineAuthUrl = "https://access.line.me/oauth2/v2.1/authorize";
+          const params = {
+            response_type: "code",
+            client_id: process.env.VUE_APP_LINE_LOGIN_CHANNEL_ID,
+            redirect_uri: process.env.VUE_APP_LOGIN_CALLBACK,
+            scope: "profile openid email",
+            state: "line",
+          };
+          const urlParams = new URLSearchParams(params).toString();
+          window.location.href = `${lineAuthUrl}?${urlParams}`;
+        } finally {
+          isLoggingIn = false;
+        }
       },
     },
   };

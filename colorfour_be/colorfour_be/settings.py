@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -22,6 +21,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
     "https://upward-gorgeous-bedbug.ngrok-free.app",
+    "http://127.0.0.1:8080",
 ]
 
 INSTALLED_APPS = [
@@ -129,8 +129,8 @@ REST_AUTH = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),  # 短時間的 access token 有助於安全性
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),     # refresh token 有效期更長
-    "ROTATE_REFRESH_TOKENS": True,                   # 每次刷新產生新 refresh token
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),      # refresh token 有效期更長
+    "ROTATE_REFRESH_TOKENS": True,                    # 每次刷新產生新 refresh token
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,
@@ -243,11 +243,17 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
         },
         'allauth': {
             'handlers': ['console'],

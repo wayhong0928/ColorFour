@@ -50,6 +50,16 @@ class CustomGoogleLogin(CustomSocialLoginView):
     callback_url = "http://localhost:8080/callback"
     client_class = OAuth2Client
 
+    def get_response(self):
+        try:
+            response = super().get_response()
+        except Exception as e:
+            logger.error(f"Google 登入失敗: {str(e)}")
+            return Response(
+                {"detail": "無法完成 Google 登入"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        return response
+
 
 class CustomLineLogin(CustomSocialLoginView):
     adapter_class = LineOAuth2Adapter

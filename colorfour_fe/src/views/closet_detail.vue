@@ -7,7 +7,7 @@
         <button class="btn btn-outline-secondary" @click="moveToTrash" v-if="item && !item.is_in_trash">移置垃圾桶</button>
 
         <!-- 如果項目在垃圾桶中，顯示復原和永久刪除按鈕 -->
-        <button class="btn btn-outline-secondary" @click="restoreItem" v-if="item && item.is_in_trash">復原</button>
+        <button class="btn btn-outline-secondary edit-button" @click="restoreItem" v-if="item && item.is_in_trash">復原</button>
         <button class="btn btn-outline-danger" @click="deleteItem" v-if="item && item.is_in_trash">永久刪除</button>
       </div>
       <section class="container" v-if="item">

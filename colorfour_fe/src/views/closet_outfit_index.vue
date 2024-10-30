@@ -2,9 +2,9 @@
   <div>
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div class="item-info-wrap ms-auto">
-        <button @click="goBack" class="btn btn-outline-secondary me-2">回前頁</button>
-        <router-link to="/closet_new_outfit" class="btn btn-outline-secondary me-2"> 新增穿搭組合 </router-link>
-        <button @click="deleteItems" class="btn btn-outline-danger">刪除穿搭組合</button>
+        <router-link to="/closet_index" @click="goBack" class="btn btn-outline-secondary me-2 mt-2">回衣櫃</router-link>
+        <router-link to="/closet_new_outfit" class="btn btn-outline-secondary me-2 mt-2"> 新增穿搭組合 </router-link>
+        <button @click="deleteItems" class="btn btn-outline-danger mt-2">刪除穿搭組合</button>
       </div>
     </div>
 

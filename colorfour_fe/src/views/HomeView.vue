@@ -69,7 +69,7 @@
         <div class="col-md-6 order-md-2 d-flex flex-column justify-content-center mx-auto adjusted">
           <h2>採購建議</h2>
           <p>判斷你的衣櫃有無重複衣物並提供採購建議。</p>
-          <router-link to="/buy" class="btn btn-main">前往</router-link>
+          <router-link to="/buy_index" class="btn btn-main">前往</router-link>
         </div>
         <div class="col-md-5 order-md-1 position-relative">
           <div class="image-container">
@@ -292,7 +292,6 @@
   .row .overlay3 {
     position: absolute;
     top: -20px;
-    left: -20px;
     width: calc(100% + 40px);
     height: calc(100% + 40px);
     background-color: #fbf6f3;

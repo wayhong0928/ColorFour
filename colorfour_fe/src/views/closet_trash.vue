@@ -3,9 +3,9 @@
     <WardrobeFilterAndSort :brands="brands" />
     <div class="d-flex justify-content-between align-items-center mb-3">
     <div class="item-info-wrap ms-auto">
-      <button @click="goBack" class="btn btn-outline-secondary me-2">回前頁</button>
-      <button @click="restoreItems" class="btn btn-outline-secondary me-2">復原</button>
-      <button @click="deleteItems" class="btn btn-outline-danger">永久刪除</button>
+      <router-link to="/closet_index" class="btn btn-outline-secondary me-2 mt-2">回衣櫃</router-link>
+      <button @click="restoreItems" class="btn btn-outline-secondary me-2 mt-2">復原</button>
+      <button @click="deleteItems" class="btn btn-outline-danger mt-2">永久刪除</button>
       </div>
     </div>
     <!-- 清單元件 -->

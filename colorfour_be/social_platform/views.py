@@ -1,21 +1,20 @@
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
-from .models import Post, PostBookmark, UserFollower, Comment, Tag
+from .models import Post, UserFollower, Tag
 from django.shortcuts import get_object_or_404
 from .serializers import (
     PostSerializer,
     TagSerializer,
-    PostBookmarkSerializer,
     UserFollowerSerializer,
-    CommentSerializer,
 )
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().order_by('-created_at')
+    queryset = Post.objects.all().order_by("-created_at")
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
 
@@ -32,9 +31,14 @@ class TagViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         tag_name = request.data.get("tag_name")
+        if not tag_name:
+            return Response(
+                {"error": "標籤名稱不可為空"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         tag, created = Tag.objects.get_or_create(tag_name=tag_name)
         serializer = self.get_serializer(tag)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class UserFollowerViewSet(viewsets.ModelViewSet):

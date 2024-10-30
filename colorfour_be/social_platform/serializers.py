@@ -27,9 +27,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Tag.objects.all(), required=False
-    )
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
 
     class Meta:
         model = Post
@@ -38,14 +36,14 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags_data = validated_data.pop("tags", [])
         post = Post.objects.create(**validated_data)
+
         post.tags.set(tags_data)
+
         return post
-    
+
     def update(self, instance, validated_data):
         tags_data = validated_data.pop("tags", [])
         instance = super().update(instance, validated_data)
-
-        # 更新標籤關聯
         instance.tags.set(tags_data)
         return instance
 

@@ -1,4 +1,5 @@
 # colorfour_be/wardrobe_manager/serializers.py
+import base64
 from rest_framework import serializers
 from .models import (
     Item,
@@ -139,9 +140,7 @@ class ItemOccasionSerializer(serializers.ModelSerializer):
 # 穿搭組合
 class OutfitSerializer(serializers.ModelSerializer):
     items = serializers.SerializerMethodField()
-    selected_items = serializers.ListField(
-        child=serializers.IntegerField(), write_only=True
-    )
+    selected_items = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
     class Meta:
         model = Outfit
@@ -158,18 +157,20 @@ class OutfitSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         selected_items = validated_data.pop("selected_items", [])
+        base64_image = validated_data.pop("outfit_image", None)
+
         outfit = Outfit.objects.create(**validated_data)
+
+        if base64_image:
+            outfit.save_base64_image(base64_image)
+            outfit.save()
 
         # 確認 selected_items 是否有內容
         if not selected_items:
             raise serializers.ValidationError("未選擇任何單品。")
 
-        outfit = Outfit.objects.create(**validated_data)
-
         # 建立 OutfitItem 關聯
-        outfit_items = [
-            OutfitItem(outfit=outfit, item_id=item_id) for item_id in selected_items
-        ]
+        outfit_items = [OutfitItem(outfit=outfit, item_id=item_id) for item_id in selected_items]
         OutfitItem.objects.bulk_create(outfit_items)
         print(f"Outfit created with items: {selected_items}")
 
@@ -177,9 +178,7 @@ class OutfitSerializer(serializers.ModelSerializer):
 
     def get_items(self, obj):
         outfit_items = obj.outfititem_set.all()
-        return ItemSerializer(
-            [outfit_item.item for outfit_item in outfit_items], many=True
-        ).data
+        return ItemSerializer([outfit_item.item for outfit_item in outfit_items], many=True).data
 
 
 # 穿搭組合與服裝單品關聯

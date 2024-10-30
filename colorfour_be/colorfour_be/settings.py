@@ -128,9 +128,9 @@ REST_AUTH = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),  # 短時間的 access token 有助於安全性
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),      # refresh token 有效期更長
-    "ROTATE_REFRESH_TOKENS": True,                    # 每次刷新產生新 refresh token
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=12),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7), 
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
     "SIGNING_KEY": SECRET_KEY,

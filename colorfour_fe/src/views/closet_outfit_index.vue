@@ -34,7 +34,7 @@
   import axios from "axios";
   import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
   import WardrobeFilterAndSort from "../components/Wardrobe_FilterAndSort.vue";
-  import defaultImage from "@/assets/img/suggest_04.png";
+  import defaultImage from "@/assets/img/suggest_05.png";
 
   export default {
     mixins: [closet_filterSortMixin],

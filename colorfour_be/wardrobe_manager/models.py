@@ -97,11 +97,6 @@ class Outfit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     latest_edit = models.DateTimeField(auto_now=True)
 
-    def save_base64_image(self, base64_image):
-        """將 Base64 圖片儲存為 ImageField."""
-        img_data = base64.b64decode(base64_image)
-        self.outfit_image.save(f"{self.outfit_name}.png", ContentFile(img_data), save=False)
-
     def __str__(self):
         return self.outfit_name
 

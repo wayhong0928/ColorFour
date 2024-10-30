@@ -22,6 +22,8 @@ class OutfitRecommendations(models.Model):
     weather_condition = models.JSONField(blank=True, null=True)  # 暫時以 JSON 格式儲存
     occasion = models.CharField(max_length=100, blank=True, null=True)  # 場合名稱暫存為字串
     skin_tone = models.CharField(max_length=50, blank=True, null=True)  # 色彩分析結果暫存為字串
+    closet_want = models.CharField(max_length=50, blank=True, null=True)  # 想要穿搭風格暫存為字串
+    closet_not_want = models.CharField(max_length=50, blank=True, null=True)  # 不想要穿搭風格暫存為字串
     recommendation_image = models.CharField(max_length=500, null=True, blank=True)
     recommendation_type = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)

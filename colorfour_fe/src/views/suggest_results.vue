@@ -31,9 +31,9 @@
     data() {
       return {
         recommendations: [
-          { id: 1, imgSrc: new URL("@/assets/img/suggest_05.png", import.meta.url).href, altText: "推薦1" },
-          { id: 2, imgSrc: new URL("@/assets/img/suggest_02.png", import.meta.url).href, altText: "推薦2" },
-          { id: 3, imgSrc: new URL("@/assets/img/suggest_04.png", import.meta.url).href, altText: "推薦3" },
+          { id: 1, imgSrc: new URL("@/assets/img/suggest_05.png", import.meta.url).href, altText: "展覽裝" },
+          { id: 2, imgSrc: new URL("@/assets/img/suggest_02.png", import.meta.url).href, altText: "展覽裝" },
+          { id: 3, imgSrc: new URL("@/assets/img/suggest_04.png", import.meta.url).href, altText: "展覽裝" },
         ],
         selectedIndex: null,
       };
@@ -48,10 +48,12 @@
 
           const payload = {
             recommendation_name: selectedRecommendation.altText,
-            recommendation_image: selectedRecommendation.imgSrc, // 使用正確的圖片 URL
-            location: "中原大學",
-            occasion: "休閒",
+            recommendation_image: selectedRecommendation.imgSrc,
+            location: "美術館",
+            occasion: "秋天,休閒,旅行",
             skin_tone: "淡妝",
+            closet_want: "長袖T恤,洋裝",
+            closet_not_want: "羽絨外套",
           };
 
           console.log("提交的資料：", payload);

@@ -30,7 +30,7 @@
 
 <script>
   import axios from "axios";
-  import exampleImage from "@/assets/img/suggest_04.png";
+  import exampleImage from "@/assets/img/suggest_05.png";
 
   export default {
     data() {
@@ -78,6 +78,16 @@
         const color = this.colors.find((c) => c.id === colorId);
         return color ? color.name : "未知顏色";
       },
+      async convertImageToBlob(imageSrc) {
+        try {
+          const response = await fetch(imageSrc);
+          const blob = await response.blob();
+          return new File([blob], "outfit_image.png", { type: "image/png" });
+        } catch (error) {
+          console.error("Error converting image to Blob:", error);
+          throw error;
+        }
+      },
       async createOutfit() {
         if (this.selectedItems.length < 2) {
           alert("請選擇至少兩個單品！");
@@ -85,19 +95,17 @@
         }
 
         try {
-          const imageBase64 = await this.convertImageToBase64(exampleImage);
+          const outfitImage = await this.convertImageToBlob(exampleImage);
 
-          const payload = {
-            outfit_name: this.outfitForm.outfit_name,
-            description: this.outfitForm.description,
-            selected_items: this.selectedItems,
-            outfit_image: imageBase64,
-          };
-          console.log("Creating outfit with payload:", payload);
+          const formData = new FormData();
+          formData.append("outfit_name", this.outfitForm.outfit_name);
+          formData.append("description", this.outfitForm.description);
+          formData.append("outfit_image", outfitImage);
+          this.selectedItems.forEach((item) => formData.append("selected_items", item));
 
-          const response = await axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/outfits/`, payload, {
+          const response = await axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/outfits/`, formData, {
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
             },
           });

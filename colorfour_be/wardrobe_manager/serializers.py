@@ -157,13 +157,7 @@ class OutfitSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         selected_items = validated_data.pop("selected_items", [])
-        base64_image = validated_data.pop("outfit_image", None)
-
         outfit = Outfit.objects.create(**validated_data)
-
-        if base64_image:
-            outfit.save_base64_image(base64_image)
-            outfit.save()
 
         # 確認 selected_items 是否有內容
         if not selected_items:
@@ -172,6 +166,7 @@ class OutfitSerializer(serializers.ModelSerializer):
         # 建立 OutfitItem 關聯
         outfit_items = [OutfitItem(outfit=outfit, item_id=item_id) for item_id in selected_items]
         OutfitItem.objects.bulk_create(outfit_items)
+        
         print(f"Outfit created with items: {selected_items}")
 
         return outfit

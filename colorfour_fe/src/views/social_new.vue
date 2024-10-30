@@ -36,22 +36,24 @@
             <label for="postDescription">貼文內容</label>
             <textarea v-model="post.description" id="postDescription" class="form-control" placeholder="輸入貼文內容"></textarea>
           </div>
-
           <div class="form-group mt-3">
             <label for="tags" class="form-label">選擇標籤</label>
-            <div class="tag-options">
+            <div class="border p-3 mb-3">
+              {{ selectedTags.map((tagId) => availableTags.find((tag) => tag.id === tagId)?.tag_name).join(", ") }}
+            </div>
+            <div id="tags" class="btn-group flex-wrap" role="group">
               <button
                 v-for="tag in availableTags"
                 :key="tag.id"
                 type="button"
                 class="btn btn-outline-secondary m-1"
-                :class="{ selected: selectedTags.includes(tag.id) }"
-                @click="toggleTag(tag.id)"
+                :class="{ selected: isSelected(tag) }"
+                @click="toggleSelection(tag)"
               >
                 {{ tag.tag_name }}
               </button>
-              <input v-model="newTag" placeholder="新增其他標籤" class="form-control mt-2" @keyup.enter="addNewTag" />
             </div>
+            <input v-model="newTag" placeholder="新增其他標籤" class="form-control mt-2" @keyup.enter="addNewTag" />
           </div>
 
           <div class="form-group mt-3">
@@ -60,8 +62,13 @@
           </div>
 
           <div class="form-group mt-3">
-            <label for="postImage">上傳圖片</label>
-            <input type="file" id="postImage" @change="handleImageUpload" class="form-control" />
+            <label>圖片</label>
+            <div v-if="post.image">
+              <img :src="post.image" alt="貼文圖片" class="img-fluid mt-2" />
+            </div>
+            <div v-else>
+              <input type="file" @change="handleImageUpload" class="form-control" />
+            </div>
           </div>
 
           <button type="submit" class="btn-main" :disabled="submitting">送出貼文</button>
@@ -78,9 +85,9 @@
     data() {
       return {
         post: {
-          description: "",
-          location: "",
-          image: null,
+          description: this.$route.query.description || "",
+          location: this.$route.query.location || "",
+          image: this.$route.query.image || null,
         },
         availableTags: [],
         selectedTags: [],
@@ -93,17 +100,20 @@
         try {
           const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/social/tags/`);
           this.availableTags = response.data;
-          console.log("標籤列表：", this.availableTags);
+          console.log("標籤列表:", this.availableTags);
         } catch (error) {
           console.error("無法取得標籤:", error);
         }
       },
-      toggleTag(tagId) {
-        const index = this.selectedTags.indexOf(tagId);
+      isSelected(tag) {
+        return this.selectedTags.some((selected) => selected.id === tag.id);
+      },
+      toggleSelection(tag) {
+        const index = this.selectedTags.indexOf(tag.id);
         if (index > -1) {
           this.selectedTags.splice(index, 1);
         } else {
-          this.selectedTags.push(tagId);
+          this.selectedTags.push(tag.id);
         }
       },
       async addNewTag() {
@@ -113,17 +123,37 @@
           const response = await axios.post(`${process.env.VUE_APP_BACKEND_URL}/social/tags/`, {
             tag_name: this.newTag,
           });
-          this.availableTags.push(response.data);
-          this.selectedTags.push(response.data.id);
+          const newTag = response.data;
+          this.availableTags.push(newTag);
+          this.selectedTags.push(newTag); // 直接選中新加入的標籤
           this.newTag = "";
         } catch (error) {
           console.error("無法新增標籤:", error);
+        }
+      },
+      async convertImageToBase64(imageUrl) {
+        try {
+          const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
+          const base64 = btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ""));
+          return `data:image/jpeg;base64,${base64}`;
+        } catch (error) {
+          console.error("無法轉換圖片為 Base64:", error);
+          return null;
         }
       },
       handleImageUpload(event) {
         const file = event.target.files[0];
         if (file) {
           this.post.image = file;
+        }
+      },
+      async convertUrlToBlob(url) {
+        try {
+          const response = await axios.get(url, { responseType: "blob" });
+          return response.data;
+        } catch (error) {
+          console.error("無法從 URL 取得圖片 Blob:", error);
+          return null;
         }
       },
       async submitPost() {
@@ -135,15 +165,18 @@
           formData.append("content", this.post.description);
           formData.append("location", this.post.location);
 
-          if (this.post.image) {
+          if (typeof this.post.image === "string") {
+            const blob = await this.convertUrlToBlob(this.post.image);
+            if (blob) {
+              formData.append("media_url", blob, "image.jpg");
+            }
+          } else if (this.post.image) {
             formData.append("media_url", this.post.image);
           }
 
           this.selectedTags.forEach((tagId) => {
-            formData.append("tags", tagId);
+            formData.append("tags", tagId); // 傳送標籤的 ID
           });
-
-          console.log("提交的表單數據：", Array.from(formData.entries()));
 
           const response = await axios.post(`${process.env.VUE_APP_BACKEND_URL}/social/posts/`, formData, {
             headers: {
@@ -164,6 +197,9 @@
     },
     mounted() {
       this.fetchTags();
+      if (!this.post.image && this.$route.query.image) {
+        this.post.image = require(`@/assets/img/${this.$route.query.image}`);
+      }
     },
   };
 </script>

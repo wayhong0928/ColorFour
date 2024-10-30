@@ -18,16 +18,25 @@
       </div>
       <div class="row" id="recommendation-list">
         <div v-for="rec in recommendations" :key="rec.id" class="card col-4 mb-3">
-          <!-- <img :src="rec.image" class="card-img-top" :alt="rec.title" /> -->
-          <!-- 此圖片暫時用 -->
-          <img :src="rec.image || defaultImage" class="card-img-top" :alt="rec.title" @error="handleImageError($event, rec)" />
+          <img
+            :src="rec.recommendation_image || defaultImage"
+            class="card-img-top"
+            :alt="rec.title"
+            @error="handleImageError($event, rec)"
+          />
           <h5>{{ rec.recommendation_name }}</h5>
           <div class="card-body">
             <h5 class="card-title">{{ rec.title }}</h5>
             <p class="card-text">
               <small class="text-muted">推薦日期: {{ formatDate(rec.created_at) }}</small>
             </p>
-            <router-link :to="`/suggest_detail/${rec.id}`" class="btn btn-outline-secondary">查看推薦詳情</router-link>
+            <!-- 顯示標籤名稱 -->
+            <div class="tags">
+              <span v-for="tag in rec.tags" :key="tag.id" class="badge bg-secondary mx-1">
+                {{ tag.tag_name }}
+              </span>
+            </div>
+            <router-link :to="`/suggest_detail/${rec.id}`" class="btn btn-outline-secondary mt-2"> 查看推薦詳情 </router-link>
           </div>
           <div class="form-check check-box-top-right">
             <input type="checkbox" class="form-check-input" v-model="selectedItems" :value="rec.id" />

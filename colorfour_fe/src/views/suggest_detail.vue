@@ -10,12 +10,25 @@
         </ol>
       </nav>
       <div class="wrap">
+        <router-link
+          class="btn btn-outline-secondary edit-button"
+          :to="{
+            name: 'social_new',
+            query: {
+              description: item.recommendation_name,
+              location: item.location,
+              image: item.recommendation_image,
+            },
+          }"
+        >
+          新增貼文
+        </router-link>
         <button class="btn btn-outline-secondary edit-button" @click="toggleEdit">編輯推薦</button>
         <button class="btn btn-outline-danger delete-button" @click="deleteRecommendation">刪除推薦</button>
       </div>
       <section class="container">
         <div class="item-img">
-          <img :src="item.image || defaultImage" alt="推薦圖片" id="itemImage" />
+          <img :src="item.recommendation_image || defaultImage" alt="推薦圖片" id="itemImage" />
         </div>
         <div class="item-info" v-if="!isEditing">
           <h1>{{ item.recommendation_name }}</h1>

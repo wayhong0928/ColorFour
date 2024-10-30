@@ -63,6 +63,7 @@
         outfit: null, // 存放穿搭資料
         brands: [], // 儲存品牌資料
         colors: [], // 儲存顏色資料
+        outfit_image: "", // 穿搭圖片
         isEditing: false, // 編輯模式切換
         editForm: {
           outfit_name: "",

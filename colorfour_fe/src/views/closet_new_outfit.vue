@@ -30,18 +30,19 @@
 
 <script>
   import axios from "axios";
+  import exampleImage from "@/assets/img/suggest_04.png";
 
   export default {
     data() {
       return {
-        items: [], // 儲存所有單品
-        selectedItems: [], // 已選擇的單品ID
+        items: [],
+        selectedItems: [],
         outfitForm: {
           outfit_name: "",
           description: "",
         },
-        brands: [], // 儲存品牌資料
-        colors: [], // 儲存顏色資料
+        brands: [],
+        colors: [],
       };
     },
     methods: {
@@ -84,10 +85,13 @@
         }
 
         try {
+          const imageBase64 = await this.convertImageToBase64(exampleImage);
+
           const payload = {
             outfit_name: this.outfitForm.outfit_name,
             description: this.outfitForm.description,
             selected_items: this.selectedItems,
+            outfit_image: imageBase64,
           };
           console.log("Creating outfit with payload:", payload);
 
@@ -104,6 +108,22 @@
           console.error("Error creating outfit:", error);
           alert("穿搭組合新增失敗，請稍後再試。");
         }
+      },
+      convertImageToBase64(imageSrc) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.src = imageSrc;
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            resolve(dataURL.split(",")[1]);
+          };
+          img.onerror = reject;
+        });
       },
       goBack() {
         this.$router.go(-1);

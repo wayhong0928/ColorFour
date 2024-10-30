@@ -63,7 +63,6 @@ export default {
   },
   actions: {
     async initializeAuth({ commit, dispatch }) {
-      sessionStorage.clear();
       const token = sessionStorage.getItem("my-app-auth");
       if (token) {
         commit("setToken", token);
@@ -90,14 +89,28 @@ export default {
         sessionStorage.removeItem("my-app-auth");
         sessionStorage.removeItem("my-refresh-token");
 
+        console.log(`開始使用 ${provider} 進行登入，授權碼: ${code}`);
+
         const response = await retryRequest(() =>
-          axios.post(`${BACKEND_URL}/member/login/${provider}/`, { code }, { headers: { "Content-Type": "application/json" } })
+          axios.post(
+            `${BACKEND_URL}/member/login/${provider}/`,
+            { code },
+            {
+              headers: { "Content-Type": "application/json" },
+            }
+          )
         );
+
         const { access, refresh } = response.data;
+
+        if (!access || !refresh) {
+          throw new Error("未取得有效的 access 或 refresh token");
+        }
+
         commit("setToken", access);
         commit("setRefreshToken", refresh);
       } catch (error) {
-        console.error("登入失敗:", error);
+        console.error("登入失敗:", error.response ? error.response.data : error.message);
         throw error;
       }
     },

@@ -10,7 +10,8 @@
 
     <div class="row" id="outfit-list">
       <div v-for="outfit in outfits" :key="outfit.id" class="card col-4 mb-3">
-        <img :src="outfit.outfit_image || 'https://via.placeholder.com/150'" class="card-img-top" :alt="outfit.outfit_name" />
+        <!-- 預設圖片 -->
+        <img :src="outfit.outfit_image || defaultImage" class="card-img-top" :alt="outfit.outfit_name" />
         <div class="card-body">
           <h5 class="card-title">{{ outfit.outfit_name }}</h5>
           <p class="card-text">
@@ -33,6 +34,7 @@
   import axios from "axios";
   import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
   import WardrobeFilterAndSort from "../components/Wardrobe_FilterAndSort.vue";
+  import defaultImage from "@/assets/img/suggest_04.png";
 
   export default {
     mixins: [closet_filterSortMixin],
@@ -43,6 +45,7 @@
       return {
         outfits: [],
         selectedItems: [],
+        defaultImage,
       };
     },
     methods: {
@@ -99,9 +102,12 @@
         const date = new Date(dateString);
         return date.toLocaleString();
       },
+      defaultImage() {
+        return defaultImage;
+      },
     },
     async mounted() {
-      await this.fetchOutfits(); // 呼叫 fetchOutfits 來取得資料
+      await this.fetchOutfits();
     },
   };
 </script>

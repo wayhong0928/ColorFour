@@ -149,3 +149,4 @@ debug.log
 ngrok.exe
 backup*.json
 credentials.json
+token.json

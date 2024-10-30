@@ -75,7 +75,7 @@
 
           <ul class="prot mt-3">
             <li>{{ post.content }}</li>
-            <li>{{ post.tags }}</li>
+            <li>標籤：{{ getTagNames(post.tags).join(", ") }}</li>
           </ul>
 
           <div class="post-time-location d-flex justify-content-left mt-2">
@@ -126,18 +126,32 @@
     methods: {
       ...mapActions("follow", ["followUser", "unfollowUser"]),
 
-      async fetchPosts() {
+      async fetchPostsAndTags() {
         try {
-          const response = await axios.get(`${process.env.VUE_APP_BACKEND_URL}/social/posts/`, {
-            headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
-            },
-          });
-          this.posts = response.data;
+          const [postsResponse, tagsResponse] = await Promise.all([
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/social/posts/`, {
+              headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
+            }),
+            axios.get(`${process.env.VUE_APP_BACKEND_URL}/social/tags/`, {
+              headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
+            }),
+          ]);
+
+          this.posts = postsResponse.data;
+          this.tags = tagsResponse.data;
           console.log("貼文載入成功:", this.posts);
+          console.log("標籤載入成功:", this.tags);
         } catch (error) {
-          console.error("無法載入貼文:", error.response || error.message);
+          console.error("無法載入資料:", error.response || error.message);
         }
+      },
+      getTagNames(tagIds) {
+        return tagIds
+          .map((tagId) => {
+            const tag = this.tags.find((t) => t.id === tagId);
+            return tag ? tag.tag_name : "未知標籤";
+          })
+          .filter((tagName) => tagName !== "未知標籤");
       },
 
       handleToggleFollow(post) {
@@ -149,14 +163,18 @@
         }
       },
 
-      deletePost(post) {
-        const confirmation = confirm("確定要刪除這則貼文嗎？");
-        if (confirmation) {
-          const index = this.posts.indexOf(post);
-          if (index !== -1) {
-            this.posts.splice(index, 1);
-            console.log("貼文已刪除:", post);
-          }
+      async deletePost(post) {
+        try {
+          await axios.delete(`${process.env.VUE_APP_BACKEND_URL}/social/posts/${post.id}/`, {
+            headers: {
+              Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}`,
+            },
+          });
+          this.posts = this.posts.filter((p) => p.id !== post.id);
+          alert("貼文已成功刪除");
+        } catch (error) {
+          console.error("無法刪除貼文:", error.response || error.message);
+          alert("刪除失敗");
         }
       },
 
@@ -183,11 +201,11 @@
       },
       formatDate(dateString) {
         const date = new Date(dateString);
-        return date.toLocaleString(); // 格式化為日期+時間
+        return date.toLocaleString();
       },
     },
     created() {
-      this.fetchPosts(); // 在組件創建時載入貼文
+      this.fetchPostsAndTags();
     },
   };
 </script>

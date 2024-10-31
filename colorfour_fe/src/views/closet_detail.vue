@@ -125,7 +125,7 @@
 </template>
 
 <script>
-    import axios from "axios";
+  import axios from "axios";
   import { closetApiMixin } from "../mixins/closet_ApiMixin.js";
   import { closet_filterSortMixin } from "../mixins/closet_filterSortMixin.js";
 
@@ -441,7 +441,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding:40px;
+    padding: 40px;
   }
 
   .item-img img {
@@ -497,7 +497,7 @@
     border-radius: 10px;
   }
 
-  .edit-form select{
+  .edit-form select {
     border-radius: 10px; /* 加大圓角 */
   }
 

@@ -63,9 +63,9 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
 
-ACCOUNT_ADAPTER = 'member.adapters.CustomAccountAdapter'
+ACCOUNT_ADAPTER = "member.adapters.CustomAccountAdapter"
 REST_AUTH_SERIALIZERS = {
-    'USER_DETAILS_SERIALIZER': 'member.serializers.UserSerializer',
+    "USER_DETAILS_SERIALIZER": "member.serializers.UserSerializer",
 }
 
 ACCOUNT_EMAIL_REQUIRED = True
@@ -98,7 +98,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "SCOPE": ["profile", "email", "openid"],
         "AUTH_PARAMS": {
             "access_type": "offline",
-        }
+        },
     },
 }
 
@@ -123,13 +123,13 @@ JWT_AUTH_REFRESH_COOKIE = "my-refresh-token"
 REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_COOKIE": "_auth",  # Name of access token cookie
-    "JWT_AUTH_REFRESH_COOKIE": "_refresh", # Name of refresh token cookie
+    "JWT_AUTH_REFRESH_COOKIE": "_refresh",  # Name of refresh token cookie
     "JWT_AUTH_HTTPONLY": False,  # Makes sure refresh token is sent
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=12),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7), 
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",
@@ -237,31 +237,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
         },
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "debug.log",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
         },
-        'allauth': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+        "allauth": {
+            "handlers": ["console"],
+            "level": "DEBUG",
         },
-        'member': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+        "member": {
+            "handlers": ["console"],
+            "level": "DEBUG",
         },
     },
 }

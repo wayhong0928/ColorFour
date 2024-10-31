@@ -179,6 +179,6 @@
 
   .close-btn {
     color: #333;
-    text-decoration: none
+    text-decoration: none;
   }
 </style>

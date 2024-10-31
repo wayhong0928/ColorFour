@@ -42,18 +42,18 @@
 
       <!-- 性别选择 -->
       <div class="form-group">
-       <label for="gender">性別</label>
+        <label for="gender">性別</label>
         <div class="radio-group">
           <div class="radio-option">
-            <input type="radio" id="male" value="male" v-model="gender">
+            <input type="radio" id="male" value="male" v-model="gender" />
             <label for="male">男性</label>
           </div>
           <div class="radio-option">
-            <input type="radio" id="female" value="female" v-model="gender">
+            <input type="radio" id="female" value="female" v-model="gender" />
             <label for="female">女性</label>
           </div>
           <div class="radio-option">
-            <input type="radio" id="other" value="other" v-model="gender">
+            <input type="radio" id="other" value="other" v-model="gender" />
             <label for="other">不方便回答</label>
           </div>
         </div>
@@ -340,7 +340,6 @@
   .radio-option input {
     margin-right: 5px; /* 按鈕和文字之間的間距 */
   }
-
 
   button {
     width: 100%;

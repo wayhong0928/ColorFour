@@ -334,7 +334,7 @@
     }
   }
 
- /* 確保左側邊欄在大屏幕時顯示 */
+  /* 確保左側邊欄在大屏幕時顯示 */
   .left-sidebar {
     width: 200px;
     background-color: #f0f0f0;

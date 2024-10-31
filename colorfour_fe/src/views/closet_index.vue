@@ -61,30 +61,34 @@
         this.favorites = newFavorites;
       },
       async moveItemsToTrash() {
-      if (this.selectedItems.length === 0) {
-        alert("請選擇要刪除的項目");
-        return;
-      }
-      const confirmed = confirm("確定要將選中的單品移至回收區嗎？");
-      if (!confirmed) return;
-      try {
-        await Promise.all(
-          this.selectedItems.map((id) =>
-            axios.post(`${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${id}/move_to_trash/`, {}, {
-              headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
-            })
-          )
-        );
-        // 刪除成功，更新頁面
-        this.items = this.items.filter((item) => !this.selectedItems.includes(item.id));
-        this.selectedItems = [];
-        alert("選中單品已移至回收區");
-      } catch (error) {
-        console.error("移至垃圾桶失敗:", error);
-        alert("移動失敗，請稍後再試。");
-      }
+        if (this.selectedItems.length === 0) {
+          alert("請選擇要刪除的項目");
+          return;
+        }
+        const confirmed = confirm("確定要將選中的單品移至回收區嗎？");
+        if (!confirmed) return;
+        try {
+          await Promise.all(
+            this.selectedItems.map((id) =>
+              axios.post(
+                `${process.env.VUE_APP_BACKEND_URL}/wardrobe/items/${id}/move_to_trash/`,
+                {},
+                {
+                  headers: { Authorization: `Bearer ${sessionStorage.getItem("my-app-auth")}` },
+                }
+              )
+            )
+          );
+          // 刪除成功，更新頁面
+          this.items = this.items.filter((item) => !this.selectedItems.includes(item.id));
+          this.selectedItems = [];
+          alert("選中單品已移至回收區");
+        } catch (error) {
+          console.error("移至垃圾桶失敗:", error);
+          alert("移動失敗，請稍後再試。");
+        }
+      },
     },
-  },
 
     async mounted() {
       await this.fetchItems("overview"); // 獲取非垃圾桶中的項目

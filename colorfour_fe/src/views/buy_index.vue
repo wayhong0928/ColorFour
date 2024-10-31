@@ -1,11 +1,11 @@
 <template>
   <div class="buy-index">
-      <h2>採購建議總覽</h2>
+    <h2>採購建議總覽</h2>
     <!-- 上傳圖片按鈕 -->
     <div class="upload-section">
       <button @click="goToSuggest">前往上傳圖片</button>
     </div>
-    
+
     <!-- 推薦服飾區域 -->
     <div class="recommend-section">
       <h2>推薦服飾</h2>
@@ -23,18 +23,18 @@
 </template>
 
 <script>
-import axios from "axios";
-export default {
-  props: ["id"],
-  name:"buy_index",
-  data() {
-    return {
-      selectedCategory: "all",
-      selectedBrand: "all",
-      sortBy: "newest",
-      selectedItems: [],
-      items: [ 
-        {
+  import axios from "axios";
+  export default {
+    props: ["id"],
+    name: "buy_index",
+    data() {
+      return {
+        selectedCategory: "all",
+        selectedBrand: "all",
+        sortBy: "newest",
+        selectedItems: [],
+        items: [
+          {
             id: 1,
             name: "白T萬歲",
             category: "t-shirt",
@@ -89,60 +89,58 @@ export default {
             tags: ["春天", "夏天"],
             link: "closet_detail.html?id=5",
           },
-      ]
-    };
-  },
-  methods: {
-  goToSuggest() {
-    this.$router.push('/buy_suggest');
-  },
-  goToDetail(itemId) {
-    this.$router.push(`/buy_detail/${itemId}`); // 使用商品id動態路由
-  }
-}
-};
+        ],
+      };
+    },
+    methods: {
+      goToSuggest() {
+        this.$router.push("/buy_suggest");
+      },
+      goToDetail(itemId) {
+        this.$router.push(`/buy_detail/${itemId}`); // 使用商品id動態路由
+      },
+    },
+  };
 </script>
 
 <style scoped>
-.upload-section {
-  text-align: center;
-  justify-content: center; 
-  margin: 20px 0;
-}
+  .upload-section {
+    text-align: center;
+    justify-content: center;
+    margin: 20px 0;
+  }
 
-button {
-  padding: 10px 20px;
-  background-color: #d4b7a1;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-}
+  button {
+    padding: 10px 20px;
+    background-color: #d4b7a1;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
 
-.recommend-section {
-  text-align: center;
-  flex-direction: column; 
-  align-items: center; 
-  margin: 40px 0;
-}
+  .recommend-section {
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    margin: 40px 0;
+  }
 
-.items {
-  display: flex;
-  justify-content: center; 
-  flex-wrap: wrap; 
-  gap: 20px; 
-  justify-content: space-around;
-}
+  .items {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-around;
+  }
 
-.item img {
-  width: 100px;
-  height: 100px;
-}
+  .item img {
+    width: 100px;
+    height: 100px;
+  }
 
-.item {
-  text-align: center;
-  align-items: center; 
-}
-
+  .item {
+    text-align: center;
+    align-items: center;
+  }
 </style>
-

@@ -216,7 +216,7 @@
   }
 
   .retest-button {
-    margin-top: 10px; 
+    margin-top: 10px;
   }
 
   /* 小屏幕下调整图片样式 */

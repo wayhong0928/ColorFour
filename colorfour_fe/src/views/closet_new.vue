@@ -278,7 +278,7 @@
 
         const formData = new FormData();
         formData.append("item_name", this.item.item_name);
-        formData.append("brand",  this.item.brand);
+        formData.append("brand", this.item.brand);
         formData.append("price", this.item.price);
         formData.append("content", this.item.content);
         formData.append("photo_url", this.item.photo_url);

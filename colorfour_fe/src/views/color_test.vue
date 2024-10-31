@@ -388,5 +388,4 @@
     margin-bottom: 1rem;
     text-align: left;
   }
-
 </style>

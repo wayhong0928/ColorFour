@@ -17,72 +17,68 @@ parser = WebhookParser(os.getenv("LINE_MESSAGING_CHANNEL_SECRET"))
 # Google Calendar API 的範圍
 SCOPES = ['https://www.googleapis.com/auth/calendar.events']
 
-'''def get_google_credentials():
-    """取得使用者的 Google OAuth 憑證"""
-    flow = InstalledAppFlow.from_client_secrets_file(
-        'credentials.json', scopes=SCOPES, redirect_uri='https://upward-gorgeous-bedbug.ngrok-free.app/oauth2callback')
-    credentials = flow.run_local_server(port=8080,authorization_prompt_message='請授權應用程式訪問您的 Google 日曆。',
-        success_message='授權成功！您可以關閉此頁面。',
-        open_browser=True) # 每登入一次google，須重跑一次server!!!
-    return credentials'''
-
 def get_google_credentials():
-    """取得 Google OAuth 憑證，並自動刷新 Token"""
+    """取得 Google OAuth 憑證，並確保包含 refresh_token"""
+    SCOPES = ['https://www.googleapis.com/auth/calendar.events']
     creds = None
 
-    # 檢查 token.json 是否存在（已授權過）
+    # 檢查 token.json 是否存在
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
 
-    # 如果沒有憑證或 Token 已失效，進行重新授權
+    # 憑證不存在或過期則重新授權
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())  # 使用 Refresh Token 自動刷新
+            creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8080)
+            creds = flow.run_local_server(
+                port=8080, access_type='offline', prompt='consent'
+            )  # 確保使用 prompt='consent'，即使用戶已經授權也會再次請求同意
 
-        # 將新的 Token 保存到檔案
+        # 保存 token.json，包含 refresh_token
         with open('token.json', 'w') as token_file:
             token_file.write(creds.to_json())
 
     return creds
+
+
   
 def convert_line_datetime_to_google_format(line_datetime):
   return datetime.strptime(line_datetime, '%Y-%m-%dT%H:%M').strftime('%Y-%m-%dT%H:%M:%S')
 
 def create_calendar_event(event_data):
     """建立 Google 日曆活動，動態抓取使用者的輸入資料"""
-    creds = get_google_credentials()
-    service = build('calendar', 'v3', credentials=creds)
-    start_time = convert_line_datetime_to_google_format(event_data['start_time'])
-    end_time = convert_line_datetime_to_google_format(event_data['end_time'])
-
-    event = {
-        'summary': event_data['description'],  # 使用者輸入的日程名稱作為標題
-        'location': event_data['location'],  # 使用者輸入的地點
-        'description': (
-            f"穿搭名稱：{event_data['dress']}\n"
-            f"去LineBot看穿搭圖片: https://line.me/R/ti/p/40438shuqi"
-        ),
-        'start': {
-            'dateTime': start_time,  # 使用者選擇的開始時間
-            'timeZone': 'Asia/Taipei', 
-        },
-        'end': {
-            'dateTime': end_time,  # 使用者選擇的結束時間
-            'timeZone': 'Asia/Taipei', 
-        },
-        'reminders': {
-            'useDefault': False,
-            'overrides': [
-                {'method': 'popup', 'minutes': 60},  # 提醒設置
-            ],
-        },
-    }
-
     try:
+        creds = get_google_credentials()
+        service = build('calendar', 'v3', credentials=creds)
+        start_time = convert_line_datetime_to_google_format(event_data['start_time'])
+        end_time = convert_line_datetime_to_google_format(event_data['end_time'])
+
+        event = {
+            'summary': event_data['description'],  # 使用者輸入的日程名稱作為標題
+            'location': event_data['location'],  # 使用者輸入的地點
+            'description': (
+                f"穿搭名稱：{event_data['dress']}\n"
+                f"去LineBot看穿搭圖片: https://line.me/R/ti/p/40438shuqi"
+            ),
+            'start': {
+                'dateTime': start_time,  # 使用者選擇的開始時間
+                'timeZone': 'Asia/Taipei', 
+            },
+            'end': {
+                'dateTime': end_time,  # 使用者選擇的結束時間
+                'timeZone': 'Asia/Taipei', 
+            },
+            'reminders': {
+                'useDefault': False,
+                'overrides': [
+                    {'method': 'popup', 'minutes': 60},  # 提醒設置
+                ],
+            },
+        }
+
         # 呼叫 Google Calendar API 建立活動
         event_result = service.events().insert(calendarId='primary', body=event).execute()
         print(f"Event created: {event_result.get('htmlLink')}")
@@ -125,10 +121,16 @@ def handleUserInput(event, conversation_state):
             event_link = create_calendar_event(conversation_state['data'])
             conversation_state['step'] = 'complete'
             conversation_state['data'] = {}
-            line_bot_api.reply_message(
-                event.reply_token, 
-                TextSendMessage(text=f'建立成功！查看活動：{event_link}')
-            )
+            if event_link:  # 確認是否成功建立日曆活動
+                line_bot_api.reply_message(
+                    event.reply_token, 
+                    TextSendMessage(text=f'建立成功！查看活動：{event_link}')
+                )
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text='無法建立活動，請稍後再試。')
+                )
 def sendStartTime(event): #新增穿搭日程的確認按鈕(好呀)->選開始時間
   try:
     message = TemplateSendMessage(
@@ -194,33 +196,12 @@ def choose_dress(event):
             template=ImageCarouselTemplate(
                 columns=[
                     ImageCarouselColumn(
-                        image_url='https://imgur.com/4vo9zUC.png',
-                        action=MessageTemplateAction(
-                            label='上課裝',
-                            text='上課裝'
-                        )
-                    ),
-                    ImageCarouselColumn(
                         image_url='https://imgur.com/68jUT8F.png',
                         action=MessageTemplateAction(
                             label='展覽裝',
                             text='展覽裝'
                         )
                     ),
-                    ImageCarouselColumn(
-                        image_url='https://imgur.com/7oIh9Ms.png',
-                        action=MessageTemplateAction(
-                            label='約會服裝',
-                            text='約會服裝'
-                        )
-                    ),
-                    ImageCarouselColumn(
-                        image_url='https://imgur.com/OXVtzRw.png',
-                        action=MessageTemplateAction(
-                            label='期末報告服裝',
-                            text='期末報告服裝'
-                        )
-                    )
                 ]
             )
         )

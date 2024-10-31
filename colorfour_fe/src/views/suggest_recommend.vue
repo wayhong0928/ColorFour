@@ -80,7 +80,7 @@
             </div>
             <div class="submit-section">
               <button type="submit" class="btn btn-primary mb-1">送出</button>
-              <button class="back-button" @click="goBack">返回</button>
+              <button type="button" class="back-button" @click="goBack">返回</button>
             </div>
           </form>
         </div>
@@ -181,7 +181,7 @@
       async submitForm() {
         try {
           // wait for 1 second to simulate the API request
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 500));
           // const response = await axios.post("http://localhost:8000/recommender/recommendations/recommend/", this.formData);
           // console.log("成功提交表單", response.data);
           alert("推薦已提交成功");

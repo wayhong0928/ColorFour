@@ -177,6 +177,7 @@
             },
           });
           this.item = response.data;
+          this.isFavorite = this.item.is_in_love;
         } catch (error) {
           console.error("Error fetching item:", error);
         }
@@ -341,7 +342,6 @@
     async created() {
       await this.fetchMetadata(); // 先抓取品牌、分類、顏色、場合等資料
       this.fetchItem(); // 再獲取具體 item
-      this.isFavorite = false;
     },
   };
 </script>

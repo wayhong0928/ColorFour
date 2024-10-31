@@ -179,8 +179,7 @@
                 <div class="card custom-card">
                   <img :src="item.image" class="card-img-top" :alt="item.name" />
                   <div class="card-body">
-                    <h5 class="card-title">{{ item.name }}</h5>
-                    <p class="card-text">品牌: {{ item.brand }}</p>
+                    <h5 class="card-title">{{ item.item_name }}</h5>
                     <img :src="item.photo_url || ''" alt="item image" />
                     <p class="card-text">價格: ${{ item.price }}</p>
                     <router-link :to="{ name: 'closet_detail', params: { id: item.id } }" class="btn custom-button"

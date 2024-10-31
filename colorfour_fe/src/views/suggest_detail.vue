@@ -170,6 +170,15 @@
   .wrap button {
     margin: 0 10px;
   }
+  
+  .wrap .btn {
+    display: inline-flex;
+    align-items: center; /* 垂直置中 */
+    justify-content: center; /* 水平置中 */
+    text-align: center; /* 文字居中 */
+    padding: 10px 15px; 
+  }
+
   .container {
     min-height: 400px;
     display: flex;

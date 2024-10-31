@@ -594,6 +594,47 @@
     background-color: #d6c2b0; /* 懸停時的按鈕顏色 */
   }
 
+  .content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* 貼文之間的間距 */
+    justify-content: center;
+  }
+
+.row .col-6 {
+  flex: 1 1 48%; /* 讓貼文寬度在大螢幕佔 48% */
+  max-width: 48%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .row .col-6 {
+    flex: 1 1 100%; /* 在小螢幕改為單排顯示 */
+    max-width: 100%;
+  }
+}
+
+.content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* 貼文之間的間距 */
+  justify-content: center;
+}
+
+.row .col-6 {
+  flex: 1 1 48%; /* 讓貼文寬度在大螢幕佔 48% */
+  max-width: 48%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .row .col-6 {
+    flex: 1 1 100%; /* 在小螢幕改為單排顯示 */
+    max-width: 100%;
+  }
+}
+
+
   @media screen and (max-width: 800px) {
     .slider {
       margin: 20px auto;

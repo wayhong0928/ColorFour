@@ -10,7 +10,7 @@ from line import purchase, social, search_schedule, weatherApi, insert_schedule
 # from line import insert_schedule, purchase, social, search_schedule, weatherApi
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from line.insert_schedule import create_calendar_event
+from line.insert_schedule import create_calendar_event, handleUserInput, sendStartTime
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -51,13 +51,15 @@ def callback(request):
           # 根據用戶消息處理邏輯
           if mtext == '穿搭日程':
             conversation_state['step'] = 'start_time'
-            search_schedule.search_Date(event)
+            #search_schedule.search_Date(event)
+            insert_schedule.sendStartTime(event)
+            insert_schedule.handleUserInput(event, conversation_state)
           elif mtext == '社群互動':
             social.sendSocial(event)
           elif mtext == '採購建議':
             purchase.sendBuy(event)
           elif conversation_state['step']:
-            print('conversation_state')
+            print(conversation_state['step'])
             insert_schedule.handleUserInput(event, conversation_state)
           else:
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=mtext))
@@ -108,7 +110,7 @@ def callback(request):
         #elif action == 'upload_shortspants':
         #  purchase.sendBack_upload_shortspants(event)
         elif conversation_state['step']:
-          print('conversation_state')
+          print("views line 113: ",conversation_state['step'])
           insert_schedule.handleUserInput(event, conversation_state)
         else:
           line_bot_api.reply_message(event.reply_token, TextSendMessage(text=str(backdata)))
@@ -119,7 +121,7 @@ def callback(request):
 
 def handleUserMessage(event, mtext):
   if conversation_state['step']:
-    print('conversation_state')
+    print("views line 124: ",conversation_state['step'])
     insert_schedule.handleUserInput(event, conversation_state)
   else:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=mtext))

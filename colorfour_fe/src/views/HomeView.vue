@@ -2,7 +2,7 @@
   <div class="container">
     <section class="banner mb-5">
       <div class="banner-background">
-        <img src="@/assets/img/index_banner.jpg" alt="index_banner" class="banner-image img-fluid" />
+        <img src="@/assets/img/index_banner.png" alt="index_banner" class="banner-image img-fluid" />
       </div>
       <div class="banner-text" id="understand">
         <router-link to="/about" class="btn btn-main">了解更多</router-link>
